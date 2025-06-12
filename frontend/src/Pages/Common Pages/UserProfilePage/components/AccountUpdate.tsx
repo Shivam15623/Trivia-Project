@@ -1,0 +1,207 @@
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import PhoneInput from "react-phone-input-2";
+import { useGetUserProfileQuery, useUpdateProfileMutation } from "@/services";
+import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
+
+import logError from "@/utills/logError";
+import { RenderField } from "@/temp/renderFields";
+import {
+  UserDetailsSchema,
+  UserDetailsValues,
+} from "@/SchemaValidations/UserSchema";
+import { showSuccess } from "@/CustomComponent/toastUtills";
+const AccountUpdate = () => {
+  const { data: userdata, isLoading } = useGetUserProfileQuery(undefined);
+  const [updateDetails] = useUpdateProfileMutation();
+  const form = useForm<UserDetailsValues>({
+    resolver: zodResolver(UserDetailsSchema),
+    defaultValues: {
+      firstname: userdata?.data?.firstname || "",
+      lastname: userdata?.data?.lastname || "",
+      email: userdata?.data?.email || "",
+      DOB: userdata?.data?.DOB ? new Date(userdata.data.DOB) : new Date(),
+      phoneNo: userdata?.data?.phoneNo || "",
+      profilePic: userdata?.data?.profilePic || "",
+    },
+  });
+  useEffect(() => {
+    if (!userdata?.data) return;
+
+    form.reset({
+      firstname: userdata.data.firstname,
+      lastname: userdata.data.lastname,
+      email: userdata.data.email,
+      DOB: userdata.data.DOB ? new Date(userdata.data.DOB) : undefined,
+      phoneNo: userdata.data.phoneNo,
+      profilePic: userdata.data.profilePic,
+    });
+  }, [userdata?.data, form]);
+  if (isLoading || !userdata?.data) {
+    return <div className="p-5">Loading...</div>;
+  }
+  const onSubmit = async (values: UserDetailsValues) => {
+    try {
+      const formData = new FormData();
+      formData.append("firstname", values.firstname);
+      console.log("Profile Pic:", values.profilePic);
+      if (
+        values.profilePic instanceof FileList &&
+        values.profilePic.length > 0
+      ) {
+        formData.append("profilePic", values.profilePic[0]);
+      }
+      formData.append("lastname", values.lastname);
+      formData.append("email", values.email);
+      formData.append("phoneNo", values.phoneNo);
+      formData.append("DOB", values.DOB.toISOString().split("T")[0]);
+
+      for (const pair of formData.entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
+      }
+
+      const response = await updateDetails(formData).unwrap();
+      console.log("Update Response:", response);
+
+      // Check for success
+      if (response?.success === true) {
+        // Show success toast
+        showSuccess(response?.message);
+      }
+    } catch (error) {
+      logError(error);
+    }
+  };
+
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="max-w-4xl mx-auto p-6 bg-white  space-y-6"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left Column */}
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* First Name */}
+              <RenderField
+                control={form.control}
+                label="First Name"
+                name="firstname"
+                type="text"
+                inputProps={{
+                  placeholder: "john",
+                  required: true,
+                }}
+              />
+
+              {/* Last Name */}
+              <RenderField
+                control={form.control}
+                label="Last Name"
+                name="lastname"
+                type="text"
+                inputProps={{
+                  placeholder: "Doe",
+                  required: true,
+                }}
+              />
+            </div>
+
+            {/* Email */}
+            <RenderField
+              control={form.control}
+              label="Email"
+              name="email"
+              type="email"
+              inputProps={{
+                placeholder: "you@example.com",
+                required: true,
+              }}
+            />
+            {/* DOB */}
+            <RenderField
+              control={form.control}
+              label="Date of Birth"
+              name="DOB"
+              type="date"
+              inputProps={{
+                required: true,
+              }}
+            />
+
+            {/* Phone Number */}
+            <FormField
+              control={form.control}
+              name="phoneNo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <PhoneInput
+                      country="in"
+                      value={field.value}
+                      onChange={(value) => field.onChange(value)}
+                      inputStyle={{
+                        width: "100%",
+                        height: "38px",
+                        borderRadius: "0.375rem",
+                        border: form.formState.errors.phoneNo
+                          ? "1px solid #ef4444" // red-500
+                          : "1px solid #d1d5db", // gray-300
+                        paddingLeft: "50px",
+                      }}
+                      buttonStyle={{
+                        borderTopLeftRadius: "0.375rem",
+                        borderBottomLeftRadius: "0.375rem",
+                        border: "1px solid #d1d5db",
+                      }}
+                      dropdownStyle={{
+                        zIndex: 10000,
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Right Column: Profile Pic */}
+          <div className="flex flex-col items-center ">
+            <RenderField
+              control={form.control}
+              label="Profile Picture"
+              name="profilePic"
+              type="profile-upload"
+            />
+            <h2 className="my-3">
+              {userdata.data.firstname} {userdata.data.lastname}
+            </h2>
+            <p>{userdata.data.email}</p>
+          </div>
+        </div>
+
+        <div className="flex  mt-3 justify-start">
+          <Button
+            type="submit"
+            className="bg-[#5F27CD] hover:bg-[#341f97] text-white px-6 py-2"
+          >
+            Save Changes
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
+};
+
+export default AccountUpdate;
