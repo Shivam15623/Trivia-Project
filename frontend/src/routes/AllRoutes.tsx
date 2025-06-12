@@ -23,7 +23,7 @@ import {
   LazyWaitingRoom,
   LazyEndGame,
 } from "@/lazy components";
-import RouteGuard from "@/RouteGuard/RouteGuard";
+import RouteGuard from "@/RouteGuard";
 import { Suspense } from "react";
 import { Outlet, RouteObject } from "react-router-dom";
 
