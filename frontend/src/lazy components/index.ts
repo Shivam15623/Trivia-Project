@@ -4,16 +4,16 @@ export const LazyAdminRoot = lazy(
   () => import("../Layouts/Admin Layouts/AdminRoot")
 );
 export const LazyCustomerRoot = lazy(
-  () => import("../Layouts/Customer Layouts/CustomRoot")
+  () => import("../Layouts/Customer Layouts")
 );
 export const LazyCustomerHome = lazy(
-  () => import("@/Pages/Customer pages/Home")
+  () => import("@/Pages/Customer pages/Customer Home")
 );
 export const LazyAdminHome = lazy(
   () => import("@/Pages/Admin Pages/AdminHome")
 );
 export const LazyPublicHome = lazy(
-  () => import("@/Pages/Public Pages/PublicHome")
+  () => import("@/Pages/Public Pages/Public Home")
 );
 export const LazyPlay = lazy(() => import("@/Pages/Public Pages/Play"));
 

@@ -1,4 +1,4 @@
-import PublicRoot from "@/Layouts/Public Layouts/PublicRoot";
+import PublicRoot from "@/Layouts/Public Layouts";
 import {
   LazyCategories,
   LazyAdminHome,
