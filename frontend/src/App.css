@@ -4,6 +4,30 @@
 .orange-gradient {
   background-image: linear-gradient(to right, #ff100f, #ffc070);
 }
+
+.category-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3),
+    rgba(0, 0, 0, 0.8)
+  );
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+.category-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+.card-hover {
+  transition: all 0.3s ease;
+}
 .para-text {
   font-size: 1.125rem;
   line-height: 1.75rem;
@@ -55,54 +79,38 @@
   }
 }
 
-.container {
-  width: 100%;
-  margin-right: auto;
-  margin-left: auto;
-  padding-right: 1rem;
-  padding-left: 1rem;
-}
-@media (min-width: 450px) {
+@media (min-width: 640px) {
   .container {
-    max-width: 450px;
+    max-width: 640px;
   }
 }
-@media (min-width: 576px) {
+@media (min-width: 768px) {
   .container {
-    max-width: 576px;
-  }
-}
-@media (min-width: 769px) {
-  .container {
-    max-width: 769px;
-  }
-}
-@media (min-width: 976px) {
-  .container {
-    max-width: 976px;
-  }
-}
-@media (min-width: 1025px) {
-  .container {
-    max-width: 1025px;
-  }
-}
-@media (min-width: 1281px) {
-  .container {
-    max-width: 1281px;
-  }
-}
-@media (min-width: 1660px) {
-  .container {
-    max-width: 1660px;
-  }
-}
-@media (min-width: 1790px) {
-  .container {
-    max-width: 1790px;
+    max-width: 768px;
   }
 }
 
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1536px;
+  }
+}
+
+.container {
+  width: 100%;
+}
 .para-text {
   font-size: 1.125rem;
   line-height: 1.75rem;

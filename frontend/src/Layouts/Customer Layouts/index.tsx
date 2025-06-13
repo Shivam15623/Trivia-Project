@@ -1,11 +1,10 @@
-
-import { CustomerNavHeader } from "@/CustomComponent/layout components/CustomerNav";
+import { CustomerNavHeader } from "@/Layouts/Customer Layouts/Components/CustomerNav";
 import { Outlet } from "react-router-dom";
 
 const CustomRoot = () => {
   return (
     <div className="min-h-screen h-screen">
-      <CustomerNavHeader/>
+      <CustomerNavHeader />
       <Outlet />
     </div>
   );
