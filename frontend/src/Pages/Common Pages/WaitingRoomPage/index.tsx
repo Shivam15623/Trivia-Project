@@ -15,7 +15,7 @@ import { useSocket } from "@/hooks/useSocket";
 import { motion } from "framer-motion";
 import { useGetGameByIdQuery } from "@/services/GameApi";
 import logError from "@/utills/logError";
-import { showError, showSuccess } from "@/CustomComponent/toastUtills";
+import { showError, showSuccess } from "@/components/toastUtills";
 
 const WaitingRoom = () => {
   const { sessionCode } = useParams<{ sessionCode: string }>();

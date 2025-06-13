@@ -13,7 +13,7 @@ const CTASection = () => {
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <a
-            href="#"
+            href="/Signup"
             className="cta-button bg-white text-[#a90000] text-lg font-bold px-8 py-4 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
           >
             Sign Up Free

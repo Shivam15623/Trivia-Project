@@ -23,9 +23,9 @@ import { Button } from "@/components/ui/button";
 
 import { useNavigate } from "react-router-dom";
 import logError from "@/utills/logError";
-import { showSuccess } from "@/CustomComponent/toastUtills";
+import { showSuccess } from "@/components/toastUtills";
 import { SignupSchema, SignupValues } from "@/SchemaValidations/AuthSchema";
-import { RenderField } from "@/temp/renderFields";
+import { RenderField } from "@/components/renderFields";
 
 const Signup = () => {
   const form = useForm<SignupValues>({

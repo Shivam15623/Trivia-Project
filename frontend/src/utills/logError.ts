@@ -1,4 +1,4 @@
-import { showError } from "@/CustomComponent/toastUtills";
+import { showError } from "@/components/toastUtills";
 
 const logError = (error: unknown) => {
   if (import.meta.env.DEV) {

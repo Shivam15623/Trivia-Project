@@ -1,25 +1,30 @@
 import { useLocation } from "react-router-dom";
 import AccountPopover from "../../../components/AccountPopover";
+
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import MobileMenu from "@/components/MobileMenu";
 
-export function CustomerNavHeader() {
+const AdminNav = () => {
   const location = useLocation();
   const pathname = location.pathname;
   const userdata = useSelector((state: RootState) => state.auth.user);
   const navlinks = [
     {
-      name: "My Games",
-      path: "/customer/mygames",
+      name: "Dashboard",
+      path: "/admin",
     },
     {
-      name: "Home",
-      path: "/customer",
+      name: "My Games",
+      path: "/admin/mygames",
+    },
+    {
+      name: "Category",
+      path: "/admin/categories",
     },
     {
       name: "Play",
-      path: "/customer/CreateGame",
+      path: "/admin/CreateGame",
     },
   ];
 
@@ -73,4 +78,5 @@ export function CustomerNavHeader() {
       </header>
     </>
   );
-}
+};
+export default AdminNav;

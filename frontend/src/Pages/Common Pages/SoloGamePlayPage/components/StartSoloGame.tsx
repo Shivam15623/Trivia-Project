@@ -6,7 +6,7 @@ import logError from "@/utills/logError";
 
 import { useNavigate, useParams } from "react-router-dom";
 
-import { showSuccess } from "../../../../CustomComponent/toastUtills";
+import { showSuccess } from "../../../../components/toastUtills";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { PlayCircle, X } from "lucide-react";

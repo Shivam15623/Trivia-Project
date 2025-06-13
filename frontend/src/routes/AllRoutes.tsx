@@ -5,7 +5,7 @@ import {
   LazyAdminRoot,
   LazyCategoryDetailsPage,
   LazyCustomerHome,
-  LazyCustomerPlay,
+  LazyCreateGame,
   LazyCustomerRoot,
   LazyForgotPassword,
   LazyLoader,
@@ -94,7 +94,7 @@ export const AllRoutes: RouteObject[] = [
     children: [
       { index: true, element: withSuspense(<LazyCustomerHome />) },
       { path: "mygames", element: withSuspense(<LazyMyGames />) },
-      { path: "play", element: withSuspense(<LazyCustomerPlay />) },
+      { path: "CreateGame", element: withSuspense(<LazyCreateGame />) },
       { path: "userProfile/:slug", element: withSuspense(<LazyUserProfile />) },
     ],
   },
@@ -116,7 +116,7 @@ export const AllRoutes: RouteObject[] = [
       },
       { path: "userProfile/:slug", element: withSuspense(<LazyUserProfile />) },
       { path: "mygames", element: withSuspense(<LazyMyGames />) },
-      { path: "CreateGame", element: withSuspense(<LazyCustomerPlay />) },
+      { path: "CreateGame", element: withSuspense(<LazyCreateGame />) },
     ],
   },
   {

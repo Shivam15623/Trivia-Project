@@ -15,17 +15,18 @@ import {
   CategoryValue,
 } from "@/SchemaValidations/CategorySchema";
 import logError from "@/utills/logError";
-import { showSuccess } from "@/CustomComponent/toastUtills";
+import { showSuccess } from "@/components/toastUtills";
 import { Edit2, Plus } from "lucide-react";
-import { FileField } from "@/temp/renderFileField";
-import { RenderField } from "@/temp/renderFields";
+import { FileField } from "@/components/renderFileField";
+import { RenderField } from "@/components/renderFields";
 
 type Props = {
   slug?: string;
   triggerLabel?: string;
+  triggerclass?: string;
 };
 
-export function CategoryDialog({ slug, triggerLabel }: Props) {
+export function CategoryDialog({ slug, triggerLabel, triggerclass }: Props) {
   const isEdit = Boolean(slug);
   const { data, isLoading } = useFetchCategorybyslugQuery(slug!, {
     skip: !slug,
@@ -76,40 +77,6 @@ export function CategoryDialog({ slug, triggerLabel }: Props) {
 
   if (isEdit && isLoading) return <div className="p-4">Loading...</div>;
 
-  // const renderField = (
-  //   name: keyof CategoryValue,
-  //   label: string,
-  //   inputProps?: React.InputHTMLAttributes<HTMLInputElement>
-  // ) => {
-  //   const isFile = name === "thumbnail";
-
-  //   return (
-  //     <FormField
-  //       control={form.control}
-  //       name={name}
-  //       render={({ field }) => (
-  //         <FormItem>
-  //           <FormLabel>{label}</FormLabel>
-  //           <FormControl>
-  //             <Input
-  //               {...inputProps}
-  //               type={inputProps?.type || "text"}
-  //               value={isFile ? undefined : field.value ?? ""} // ✅ explicitly bind value (for controlled inputs)
-  //               onChange={
-  //                 isFile
-  //                   ? (e) => field.onChange(e.target.files?.[0])
-  //                   : field.onChange
-  //               }
-  //               ref={field.ref}
-  //             />
-  //           </FormControl>
-  //           <FormMessage />
-  //         </FormItem>
-  //       )}
-  //     />
-  //   );
-  // };
-
   return (
     <DialogWrapper
       type={isEdit ? "edit" : "add"}
@@ -120,7 +87,10 @@ export function CategoryDialog({ slug, triggerLabel }: Props) {
       triggerLabel={triggerLabel}
       icon={isEdit ? <Edit2 /> : <Plus />}
       triggerClassName={
-        isEdit ? "p-1.5 rounded-md" : "bg-primary text-white px-4 py-2 rounded"
+        isEdit
+          ? triggerclass ?? "p-1.5 rounded-md"
+          : triggerclass ??
+            "px-4 py-2 bg-[#a90000] hover:text-white text-white rounded-md hover:bg-[#8a0000] transition-colors"
       }
       dialogClassName="sm:max-w-md"
       resetForm={() => form.reset()}

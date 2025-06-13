@@ -17,13 +17,13 @@ import {
 } from "@/services";
 import { zodResolver } from "@hookform/resolvers/zod";
 import logError from "@/utills/logError";
-import { showSuccess } from "@/CustomComponent/toastUtills";
+import { showSuccess } from "@/components/toastUtills";
 
 import { DialogWrapper } from "@/components/DialogWrapper";
 
-import { RenderField } from "@/temp/renderFields";
+import { RenderField } from "@/components/renderFields";
 
-import { FileField } from "@/temp/renderFileField";
+import { FileField } from "@/components/renderFileField";
 import {
   QuestionSchema,
   QuestionValues,
@@ -35,8 +35,9 @@ const Points = [200, 400, 600];
 type Props = {
   id?: string;
   triggerLabel?: string;
+  triggerClass?: string;
 };
-export function QuestionDialog({ id, triggerLabel }: Props) {
+export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
   const isEdit = Boolean(id);
   const form = useForm<QuestionValues>({
     resolver: zodResolver(QuestionSchema),
@@ -126,7 +127,12 @@ export function QuestionDialog({ id, triggerLabel }: Props) {
         ) : undefined
       }
       dialogClassName="sm:max-w-md h-[90vh] overflow-y-auto"
-      triggerClassName=""
+      triggerClassName={
+        isEdit
+          ? triggerClass ?? ""
+          : triggerClass ??
+            "px-4 py-2 bg-[#e34b4b] text-white hover:text-white rounded-md hover:bg-[#d13e3e] transition-colors flex items-center gap-2"
+      }
       variant="outline"
       size="2xl"
       resetForm={() => form.reset()} // ✅ resets when dialog closes
