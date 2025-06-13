@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { showSuccess } from "@/CustomComponent/toastUtills";
+import { showSuccess } from "@/components/toastUtills";
 import { useForGotPassWordMutation } from "@/services";
 import {
   ForgotPasswordChangeSchema,
   ForgotPasswordValues,
 } from "@/SchemaValidations/AuthSchema";
-import { RenderField } from "@/temp/renderFields";
+import { RenderField } from "@/components/renderFields";
 import logError from "@/utills/logError";
 import { zodResolver } from "@hookform/resolvers/zod";
 

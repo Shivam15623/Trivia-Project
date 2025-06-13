@@ -17,7 +17,7 @@ const HomeHero = () => {
               </p>
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
                 <a
-                  href="#"
+                  href="/customer/mygames"
                   className="cta-button bg-[#a90000] hover:bg-red-800 text-white text-lg font-bold px-8 py-4 rounded-full shadow-lg text-center"
                 >
                   Play Now

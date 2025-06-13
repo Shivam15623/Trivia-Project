@@ -14,8 +14,8 @@ import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 
 import logError from "@/utills/logError";
-import { showSuccess } from "@/CustomComponent/toastUtills";
-import { CategoryDialog } from "@/Pages/Admin Pages/Categories/components/CategoryDialog/CategoryDialog";
+import { showSuccess } from "@/components/toastUtills";
+import { CategoryDialog } from "@/Pages/Admin Pages/Categories/components/CategoryDialog";
 
 const Categories = () => {
   const {
@@ -47,9 +47,9 @@ const Categories = () => {
   };
 
   return (
-    <div className="space-y-6 px-4 md:px-8 py-6 bg-[#fff6f0]">
+    <div className="space-y-6 px-4 md:px-8 py-6 ">
       {/* Header */}
-      <Card className="shadow-sm border border-orange-200">
+      <Card className="bg-white rounded-xl shadow-sm border border-orange-200">
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <CardTitle className="text-xl font-semibold text-[#e34b4b]">
@@ -59,7 +59,7 @@ const Categories = () => {
               <Input
                 type="text"
                 placeholder="Search categories..."
-                className="rounded-md px-3 py-2 w-full sm:w-64 focus-visible:ring-2 focus-visible:ring-[#e34b4b] transition-all"
+                className="rounded-md px-3 py-2 w-full sm:w-64 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#e34b4b] focus:border-transparent transition-all"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -124,7 +124,7 @@ const Categories = () => {
                     <Switch
                       checked={category.isPublic}
                       onCheckedChange={() => handleTogglePublic(category._id)}
-                      className="scale-[0.85]"
+                      className="scale-[0.85] data-[state=checked]:bg-[#e34b4b]"
                     />
                   </div>
                 </div>

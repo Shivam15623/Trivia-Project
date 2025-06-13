@@ -49,7 +49,7 @@ const HomeFooter = () => {
           </h3>
           <ul className="space-y-2">
             <li>
-              <a href="#" className="footer-link text-gray-300 hover:text-white transition-colors flex items-center">
+              <a href="/" className="footer-link text-gray-300 hover:text-white transition-colors flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
@@ -57,7 +57,7 @@ const HomeFooter = () => {
               </a>
             </li>
             <li>
-              <a href="#" className="footer-link text-gray-300 hover:text-white transition-colors flex items-center">
+              <a href="#how-to-play" className="footer-link text-gray-300 hover:text-white transition-colors flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
@@ -65,29 +65,15 @@ const HomeFooter = () => {
               </a>
             </li>
             <li>
-              <a href="#" className="footer-link text-gray-300 hover:text-white transition-colors flex items-center">
+              <a href="#categories" className="footer-link text-gray-300 hover:text-white transition-colors flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
                 Categories
               </a>
             </li>
-            <li>
-              <a href="#" className="footer-link text-gray-300 hover:text-white transition-colors flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-                Leaderboards
-              </a>
-            </li>
-            <li>
-              <a href="#" className="footer-link text-gray-300 hover:text-white transition-colors flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-                FAQ
-              </a>
-            </li>
+           
+            
           </ul>
         </div>
         
@@ -99,7 +85,7 @@ const HomeFooter = () => {
           </h3>
           <ul className="space-y-2">
             <li>
-              <a href="#" className="footer-link text-gray-300 hover:text-white transition-colors flex items-center">
+              <a href="#How-To-play" className="footer-link text-gray-300 hover:text-white transition-colors flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>

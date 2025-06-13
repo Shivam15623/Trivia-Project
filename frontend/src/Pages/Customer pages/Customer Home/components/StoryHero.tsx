@@ -32,7 +32,7 @@ const StoryHero = () => {
           {/* CTA Button */}
 
           <Button
-            onClick={() => navigate("/customer/play")}
+            onClick={() => navigate("/customer/CreateGame")}
             className="bg-white text-[#a90000] hover:bg-[#fff2f2] transition-all duration-300 text-2xl font-bold px-10 py-6 rounded-[40px] shadow-xl"
           >
             Create a Game

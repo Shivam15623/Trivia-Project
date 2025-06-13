@@ -3,7 +3,7 @@ import { Trash2 } from "lucide-react";
 
 import { useDeleteQuestionMutation } from "@/services";
 import logError from "@/utills/logError";
-import { showSuccess } from "@/CustomComponent/toastUtills";
+import { showSuccess } from "@/components/toastUtills";
 import { DialogWrapper } from "@/components/DialogWrapper";
 
 interface RemoveQuestionDialogProps {

@@ -8,7 +8,7 @@ import AccountPassword from "./components/AccountPassword";
 
 const UserProfile = () => {
   return (
-    <div className="min-h-screen bg-[#fff6f0] flex items-center justify-center py-10 px-4">
+    <div className="flex-1  flex items-center justify-center py-10 px-4">
       <Card className="w-full max-w-3xl border-orange-300 shadow-xl rounded-xl">
         <CardHeader className="text-center text-2xl font-bold text-[#e34b4b]">
           My Account

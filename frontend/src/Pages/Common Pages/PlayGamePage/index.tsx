@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { showSuccess } from "@/CustomComponent/toastUtills";
+import { showSuccess } from "@/components/toastUtills";
 
 import { useSocket } from "@/hooks/useSocket";
 import {
@@ -8,7 +8,12 @@ import {
 } from "@/interfaces/GameSessionInterface";
 
 import { RootState } from "@/redux/store";
-import { useFetchCurrentQuestionQuery, useFetchGameSessionInfoQuery, useFiftyFiftyUseMutation, useGameSessionEndMutation } from "@/services";
+import {
+  useFetchCurrentQuestionQuery,
+  useFetchGameSessionInfoQuery,
+  useFiftyFiftyUseMutation,
+  useGameSessionEndMutation,
+} from "@/services";
 import logError from "@/utills/logError";
 import { Divide, MinusCircle, Zap } from "lucide-react";
 
@@ -54,7 +59,6 @@ const PlayGamePage = () => {
       setSessionInfo(undefined);
     }
   }, [sessionInfoFromAPI, sessionSuccess]);
-
 
   const [EndGame] = useGameSessionEndMutation();
 
@@ -136,7 +140,7 @@ const PlayGamePage = () => {
     if (sessionInfo?.status === "completed") {
       navigate(`/game/endgame/${sessionCode}`);
     }
-  }, [sessionInfo?.status,sessionCode,navigate]);
+  }, [sessionInfo?.status, sessionCode, navigate]);
 
   useEffect(() => {
     if (!socket) return;
@@ -163,7 +167,7 @@ const PlayGamePage = () => {
       socket.off("chngeState");
       socket.off("game-ended");
     };
-  }, [socket,navigate,sessionCode]);
+  }, [socket, navigate, sessionCode]);
   const handleEndGame = async () => {
     if (!sessionInfo?._id) {
       return;

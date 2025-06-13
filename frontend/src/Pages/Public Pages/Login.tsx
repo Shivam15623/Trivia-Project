@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Card,
@@ -16,16 +16,10 @@ import { useDispatch } from "react-redux";
 import { setLoggedIn } from "@/redux/AuthSlice/authSlice";
 
 import logError from "@/utills/logError";
-import { showSuccess } from "@/CustomComponent/toastUtills";
-import { RenderField } from "@/temp/renderFields";
+import { showSuccess } from "@/components/toastUtills";
+import { RenderField } from "@/components/renderFields";
+import { LoginSchema, LoginValues } from "@/SchemaValidations/AuthSchema";
 // 🔁 Replace with actual hook if different
-
-const LoginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-type LoginValues = z.infer<typeof LoginSchema>;
 
 const Login = () => {
   const form = useForm<LoginValues>({

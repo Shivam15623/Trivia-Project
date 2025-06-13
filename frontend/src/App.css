@@ -4,7 +4,10 @@
 .orange-gradient {
   background-image: linear-gradient(to right, #ff100f, #ffc070);
 }
-
+.dots-pattern {
+    background-image: radial-gradient(#000 1px, transparent 1px);
+    background-size: 20px 20px;
+}
 .category-overlay {
   position: absolute;
   top: 0;
