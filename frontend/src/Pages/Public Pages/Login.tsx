@@ -19,6 +19,7 @@ import logError from "@/utills/logError";
 import { showSuccess } from "@/components/toastUtills";
 import { RenderField } from "@/components/renderFields";
 import { LoginSchema, LoginValues } from "@/SchemaValidations/AuthSchema";
+import { User } from "lucide-react";
 // 🔁 Replace with actual hook if different
 
 const Login = () => {
@@ -54,13 +55,20 @@ const Login = () => {
 
   return (
     <div className=" flex items-center patt min-h-screen justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md shadow-lg rounded-2xl">
-        <CardHeader className="text-center py-6">
-          <h2 className="text-2xl font-semibold text-gray-800">Login</h2>
-          <p className="text-sm text-gray-500">Welcome back! Please log in.</p>
+      <Card className="w-full max-w-md shadow-lg rounded-2xl overflow-hidden p-0 space-y-0 gap-0">
+        <CardHeader className="bg-gradient-to-r from-[#ff100f] to-[#ffc070] p-6 text-center">
+          <div className="bg-white/90 rounded-full w-20 h-20 mx-auto flex items-center justify-center">
+            <User className="w-10 h-10 text-[#e34b4b]" />
+          </div>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="p-6">
+          <h2 className="text-2xl font-semibold text-center mb-2 text-[#e34b4b]">
+            Welcome Back
+          </h2>
+          <p className="text-sm text-gray-500 text-center mb-6">
+            Sign in to your account to continue
+          </p>
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleLogin)}
@@ -76,44 +84,48 @@ const Login = () => {
                   required: true,
                 }}
               />
-
-              <RenderField
-                control={form.control}
-                label="Password"
-                name="password"
-                className="w-full"
-                type="password"
-                inputProps={{
-                  placeholder: "••••••••",
-                  required: true,
-                }}
-              />
-              <p>
-                <a
-                  href="/reset-request-password"
-                  className="text-blue-600 hover:underline font-medium text-sm text-right"
-                >
-                  forgot Password?
-                </a>
-              </p>
-
-              <CardFooter className="pt-4 flex flex-col gap-2">
-                <Button type="submit" className="w-full">
-                  Log In
-                </Button>
-                <p className="text-sm text-center text-gray-600">
-                  Don’t have an account?{" "}
+              <div>
+                {" "}
+                <RenderField
+                  control={form.control}
+                  label="Password"
+                  name="password"
+                  className="w-full"
+                  type="password"
+                  inputProps={{
+                    placeholder: "••••••••",
+                    required: true,
+                  }}
+                />
+                <p>
                   <a
-                    href="/Signup"
-                    className="text-blue-600 hover:underline font-medium"
+                    href="/reset-request-password"
+                    className="text-xs mt-2 text-[#e34b4b] hover:underline text-right flex justify-end"
                   >
-                    Create one
+                    forgot Password?
                   </a>
                 </p>
-              </CardFooter>
+              </div>
+              <Button
+                type="submit"
+                className="w-full py-2.5 px-4 bg-gradient-to-r from-[#fcbf49] to-[#f29e4e] text-white font-medium rounded-md hover:opacity-90 transition-opacity"
+              >
+                Log In
+              </Button>
             </form>
           </Form>
         </CardContent>
+        <CardFooter className="bg-[#fff8f0] p-4 text-center border-t border-orange-100">
+          <p className="text-sm text-gray-600 mx-auto">
+            Don't have an account?
+            <a
+              href="/signup"
+              className="text-[#e34b4b]  hover:underline font-medium"
+            >
+              Sign up
+            </a>
+          </p>
+        </CardFooter>
       </Card>
     </div>
   );

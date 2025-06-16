@@ -22,6 +22,8 @@ import {
   LazyPlayGamePage,
   LazyWaitingRoom,
   LazyEndGame,
+  LazyEmailVerificationSent,
+  LazyApplyEmailVerification,
 } from "@/lazy components";
 import RouteGuard from "@/RouteGuard";
 import { Suspense } from "react";
@@ -81,6 +83,22 @@ export const AllRoutes: RouteObject[] = [
     element: withSuspense(
       <RouteGuard isPublic={true}>
         <LazyRequestResetPassword />
+      </RouteGuard>
+    ),
+  },
+  {
+    path: "/email-verification-sent",
+    element: withSuspense(
+      <RouteGuard isPublic={true}>
+        <LazyEmailVerificationSent />
+      </RouteGuard>
+    ),
+  },
+  {
+    path: "/resent-email",
+    element: withSuspense(
+      <RouteGuard isPublic={true}>
+        <LazyApplyEmailVerification />
       </RouteGuard>
     ),
   },

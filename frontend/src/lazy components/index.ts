@@ -61,3 +61,9 @@ export const LazySoloGamePlay = lazy(
 export const LazySoloGameEnd = lazy(
   () => import("@/Pages/Common Pages/SoloGameEndPage")
 );
+export const LazyEmailVerificationSent = lazy(
+  () => import("@/Pages/Public Pages/EmailVerificationSentPage")
+);
+export const LazyApplyEmailVerification = lazy(
+  () => import("@/Pages/Public Pages/ApplyEmailVerificationreq")
+);

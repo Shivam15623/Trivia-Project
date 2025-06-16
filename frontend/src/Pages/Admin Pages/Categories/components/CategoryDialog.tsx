@@ -86,12 +86,7 @@ export function CategoryDialog({ slug, triggerLabel, triggerclass }: Props) {
       }
       triggerLabel={triggerLabel}
       icon={isEdit ? <Edit2 /> : <Plus />}
-      triggerClassName={
-        isEdit
-          ? triggerclass ?? "p-1.5 rounded-md"
-          : triggerclass ??
-            "px-4 py-2 bg-[#a90000] hover:text-white text-white rounded-md hover:bg-[#8a0000] transition-colors"
-      }
+      triggerClassName={triggerclass}
       dialogClassName="sm:max-w-md"
       resetForm={() => form.reset()}
     >
