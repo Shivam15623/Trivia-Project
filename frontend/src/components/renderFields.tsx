@@ -18,6 +18,7 @@ import { Control, FieldValues, Path } from "react-hook-form";
 import React from "react";
 import { DatePickerDemo } from "@/components/ui/datePicker";
 import { ProfileUpload } from "@/components/ProfileUpload";
+import { Option, RadioGroup } from "./ui/radiogroup";
 
 type InputType =
   | "text"
@@ -68,6 +69,7 @@ export function RenderField<TForm extends FieldValues, TOption = unknown>({
   const isTextarea = type === "textarea";
   const isDate = type === "date";
   const isProfileUpload = type === "profile-upload";
+  const isRadio = type === "radio";
 
   const resolveValue = getOptionValue ?? ((opt: TOption) => String(opt));
   const resolveLabel = getOptionLabel ?? ((opt: TOption) => String(opt));
@@ -78,10 +80,15 @@ export function RenderField<TForm extends FieldValues, TOption = unknown>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel className={labelClass}>
-            {label}
-            {inputProps.required && <span className="text-red-500"> *</span>}
-          </FormLabel>
+          {!isRadio && !isProfileUpload ? (
+            <FormLabel className={labelClass}>
+              {label}
+              {inputProps.required && <span className="text-red-500"> *</span>}
+            </FormLabel>
+          ) : (
+            <></>
+          )}
+
           <FormControl>
             {isTextarea ? (
               <Textarea
@@ -113,9 +120,15 @@ export function RenderField<TForm extends FieldValues, TOption = unknown>({
                 </SelectContent>
               </Select>
             ) : isDate ? (
-              <DatePickerDemo {...field} />
+              <DatePickerDemo className={className} {...field} />
             ) : isProfileUpload ? (
               <ProfileUpload value={field.value} onChange={field.onChange} />
+            ) : isRadio ? (
+              <RadioGroup
+                options={options as Option[]}
+                value={field.value}
+                onChange={field.onChange}
+              />
             ) : (
               <Input
                 {...(inputProps as React.InputHTMLAttributes<HTMLInputElement>)}

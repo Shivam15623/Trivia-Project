@@ -18,7 +18,7 @@ const TestKnowledge = () => {
               It’s a fun cultural game for all ages. It challenges your
               knowledge across various categories — based on what you choose!
             </p>
-            <button onClick={()=>navigate(`/${userRole?userRole:"customer"}/play`)} className="px-6 py-3 rounded-full font-semibold bg-[#a90000] text-white hover:bg-[#880000] transition duration-200 w-full md:w-52">
+            <button onClick={()=>navigate(`/${userRole}/CreateGame`)} className="px-6 py-3 rounded-full font-semibold bg-[#a90000] text-white hover:bg-[#880000] transition duration-200 w-full md:w-52">
               Create a game
             </button>
           </div>

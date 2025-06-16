@@ -126,7 +126,7 @@ const HomeHowToplay = () => {
               </ul>
 
               <a
-                href="#"
+                href="/customer/mygames"
                 className="block text-center bg-[#a90000] hover:bg-red-800 text-white font-bold py-3 px-6 rounded-lg transition-colors"
               >
                 Play Solo
@@ -245,7 +245,7 @@ const HomeHowToplay = () => {
               </ul>
 
               <a
-                href="#"
+                href="/customer/Creategame"
                 className="block text-center bg-[#a90000] hover:bg-red-800 text-white font-bold py-3 px-6 rounded-lg transition-colors"
               >
                 Create Team Game

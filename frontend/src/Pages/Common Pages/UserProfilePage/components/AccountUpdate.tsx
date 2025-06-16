@@ -14,12 +14,12 @@ import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 
 import logError from "@/utills/logError";
-import { RenderField } from "@/temp/renderFields";
+import { RenderField } from "@/components/renderFields";
 import {
   UserDetailsSchema,
   UserDetailsValues,
 } from "@/SchemaValidations/UserSchema";
-import { showSuccess } from "@/CustomComponent/toastUtills";
+import { showSuccess } from "@/components/toastUtills";
 const AccountUpdate = () => {
   const { data: userdata, isLoading } = useGetUserProfileQuery(undefined);
   const [updateDetails] = useUpdateProfileMutation();

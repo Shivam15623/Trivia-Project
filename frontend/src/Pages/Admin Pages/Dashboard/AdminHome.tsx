@@ -1,4 +1,5 @@
-import DashboardCards from "@/CustomComponent/DashboardCategory";
+import WelcomeSection from "@/components/WelcomeSection";
+import DashboardCards from "@/Pages/Admin Pages/Dashboard/Components/DashboardCategory";
 import { useFetchDashboardCategoryDataQuery } from "@/services";
 
 const AdminHome = () => {
@@ -26,6 +27,7 @@ const AdminHome = () => {
 
   return (
     <>
+      <WelcomeSection />
       <DashboardCards data={data} />
     </>
   );

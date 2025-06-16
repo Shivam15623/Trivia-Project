@@ -1,4 +1,4 @@
-import CreateGameHero from "@/CustomComponent/layout components/heroes/CreateGameHero";
+import CreateGameHero from "@/Pages/Common Pages/CreateGamePage/components/CreateGameHero";
 import { useFetchCategoryPublicQuery } from "@/services";
 import { useForm } from "react-hook-form";
 
@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useCreateGameByUserMutation } from "@/services/GameApi";
 
 import logError from "@/utills/logError";
-import { showSuccess } from "@/CustomComponent/toastUtills";
+import { showSuccess } from "@/components/toastUtills";
 import CategoryCardSelector from "@/components/CategoryCardSelector";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,13 +18,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { RenderField } from "@/temp/renderFields";
+import { RenderField } from "@/components/renderFields";
 import {
   createGameSchema,
   CreateGameValue,
 } from "@/SchemaValidations/GameSchema";
 
-const CustomerPlay = () => {
+const CreateGame = () => {
   const { data: categories, isLoading } = useFetchCategoryPublicQuery();
   const [AddGames] = useCreateGameByUserMutation();
   const navigate = useNavigate();
@@ -132,7 +132,7 @@ const CustomerPlay = () => {
                       label=""
                       name="gameTitle"
                       type="text"
-                      className="border border-[#707070] px-2 lg:px-3 xl:px-5 py-2 sm:py-3 md:py-3 xl:py-4 rounded-full placeholder:text-inherit text-lg 2xl:text-2xl w-full focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent appearance-none"
+                      className="border border-[#707070] px-2 lg:px-3 xl:px-5 py-2 h-auto sm:py-3 md:py-3 xl:py-4 rounded-full placeholder:text-inherit text-lg 2xl:text-2xl w-full focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent appearance-none"
                       inputProps={{
                         placeholder: "Enter game title",
                       }}
@@ -160,4 +160,4 @@ const CustomerPlay = () => {
   );
 };
 
-export default CustomerPlay;
+export default CreateGame;

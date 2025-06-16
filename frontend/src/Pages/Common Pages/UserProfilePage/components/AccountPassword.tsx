@@ -5,12 +5,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import logError from "@/utills/logError";
 
-import { RenderField } from "@/temp/renderFields";
+import { RenderField } from "@/components/renderFields";
 import {
   passwordChangeSchema,
   passwordChangeValue,
 } from "@/SchemaValidations/UserSchema";
-import { showSuccess } from "@/CustomComponent/toastUtills";
+import { showSuccess } from "@/components/toastUtills";
 
 const AccountPassword = () => {
   const [passwordChange] = useUpdatePasswordMutation();

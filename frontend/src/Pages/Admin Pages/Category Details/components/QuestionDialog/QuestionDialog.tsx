@@ -17,13 +17,13 @@ import {
 } from "@/services";
 import { zodResolver } from "@hookform/resolvers/zod";
 import logError from "@/utills/logError";
-import { showSuccess } from "@/CustomComponent/toastUtills";
+import { showSuccess } from "@/components/toastUtills";
 
 import { DialogWrapper } from "@/components/DialogWrapper";
 
-import { RenderField } from "@/temp/renderFields";
+import { RenderField } from "@/components/renderFields";
 
-import { FileField } from "@/temp/renderFileField";
+import { FileField } from "@/components/renderFileField";
 import {
   QuestionSchema,
   QuestionValues,
@@ -35,8 +35,9 @@ const Points = [200, 400, 600];
 type Props = {
   id?: string;
   triggerLabel?: string;
+  triggerClass?: string;
 };
-export function QuestionDialog({ id, triggerLabel }: Props) {
+export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
   const isEdit = Boolean(id);
   const form = useForm<QuestionValues>({
     resolver: zodResolver(QuestionSchema),
@@ -114,7 +115,7 @@ export function QuestionDialog({ id, triggerLabel }: Props) {
     <DialogWrapper
       title={isEdit ? "Update Question" : "Add Question"}
       type={isEdit ? "edit" : "add"}
-      triggerLabel={triggerLabel || "Add Question"}
+      triggerLabel={triggerLabel }
       description={
         isEdit
           ? "Update the question details below."
@@ -126,7 +127,7 @@ export function QuestionDialog({ id, triggerLabel }: Props) {
         ) : undefined
       }
       dialogClassName="sm:max-w-md h-[90vh] overflow-y-auto"
-      triggerClassName=""
+      triggerClassName={triggerClass}
       variant="outline"
       size="2xl"
       resetForm={() => form.reset()} // ✅ resets when dialog closes
@@ -212,7 +213,7 @@ export function QuestionDialog({ id, triggerLabel }: Props) {
                 label="Question Image"
                 control={form.control}
 
-                // inputProps={{ required: true }}
+                
               />
             </div>
 
@@ -225,7 +226,7 @@ export function QuestionDialog({ id, triggerLabel }: Props) {
                 label="Answer Image"
                 control={form.control}
 
-                // inputProps={{ required: true }}
+               
               />
             </div>
           </div>
