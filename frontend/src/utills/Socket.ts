@@ -4,7 +4,7 @@ let socket: Socket;
 
 export const initializeSocket = (): Socket => {
   if (!socket) {
-    socket = io("http://192.168.1.17:8000", {
+    socket = io("http://192.168.1.3:8000", {
       withCredentials: true,
       transports: ["websocket"], // 🚀 Ensures WebSocket connection
     });

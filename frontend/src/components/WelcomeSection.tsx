@@ -24,7 +24,7 @@ const WelcomeSection = () => {
           </div>
           <div className="mt-4 md:mt-0 flex space-x-3">
             <a
-              href={`${userRole}/create`}
+              href={`${userRole}/CreateGame`}
               className="cta-button bg-[#a90000] hover:bg-red-800 text-white font-bold px-6 py-3 rounded-full shadow-lg"
             >
               Create New Game

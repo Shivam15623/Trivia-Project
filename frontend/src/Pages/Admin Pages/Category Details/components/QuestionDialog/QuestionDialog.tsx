@@ -115,7 +115,7 @@ export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
     <DialogWrapper
       title={isEdit ? "Update Question" : "Add Question"}
       type={isEdit ? "edit" : "add"}
-      triggerLabel={triggerLabel || "Add Question"}
+      triggerLabel={triggerLabel }
       description={
         isEdit
           ? "Update the question details below."
@@ -127,12 +127,7 @@ export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
         ) : undefined
       }
       dialogClassName="sm:max-w-md h-[90vh] overflow-y-auto"
-      triggerClassName={
-        isEdit
-          ? triggerClass ?? ""
-          : triggerClass ??
-            "px-4 py-2 bg-[#e34b4b] text-white hover:text-white rounded-md hover:bg-[#d13e3e] transition-colors flex items-center gap-2"
-      }
+      triggerClassName={triggerClass}
       variant="outline"
       size="2xl"
       resetForm={() => form.reset()} // ✅ resets when dialog closes
@@ -218,7 +213,7 @@ export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
                 label="Question Image"
                 control={form.control}
 
-                // inputProps={{ required: true }}
+                
               />
             </div>
 
@@ -231,7 +226,7 @@ export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
                 label="Answer Image"
                 control={form.control}
 
-                // inputProps={{ required: true }}
+               
               />
             </div>
           </div>
