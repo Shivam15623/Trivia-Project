@@ -203,7 +203,7 @@ const PlayGamePage = () => {
         );
       }
     } catch (error) {
-      logError(error);
+      handleApiError(error);
     }
   };
 

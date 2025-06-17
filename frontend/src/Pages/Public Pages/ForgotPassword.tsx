@@ -47,7 +47,7 @@ const ForgotPassword: React.FC = () => {
         }
       }
     } catch (err: unknown) {
-      logError(err);
+      handleApiError(err);
     }
   };
 

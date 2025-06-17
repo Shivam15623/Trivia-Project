@@ -95,7 +95,7 @@ const WaitingRoom = () => {
 
       showSuccess(`Joined team "${teamName}"`);
     } catch (error) {
-      logError(error);
+      handleApiError(error);
     }
   };
 
@@ -111,7 +111,7 @@ const WaitingRoom = () => {
         navigate(`/customer/mygames`);
       }
     } catch (err) {
-      logError(err);
+      handleApiError(err);
     }
   };
 
@@ -128,7 +128,7 @@ const WaitingRoom = () => {
         showError(res.message || "Failed to start game");
       }
     } catch (err) {
-      logError(err);
+      handleApiError(err);
     }
   };
 

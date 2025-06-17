@@ -93,7 +93,7 @@ export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
         form.reset();
       }
     } catch (err) {
-      logError(err);
+      handleApiError(err);
     }
   };
   useEffect(() => {
@@ -115,7 +115,7 @@ export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
     <DialogWrapper
       title={isEdit ? "Update Question" : "Add Question"}
       type={isEdit ? "edit" : "add"}
-      triggerLabel={triggerLabel }
+      triggerLabel={triggerLabel}
       description={
         isEdit
           ? "Update the question details below."
@@ -212,8 +212,6 @@ export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
                 name="questionImage"
                 label="Question Image"
                 control={form.control}
-
-                
               />
             </div>
 
@@ -225,8 +223,6 @@ export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
                 name="answerImage"
                 label="Answer Image"
                 control={form.control}
-
-               
               />
             </div>
           </div>

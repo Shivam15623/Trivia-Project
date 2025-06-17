@@ -42,7 +42,7 @@ const Categories = () => {
         showSuccess(response.message);
       }
     } catch (error) {
-      logError(error);
+      handleApiError(error);
     }
   };
 
@@ -63,8 +63,14 @@ const Categories = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <CategoryDialog triggerLabel="Add Category" triggerclass="px-4 py-2 bg-[#a90000] hover:text-white text-white rounded-md hover:bg-[#8a0000] transition-colors" />
-              <QuestionDialog triggerLabel="Add Question" triggerClass="px-4 py-2 bg-[#e34b4b] text-white hover:text-white rounded-md hover:bg-[#d13e3e] transition-colors flex items-center gap-2" />
+              <CategoryDialog
+                triggerLabel="Add Category"
+                triggerclass="px-4 py-2 bg-[#a90000] hover:text-white text-white rounded-md hover:bg-[#8a0000] transition-colors"
+              />
+              <QuestionDialog
+                triggerLabel="Add Question"
+                triggerClass="px-4 py-2 bg-[#e34b4b] text-white hover:text-white rounded-md hover:bg-[#d13e3e] transition-colors flex items-center gap-2"
+              />
             </div>
           </div>
         </CardHeader>
@@ -149,7 +155,10 @@ const Categories = () => {
                   <Eye />
                 </Button>
 
-                <CategoryDialog slug={category.slug} triggerclass="p-1.5 rounded-md" />
+                <CategoryDialog
+                  slug={category.slug}
+                  triggerclass="p-1.5 rounded-md"
+                />
               </div>
             </CardFooter>
           </Card>

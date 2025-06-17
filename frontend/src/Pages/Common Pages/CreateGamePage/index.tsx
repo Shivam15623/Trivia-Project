@@ -51,7 +51,7 @@ const CreateGame = () => {
         navigate("/customer/mygames");
       }
     } catch (err) {
-      logError(err);
+      handleApiError(err);
     }
   };
 

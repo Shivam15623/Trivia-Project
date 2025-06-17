@@ -49,7 +49,7 @@ const Login = () => {
         );
       }
     } catch (error) {
-      logError(error);
+      handleApiError(error);
     }
   };
 

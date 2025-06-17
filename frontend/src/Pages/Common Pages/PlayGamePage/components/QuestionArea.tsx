@@ -98,7 +98,7 @@ const QuestionSection = ({
         }, 3000);
       }
     } catch (err) {
-      logError(err);
+      handleApiError(err);
     }
   };
 

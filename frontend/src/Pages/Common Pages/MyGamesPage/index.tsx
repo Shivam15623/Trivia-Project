@@ -26,7 +26,7 @@ const MyGames = () => {
         navigate(`/game/SoloGame/${response.data}`);
       }
     } catch (error) {
-      logError(error);
+      handleApiError(error);
     }
   };
   const handleJoinSession = () => {

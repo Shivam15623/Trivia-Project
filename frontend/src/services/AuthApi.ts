@@ -98,7 +98,7 @@ export const authApi = api.injectEndpoints({
           }
         } catch (error) {
           dispatch(setLoggedOut());
-          logError(error);
+          handleApiError(error);
         }
       },
     }),

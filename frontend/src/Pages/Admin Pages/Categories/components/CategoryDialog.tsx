@@ -71,7 +71,7 @@ export function CategoryDialog({ slug, triggerLabel, triggerclass }: Props) {
         form.reset();
       }
     } catch (err) {
-      logError(err);
+      handleApiError(err);
     }
   };
 
