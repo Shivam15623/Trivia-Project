@@ -29,7 +29,7 @@ const LazyVerifyEmail: React.FC = () => {
       }
     } catch (err) {
       setIsVerified(false);
-      logError(err);
+      handleApiError(err);
     }
   };
 

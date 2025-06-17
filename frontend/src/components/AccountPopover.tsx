@@ -25,7 +25,7 @@ const AccountPopover = () => {
         dispatch(setLoggedOut());
       }
     } catch (error) {
-      logError(error);
+      handleApiError(error);
     }
   };
 

@@ -55,7 +55,7 @@ const Signup = () => {
         navigate("/email-verification-sent");
       }
     } catch (error) {
-      logError(error);
+      handleApiError(error);
     }
   };
 

@@ -26,7 +26,7 @@ const StartSoloGame = ({ gameId }: { gameId: string }) => {
         showSuccess(response.message);
       }
     } catch (error) {
-      logError(error);
+      handleApiError(error);
     }
   };
   const HandleEndGame = async () => {
@@ -37,7 +37,7 @@ const StartSoloGame = ({ gameId }: { gameId: string }) => {
         navigate(`/${role}/mygames`);
       }
     } catch (error) {
-      logError(error);
+      handleApiError(error);
     }
   };
 
