@@ -23,7 +23,7 @@ const RequestResetPassword: React.FC = () => {
         setMessage("Reset link sent! Check your email.");
       }
     } catch (err) {
-      logError(err);
+      handleApiError(err);
     }
   };
 

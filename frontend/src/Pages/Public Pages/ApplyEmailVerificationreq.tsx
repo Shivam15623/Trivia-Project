@@ -22,7 +22,7 @@ const ApplyEmailVerification: React.FC = () => {
         setMessage("Verification email sent! Please check your inbox.");
       }
     } catch (err) {
-      logError(err);
+      handleApiError(err);
     }
   };
 

@@ -22,7 +22,7 @@ const RemoveQuestionDialog = ({
       const response = await removeQuestion(questionId).unwrap();
       showSuccess(response.message);
     } catch (error) {
-      logError(error);
+      handleApiError(error);
     }
   };
 

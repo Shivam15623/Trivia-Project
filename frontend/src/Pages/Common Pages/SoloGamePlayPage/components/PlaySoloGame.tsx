@@ -40,7 +40,7 @@ const PlaySoloGame = () => {
         }
       }
     } catch (error) {
-      logError(error);
+      handleApiError(error);
     } finally {
       setLoading(false);
     }

@@ -31,7 +31,7 @@ const AccountPassword = () => {
         showSuccess(response.message);
       }
     } catch (error) {
-      logError(error);
+      handleApiError(error);
     }
   };
   return (
