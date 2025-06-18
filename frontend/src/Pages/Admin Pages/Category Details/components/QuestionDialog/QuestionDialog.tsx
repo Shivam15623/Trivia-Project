@@ -141,6 +141,7 @@ export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
           {/* Category Dropdown */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <RenderField
+              Inputvariant="solidred"
               name="categoryId"
               label="Category"
               control={form.control}
@@ -151,6 +152,7 @@ export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
               inputProps={{ required: true }}
             />
             <RenderField
+              Inputvariant="solidred"
               name="points"
               label="Points"
               control={form.control}
@@ -160,6 +162,7 @@ export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
             />
           </div>
           <RenderField
+            Inputvariant="solidred"
             name="questionText"
             label="Question"
             control={form.control}
@@ -169,6 +172,7 @@ export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
 
           {/* Answer */}
           <RenderField
+            Inputvariant="solidred"
             name="answer"
             label="Answer"
             control={form.control}

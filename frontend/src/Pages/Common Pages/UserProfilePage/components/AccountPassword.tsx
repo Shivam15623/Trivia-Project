@@ -11,6 +11,8 @@ import {
   passwordChangeValue,
 } from "@/SchemaValidations/UserSchema";
 import { showSuccess } from "@/components/toastUtills";
+import PasswordStrength from "@/components/PasswordStrength";
+import PasswordRequirementSection from "@/components/PasswordRequirementSection";
 
 const AccountPassword = () => {
   const [passwordChange] = useUpdatePasswordMutation();
@@ -23,6 +25,7 @@ const AccountPassword = () => {
       confirmpassword: "",
     },
   });
+  const password = form.watch("newpassword");
 
   const handleSubmit = async (data: passwordChangeValue) => {
     try {
@@ -38,13 +41,13 @@ const AccountPassword = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="max-w-4xl   mx-auto p-6 bg-white space-y-6"
+        className="max-w-4xl w-1/2   mx-auto  bg-white space-y-6"
       >
         <RenderField
+          Inputvariant="solidred"
           control={form.control}
           label="Current Password"
           name="currentpassword"
-          
           type="password"
           inputProps={{
             placeholder: "••••••••",
@@ -52,21 +55,23 @@ const AccountPassword = () => {
           }}
         />
         <RenderField
+          Inputvariant="solidred"
           control={form.control}
           label="New Password"
           name="newpassword"
-          
           type="password"
           inputProps={{
             placeholder: "••••••••",
             required: true,
           }}
         />
+        <PasswordStrength password={password} />
+        <PasswordRequirementSection password={password} />
         <RenderField
+          Inputvariant="solidred"
           control={form.control}
           label="Confirm Password"
           name="confirmpassword"
-          
           type="password"
           inputProps={{
             placeholder: "••••••••",
@@ -74,7 +79,7 @@ const AccountPassword = () => {
           }}
         />
         <div className="pt-4">
-          <Button type="submit" className="w-full">
+          <Button type="submit" variant={"gradient"} className="w-full">
             Update Password
           </Button>
         </div>

@@ -3,7 +3,7 @@ import AdminNav from "./Components/AdminNav";
 
 const AdminRoot = () => {
   return (
-    <div className="min-h-screen h-screen bg-[#fff8f0]">
+    <div className="min-h-screen h-auto bg-[#fff8f0]">
       <AdminNav />
       <Outlet />
     </div>

@@ -16,7 +16,7 @@ import {
 } from "@/SchemaValidations/CategorySchema";
 import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
-import { Edit,  Plus } from "lucide-react";
+import { Edit, Plus } from "lucide-react";
 import { FileField } from "@/components/renderFileField";
 import { RenderField } from "@/components/renderFields";
 
@@ -88,19 +88,20 @@ export function CategoryDialog({ slug, triggerLabel, triggerclass }: Props) {
       icon={isEdit ? <Edit /> : <Plus />}
       triggerClassName={triggerclass}
       dialogClassName="sm:max-w-md"
-      
-      variant={isEdit ?"ghost":"default"}
+      variant={isEdit ? "ghost" : "default"}
       resetForm={() => form.reset()}
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
           <RenderField
+            Inputvariant="solidred"
             name="name"
             label="Name"
             control={form.control}
             inputProps={{ required: true, placeholder: "enter Category Name" }}
           />
           <RenderField
+            Inputvariant="solidred"
             name="description"
             label="Description"
             control={form.control}

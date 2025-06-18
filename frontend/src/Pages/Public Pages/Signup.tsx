@@ -77,6 +77,7 @@ const Signup = () => {
                 {/* First Name */}
                 <div className="w-1/2">
                   <RenderField
+                    Inputvariant="solidred"
                     control={form.control}
                     label="First Name"
                     name="firstname"
@@ -93,6 +94,7 @@ const Signup = () => {
                 <div className="w-1/2">
                   {" "}
                   <RenderField
+                    Inputvariant="solidred"
                     control={form.control}
                     label="Last Name"
                     name="lastname"
@@ -108,6 +110,7 @@ const Signup = () => {
 
               {/* Email */}
               <RenderField
+                Inputvariant="solidred"
                 control={form.control}
                 label="Email"
                 name="email"
@@ -121,6 +124,7 @@ const Signup = () => {
               />
               {/* DOB */}
               <RenderField
+                Inputvariant="solidred"
                 control={form.control}
                 label="Date of Birth"
                 labelClass="block text-sm font-medium text-gray-700 mb-1"
@@ -134,6 +138,7 @@ const Signup = () => {
               <div className="space-y-2">
                 {" "}
                 <RenderField
+                  Inputvariant="solidred"
                   control={form.control}
                   label="Password"
                   labelClass="block text-sm font-medium text-gray-700 mb-1"

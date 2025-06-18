@@ -20,7 +20,6 @@ import StepBullet from "@/components/StepBullet";
 import AuthCardWrapper from "@/components/AuthCardWrapper";
 import SuccessErrorMessage from "@/components/SuccessErrorMessage";
 
-
 const ForgotPassword: React.FC = () => {
   const [searchParams] = useSearchParams();
   const token: string | null = searchParams.get("token");
@@ -82,6 +81,7 @@ const ForgotPassword: React.FC = () => {
                 >
                   <div className="space-y-2">
                     <RenderField
+                      Inputvariant="solidred"
                       control={form.control}
                       label="New Password"
                       name="newpassword"
@@ -104,6 +104,7 @@ const ForgotPassword: React.FC = () => {
 
                   <div className="space-y-2">
                     <RenderField
+                      Inputvariant="solidred"
                       control={form.control}
                       label="Confirm Password"
                       name="confirmpassword"

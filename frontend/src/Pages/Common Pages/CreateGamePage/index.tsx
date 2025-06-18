@@ -128,6 +128,7 @@ const CreateGame = () => {
                 <div className="flex flex-col">
                   <div className="font-cairo min-w-[300px] xl:min-w-[350px] 2xl:min-w-[370px]">
                     <RenderField
+                      Inputvariant="solidred"
                       control={form.control}
                       label=""
                       name="gameTitle"

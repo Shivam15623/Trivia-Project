@@ -6,13 +6,11 @@ import { ApiError } from "../utills/ApiError.js";
 import { ApiResponse } from "../utills/ApiResponse.js";
 import { asyncHandler } from "../utills/Asynchandler.js";
 import { fetchQuestionsForPublicValidate } from "../helper/fetchrandomquestion.js";
-import {  getTop6Categories } from "../helper/DashboardHelpers.js";
+import { getTop6Categories } from "../helper/DashboardHelpers.js";
 import Game from "../model/Game.model.js";
 
 // Create Category
 export const createCategory = asyncHandler(async (req, res) => {
-
-
   const { name, description } = req.body;
 
   const thumbnailPath = req?.file?.path;
@@ -126,7 +124,7 @@ export const CategoriesFetch = asyncHandler(async (req, res) => {
   const categories = await Category.find({ isPublic: true }).select(
     "name thumbnail"
   );
-  
+
   if (!categories) {
     throw new ApiError(400, "No Categories Found");
   }
@@ -188,13 +186,28 @@ const pointwiseCheck = async (pquestions) => {
   }
 };
 
+export const DeleteCategory = asyncHandler(async (req, res) => {
+  const { categoryId } = req.params;
+  if (!categoryId) {
+    throw new ApiError(400, "No category Found!");
+  }
+  const category = await Category.findById(categoryId);
+  if (!category) {
+    throw new ApiError(404, "No Such Category Found!");
+  }
+  const delCategory = await Category.findByIdAndDelete(categoryId);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Category Deleted SuccessFully"));
+});
 export const DashboardCategory = asyncHandler(async (req, res) => {
   const categories = await Category.find();
   if (!categories || categories.length === 0) {
     throw new ApiError(400, "Categories are empty");
   }
 
-  const totalActiveCategories = categories.filter(cat => cat.isPublic).length;
+  const totalActiveCategories = categories.filter((cat) => cat.isPublic).length;
   const totalInactiveCategories = categories.length - totalActiveCategories;
 
   const topCategories = await getTop6Categories(); // already includes usage counts
@@ -204,10 +217,14 @@ export const DashboardCategory = asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 })
     .limit(5)
     .select("name createdAt thumbnail");
-    // const mostplayedCategories=await getMostPlayedCategories()
+  // const mostplayedCategories=await getMostPlayedCategories()
 
   // 📊 Monthly category usage (optional - returns categories used this month)
-  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const startOfMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    1
+  );
   const categoryUsageThisMonth = await Game.aggregate([
     { $match: { createdAt: { $gte: startOfMonth } } },
     { $unwind: "$categories" },
@@ -246,7 +263,6 @@ export const DashboardCategory = asyncHandler(async (req, res) => {
     topCategories,
     recentlyAddedCategories,
     monthlyTopUsedCategories: categoryUsageThisMonth,
-    
   };
 
   return res
@@ -260,4 +276,4 @@ export const DashboardCategory = asyncHandler(async (req, res) => {
     );
 });
 
-export const deleteCategory = asyncHandler(async (req, res) => {});
+
