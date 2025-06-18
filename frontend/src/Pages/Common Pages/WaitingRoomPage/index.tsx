@@ -14,7 +14,7 @@ import { useSocket } from "@/hooks/useSocket";
 
 import { motion } from "framer-motion";
 import { useGetGameByIdQuery } from "@/services/GameApi";
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import { showError, showSuccess } from "@/components/toastUtills";
 
 const WaitingRoom = () => {

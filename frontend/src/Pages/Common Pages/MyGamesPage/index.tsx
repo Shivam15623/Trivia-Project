@@ -4,7 +4,7 @@ import {
   useInitializeSoloGameMutation,
 } from "@/services";
 
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";

@@ -1,11 +1,9 @@
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import {
   ForgotPasswordcredential,
   LoginCredentials,
   LoginResponse,
-  RequestResetPasswordcredential,
   SignupCredentials,
-  VerifyEmailCredentials,
 } from "../interfaces/Authinterfaces";
 import { ApiGeneralResponse } from "../interfaces/GenericResponse";
 import { setLoggedIn, setLoggedOut } from "../redux/AuthSlice/authSlice";
@@ -37,11 +35,11 @@ export const authApi = api.injectEndpoints({
       }),
       invalidatesTags: ["Auth"],
     }),
-    verifyEmail: builder.mutation<ApiGeneralResponse, VerifyEmailCredentials>({
-      query: (credentials) => ({
+    verifyEmail: builder.mutation<ApiGeneralResponse, string>({
+      query: (token) => ({
         url: "/api/v1/auth/verifyEmail",
         method: "POST",
-        body: credentials,
+        body: { token },
       }),
       invalidatesTags: ["Users"],
     }),
@@ -59,14 +57,11 @@ export const authApi = api.injectEndpoints({
       }),
       invalidatesTags: ["Users"],
     }),
-    ResetPasswordRequest: builder.mutation<
-      ApiGeneralResponse,
-      RequestResetPasswordcredential
-    >({
-      query: (credentials) => ({
+    ResetPasswordRequest: builder.mutation<ApiGeneralResponse, string>({
+      query: (email) => ({
         url: "/api/v1/auth/resetpasswordrequest",
         method: "POST",
-        body: credentials,
+        body: { email },
       }),
     }),
     ForGotPassWord: builder.mutation<

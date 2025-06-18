@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useUpdatePasswordMutation } from "@/services";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 
 import { RenderField } from "@/components/renderFields";
 import {
@@ -35,51 +35,51 @@ const AccountPassword = () => {
     }
   };
   return (
-    <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-md p-8">
-      <h2 className="text-xl font-semibold mb-6">Change Password</h2>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
-          <RenderField
-            control={form.control}
-            label="Current Password"
-            name="currentpassword"
-            className="w-full"
-            type="password"
-            inputProps={{
-              placeholder: "••••••••",
-              required: true,
-            }}
-          />
-          <RenderField
-            control={form.control}
-            label="New Password"
-            name="newpassword"
-            className="w-full"
-            type="password"
-            inputProps={{
-              placeholder: "••••••••",
-              required: true,
-            }}
-          />
-          <RenderField
-            control={form.control}
-            label="Confirm Password"
-            name="confirmpassword"
-            className="w-full"
-            type="password"
-            inputProps={{
-              placeholder: "••••••••",
-              required: true,
-            }}
-          />
-          <div className="pt-4">
-            <Button type="submit" className="w-full">
-              Update Password
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="max-w-4xl   mx-auto p-6 bg-white space-y-6"
+      >
+        <RenderField
+          control={form.control}
+          label="Current Password"
+          name="currentpassword"
+          
+          type="password"
+          inputProps={{
+            placeholder: "••••••••",
+            required: true,
+          }}
+        />
+        <RenderField
+          control={form.control}
+          label="New Password"
+          name="newpassword"
+          
+          type="password"
+          inputProps={{
+            placeholder: "••••••••",
+            required: true,
+          }}
+        />
+        <RenderField
+          control={form.control}
+          label="Confirm Password"
+          name="confirmpassword"
+          
+          type="password"
+          inputProps={{
+            placeholder: "••••••••",
+            required: true,
+          }}
+        />
+        <div className="pt-4">
+          <Button type="submit" className="w-full">
+            Update Password
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 };
 

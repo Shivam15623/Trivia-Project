@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
 import { useDeleteQuestionMutation } from "@/services";
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
 import { DialogWrapper } from "@/components/DialogWrapper";
 

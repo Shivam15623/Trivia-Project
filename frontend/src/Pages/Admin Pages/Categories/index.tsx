@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 
 import { Switch } from "@/components/ui/switch";
 
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
 import { CategoryDialog } from "@/Pages/Admin Pages/Categories/components/CategoryDialog";
 

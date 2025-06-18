@@ -13,7 +13,7 @@ import { useGetUserProfileQuery, useUpdateProfileMutation } from "@/services";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import { RenderField } from "@/components/renderFields";
 import {
   UserDetailsSchema,
@@ -88,96 +88,9 @@ const AccountUpdate = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="max-w-4xl mx-auto p-6 bg-white  space-y-6"
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex flex-col md:flex-row gap-8">
           {/* Left Column */}
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              {/* First Name */}
-              <RenderField
-                control={form.control}
-                label="First Name"
-                name="firstname"
-                type="text"
-                inputProps={{
-                  placeholder: "john",
-                  required: true,
-                }}
-              />
-
-              {/* Last Name */}
-              <RenderField
-                control={form.control}
-                label="Last Name"
-                name="lastname"
-                type="text"
-                inputProps={{
-                  placeholder: "Doe",
-                  required: true,
-                }}
-              />
-            </div>
-
-            {/* Email */}
-            <RenderField
-              control={form.control}
-              label="Email"
-              name="email"
-              type="email"
-              inputProps={{
-                placeholder: "you@example.com",
-                required: true,
-              }}
-            />
-            {/* DOB */}
-            <RenderField
-              control={form.control}
-              label="Date of Birth"
-              name="DOB"
-              type="date"
-              inputProps={{
-                required: true,
-              }}
-            />
-
-            {/* Phone Number */}
-            <FormField
-              control={form.control}
-              name="phoneNo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
-                  <FormControl>
-                    <PhoneInput
-                      country="in"
-                      value={field.value}
-                      onChange={(value) => field.onChange(value)}
-                      inputStyle={{
-                        width: "100%",
-                        height: "38px",
-                        borderRadius: "0.375rem",
-                        border: form.formState.errors.phoneNo
-                          ? "1px solid #ef4444" // red-500
-                          : "1px solid #d1d5db", // gray-300
-                        paddingLeft: "50px",
-                      }}
-                      buttonStyle={{
-                        borderTopLeftRadius: "0.375rem",
-                        borderBottomLeftRadius: "0.375rem",
-                        border: "1px solid #d1d5db",
-                      }}
-                      dropdownStyle={{
-                        zIndex: 10000,
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Right Column: Profile Pic */}
-          <div className="flex flex-col items-center ">
+          <div className="flex flex-col items-center">
             <RenderField
               control={form.control}
               label="Profile Picture"
@@ -189,15 +102,104 @@ const AccountUpdate = () => {
             </h2>
             <p>{userdata.data.email}</p>
           </div>
-        </div>
+          {/* Right Column: Profile Pic */}
+          <div className="flex-1">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* First Name */}
+                <RenderField
+                  control={form.control}
+                  label="First Name"
+                  name="firstname"
+                  type="text"
+                  inputProps={{
+                    placeholder: "john",
+                    required: true,
+                  }}
+                />
 
-        <div className="flex  mt-3 justify-start">
-          <Button
-            type="submit"
-            className="bg-[#5F27CD] hover:bg-[#341f97] text-white px-6 py-2"
-          >
-            Save Changes
-          </Button>
+                {/* Last Name */}
+                <RenderField
+                  control={form.control}
+                  label="Last Name"
+                  name="lastname"
+                  type="text"
+                  inputProps={{
+                    placeholder: "Doe",
+                    required: true,
+                  }}
+                />
+              </div>
+
+              {/* Email */}
+              <RenderField
+                control={form.control}
+                label="Email"
+                name="email"
+                type="email"
+                inputProps={{
+                  placeholder: "you@example.com",
+                  required: true,
+                }}
+              />
+              {/* DOB */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <RenderField
+                  control={form.control}
+                  label="Date of Birth"
+                  name="DOB"
+                  type="date"
+                  inputProps={{
+                    required: true,
+                  }}
+                />
+
+                {/* Phone Number */}
+                <FormField
+                  control={form.control}
+                  name="phoneNo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number</FormLabel>
+                      <FormControl>
+                        <PhoneInput
+                          country="in"
+                          value={field.value}
+                          onChange={(value) => field.onChange(value)}
+                          inputStyle={{
+                            width: "100%",
+                            height: "38px",
+                            borderRadius: "0.375rem",
+                            border: form.formState.errors.phoneNo
+                              ? "1px solid #ef4444" // red-500
+                              : "1px solid #d1d5db", // gray-300
+                            paddingLeft: "50px",
+                          }}
+                          buttonStyle={{
+                            borderTopLeftRadius: "0.375rem",
+                            borderBottomLeftRadius: "0.375rem",
+                            border: "1px solid #d1d5db",
+                          }}
+                          dropdownStyle={{
+                            zIndex: 10000,
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+            <div className="flex  mt-3 justify-start">
+              <Button
+                type="submit"
+                className="tab-gradient  rounded-md hover:opacity-90 transition-opacity text-white px-6 py-2"
+              >
+                Save Changes
+              </Button>
+            </div>
+          </div>
         </div>
       </form>
     </Form>

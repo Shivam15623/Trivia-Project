@@ -22,7 +22,7 @@ import "react-phone-input-2/lib/style.css";
 import { Button } from "@/components/ui/button";
 
 import { useNavigate } from "react-router-dom";
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
 import { SignupSchema, SignupValues } from "@/SchemaValidations/AuthSchema";
 import { RenderField } from "@/components/renderFields";

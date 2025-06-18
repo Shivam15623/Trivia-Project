@@ -16,7 +16,7 @@ import {
   useUpdateQuestionMutation,
 } from "@/services";
 import { zodResolver } from "@hookform/resolvers/zod";
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
 
 import { DialogWrapper } from "@/components/DialogWrapper";
