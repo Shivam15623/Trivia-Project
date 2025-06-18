@@ -1,10 +1,11 @@
 
-import React from "react";
+
 import { useNavigate } from "react-router-dom";
 import PlayGameDialog from "./playGameDialog";
 import { showSuccess } from "@/components/toastUtills";
 import { useInitializeSoloGameMutation } from "@/services";
 import { Game } from "@/interfaces/GameInterface";
+import { handleApiError } from "@/utills/handleApiError";
 type Props = {
   game: Game;
 };

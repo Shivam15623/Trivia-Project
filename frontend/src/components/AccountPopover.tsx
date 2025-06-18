@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux";
 import { useGetUserProfileQuery, useLogoutMutation } from "@/services";
 import { setLoggedOut } from "@/redux/AuthSlice/authSlice";
 
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 
 const AccountPopover = () => {
   const { data: user } = useGetUserProfileQuery();
@@ -46,30 +46,34 @@ const AccountPopover = () => {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="end" className="w-48 z-53 p-2 space-y-1">
-        <div className="px-2 text-sm text-muted-foreground">
-          {user?.data.firstname} {user?.data.lastname}
+      <PopoverContent align="start" className=" z-53 p-0  space-y-0">
+        <div className="px-4 py-3 border-b border-[#f3f4f6]">
+          <div className="text-[#111827] text-sm font-semibold">
+            {user?.data.firstname} {user?.data.lastname}
+          </div>
+          <div className="text-[#6b7280] mt-0.5 text-xs">
+            {user?.data.email}
+          </div>
         </div>
-
-        <a href={`/${user?.data.role}/userProfile/${user?.data.slug}`}>
-          <Button variant="ghost" className="w-full justify-start">
-            <User className="mr-2 h-4 w-4" /> My Profile
+        <div className="p-2 space-y-1">
+          <a className="block" href={`/${user?.data.role}/userProfile/${user?.data.slug}`}>
+            <Button variant="ghost" className="w-full justify-start">
+              <User className="mr-2 h-4 w-4" /> My Profile
+            </Button>
+          </a>
+          <a href={`/${user?.data.role}/mygames`} className="block">
+            <Button variant="ghost" className="w-full justify-start">
+              <Gamepad2 className="mr-2 h-4 w-4" /> My Games
+            </Button>
+          </a>
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-red-500 hover:text-red-600"
+            onClick={onLogout}
+          >
+            <LogOut className="mr-2 h-4 w-4" /> Logout
           </Button>
-        </a>
-
-        <a href={`/${user?.data.role}/mygames`}>
-          <Button variant="ghost" className="w-full justify-start">
-            <Gamepad2 className="mr-2 h-4 w-4" /> My Games
-          </Button>
-        </a>
-
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-red-500 hover:text-red-600"
-          onClick={onLogout}
-        >
-          <LogOut className="mr-2 h-4 w-4" /> Logout
-        </Button>
+        </div>
       </PopoverContent>
     </Popover>
   );

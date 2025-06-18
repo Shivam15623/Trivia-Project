@@ -15,7 +15,7 @@ import { useLoginUserMutation } from "@/services";
 import { useDispatch } from "react-redux";
 import { setLoggedIn } from "@/redux/AuthSlice/authSlice";
 
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
 import { RenderField } from "@/components/renderFields";
 import { LoginSchema, LoginValues } from "@/SchemaValidations/AuthSchema";

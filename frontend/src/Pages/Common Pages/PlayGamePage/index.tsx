@@ -14,7 +14,7 @@ import {
   useFiftyFiftyUseMutation,
   useGameSessionEndMutation,
 } from "@/services";
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import { Divide, MinusCircle, Zap } from "lucide-react";
 
 import { useEffect, useMemo, useState } from "react";

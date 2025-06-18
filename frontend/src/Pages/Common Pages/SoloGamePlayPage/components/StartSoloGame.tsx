@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useEndSoloGameMutation, useStartSoloGameMutation } from "@/services";
 import { useGetGameByIdQuery } from "@/services/GameApi";
 
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 
 import { useNavigate, useParams } from "react-router-dom";
 

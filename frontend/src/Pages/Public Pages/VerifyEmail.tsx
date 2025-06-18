@@ -1,5 +1,5 @@
 import { useVerifyEmailMutation } from "@/services";
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import confetti from "canvas-confetti";
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -21,7 +21,7 @@ const LazyVerifyEmail: React.FC = () => {
   const verifyUserEmail = async (): Promise<void> => {
     try {
       if (token) {
-        const response = await verifyEmail({ token }).unwrap();
+        const response = await verifyEmail( token ).unwrap();
         if (response?.statuscode === 200) {
           setIsVerified(true);
           confetti();
@@ -35,7 +35,7 @@ const LazyVerifyEmail: React.FC = () => {
 
   return (
     <>
-      <body className="bg-[#fff6f0] p-4 flex items-center justify-center min-h-screen">
+      <div className="bg-[#fff6f0] p-4 flex items-center justify-center min-h-screen">
         <div className="w-full max-w-md relative">
           <div className="bg-white rounded-xl shadow-lg border border-orange-200 overflow-hidden">
             <div className="bg-gradient-to-r from-[#ff100f] to-[#ffc070] p-6 text-center">
@@ -202,7 +202,7 @@ const LazyVerifyEmail: React.FC = () => {
             </div>
           </div>
         </div>
-      </body>
+      </div>
     </>
   );
 };

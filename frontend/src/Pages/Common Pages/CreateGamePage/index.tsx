@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { useCreateGameByUserMutation } from "@/services/GameApi";
 
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
 import CategoryCardSelector from "@/components/CategoryCardSelector";
 import { Button } from "@/components/ui/button";

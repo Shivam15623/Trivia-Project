@@ -14,9 +14,9 @@ import {
   CategorySchema,
   CategoryValue,
 } from "@/SchemaValidations/CategorySchema";
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
-import { Edit2, Plus } from "lucide-react";
+import { Edit,  Plus } from "lucide-react";
 import { FileField } from "@/components/renderFileField";
 import { RenderField } from "@/components/renderFields";
 
@@ -85,9 +85,11 @@ export function CategoryDialog({ slug, triggerLabel, triggerclass }: Props) {
         isEdit ? "Edit your category details." : "Fill category details."
       }
       triggerLabel={triggerLabel}
-      icon={isEdit ? <Edit2 /> : <Plus />}
+      icon={isEdit ? <Edit /> : <Plus />}
       triggerClassName={triggerclass}
       dialogClassName="sm:max-w-md"
+      
+      variant={isEdit ?"ghost":"default"}
       resetForm={() => form.reset()}
     >
       <Form {...form}>
