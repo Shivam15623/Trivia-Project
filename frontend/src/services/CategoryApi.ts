@@ -41,6 +41,13 @@ export const CategoryApi = api.injectEndpoints({
       }),
       invalidatesTags: ["Category"],
     }),
+    DeleteCategory: builder.mutation<ApiGeneralResponse, string>({
+      query: (categoryId) => ({
+        url: `/api/v1/category/Delete/${categoryId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Category"],
+    }),
     FetchHomeCategories: builder.query<CategoryHomeResponse, void>({
       query: () => ({
         url: "/api/v1/category/fetchCategoriesHome",
@@ -80,4 +87,5 @@ export const {
   usePublicToggleMutation,
   useFetchCategoryPublicQuery,
   useFetchDashboardCategoryDataQuery,
+  useDeleteCategoryMutation,
 } = CategoryApi;

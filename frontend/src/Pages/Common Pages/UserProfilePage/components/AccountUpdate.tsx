@@ -92,6 +92,7 @@ const AccountUpdate = () => {
           {/* Left Column */}
           <div className="flex flex-col items-center">
             <RenderField
+              Inputvariant="solidred"
               control={form.control}
               label="Profile Picture"
               name="profilePic"
@@ -108,6 +109,7 @@ const AccountUpdate = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* First Name */}
                 <RenderField
+                  Inputvariant="solidred"
                   control={form.control}
                   label="First Name"
                   name="firstname"
@@ -116,10 +118,12 @@ const AccountUpdate = () => {
                     placeholder: "john",
                     required: true,
                   }}
+                 
                 />
 
                 {/* Last Name */}
                 <RenderField
+                  Inputvariant="solidred"
                   control={form.control}
                   label="Last Name"
                   name="lastname"
@@ -128,11 +132,13 @@ const AccountUpdate = () => {
                     placeholder: "Doe",
                     required: true,
                   }}
+                
                 />
               </div>
 
               {/* Email */}
               <RenderField
+                Inputvariant="solidred"
                 control={form.control}
                 label="Email"
                 name="email"
@@ -141,10 +147,12 @@ const AccountUpdate = () => {
                   placeholder: "you@example.com",
                   required: true,
                 }}
+         
               />
               {/* DOB */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <RenderField
+                  Inputvariant="solidred"
                   control={form.control}
                   label="Date of Birth"
                   name="DOB"
@@ -152,6 +160,7 @@ const AccountUpdate = () => {
                   inputProps={{
                     required: true,
                   }}
+                 
                 />
 
                 {/* Phone Number */}
@@ -192,10 +201,7 @@ const AccountUpdate = () => {
               </div>
             </div>
             <div className="flex  mt-3 justify-start">
-              <Button
-                type="submit"
-                className="tab-gradient  rounded-md hover:opacity-90 transition-opacity text-white px-6 py-2"
-              >
+              <Button type="submit" variant={"gradient"}>
                 Save Changes
               </Button>
             </div>

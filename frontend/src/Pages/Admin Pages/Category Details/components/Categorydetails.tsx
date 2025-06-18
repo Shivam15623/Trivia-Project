@@ -3,6 +3,7 @@ import { CategoryDialog } from "../../Categories/components/CategoryDialog";
 import { Calendar, LucideMessageCircleQuestion, User } from "lucide-react";
 
 import { QuestionDialog } from "./QuestionDialog/QuestionDialog";
+import DeleteCategory from "../../Categories/components/DeleteCategory";
 
 type Props = {
   category: Category;
@@ -57,24 +58,10 @@ const CategoryDetails = ({ category, totalQuestions }: Props) => {
                   triggerclass="p-1 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
                 />
 
-                <button className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                    <line x1="14" y1="11" x2="14" y2="17"></line>
-                  </svg>
-                </button>
+                <DeleteCategory
+                  categoryId={category._id}
+                  categoryName={category.name}
+                />
               </div>
             </div>
 

@@ -26,6 +26,7 @@ const ApplyEmailVerification: React.FC = () => {
         setMessage("Verification email sent! Please check your inbox.");
       }
     } catch (err) {
+      console.log(err)
       handleApiError(err);
     }
   };
@@ -84,7 +85,8 @@ const ApplyEmailVerification: React.FC = () => {
                 id="send-button"
                 onClick={handleResendVerification}
                 disabled={isLoading}
-                className="w-full py-2.5 px-4 bg-gradient-to-r from-[#fcbf49] to-[#f29e4e] text-white font-medium rounded-md hover:opacity-90 transition-opacity flex items-center justify-center"
+                variant={"gradient"}
+                className="w-full py-2.5 px-4 "
               >
                 <span>
                   {isLoading ? "Sending..." : "Send Verification Email"}

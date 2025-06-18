@@ -121,6 +121,7 @@ const WaitingRoom = () => {
     }
     try {
       const res = await startMatch(data.sessionId).unwrap();
+      console.log(data.sessionId,res)
       if (res.success === true) {
         showSuccess("Game started!");
         navigate(`/game/PlayGameSession/${sessionCode}`);

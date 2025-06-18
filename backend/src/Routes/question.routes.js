@@ -10,13 +10,14 @@ import {
 } from "../controller/question.controller.js";
 import { validateRequest } from "../middleware/validate.js";
 import { QuestionSchema } from "../validations/QuestionSchema.js";
+import requireAdminRole from "../middleware/RouteAuthRole.js";
 const router = Router();
 router.use(passport.authenticate("jwt", { session: false }));
 router.route("/AddQuestion").post(
   upload.fields([
     { name: "questionImage", maxCount: 1 },
     { name: "answerImage", maxCount: 1 },
-  ]),
+  ]),requireAdminRole,
   validateRequest(QuestionSchema),
   addQuestionToCategory
 );
@@ -25,11 +26,11 @@ router.route("/updateQuestion/:questionId").patch(
   upload.fields([
     { name: "questionImage", maxCount: 1 },
     { name: "answerImage", maxCount: 1 },
-  ]),
+  ]),requireAdminRole,
   validateRequest(QuestionSchema),
   updateQuestion
 );
 
-router.route("/deleteQuestion/:questionId").delete(deleteQuestion);
+router.route("/deleteQuestion/:questionId").delete(requireAdminRole,deleteQuestion);
 router.route("/fetchQuestionById/:questionId").get(fetchQuestionById);
 export default router;

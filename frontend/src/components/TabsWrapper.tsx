@@ -21,8 +21,10 @@ const variantClasses = {
   },
   userprofile: {
     list: "flex p-1 bg-[#fff0e5] w-full h-auto gap-1 ",
-    trigger: "flex-1 py-3 px-4 rounded-md h-auto font-medium text-center text-[#e34b4b]",
-    active: "flex-1 py-3 px-4 rounded-md h-auto font-medium focus:outline-none data-[state=active]:shadow-none text-center tab-gradient text-white",
+    trigger:
+      "flex-1 py-3 px-4 rounded-md h-auto font-medium text-center text-[#e34b4b]",
+    active:
+      "flex-1 py-3 px-4 rounded-md h-auto font-medium focus:outline-none data-[state=active]:shadow-none text-center tab-gradient text-white",
   },
   pill: {
     list: "flex gap-2",
@@ -58,9 +60,9 @@ const TabsWrapper = ({
     <Tabs
       defaultValue={defaultValue}
       onValueChange={setActiveTab}
-      className="bg-white rounded-lg shadow-md overflow-hidden"
+      className="bg-white rounded-lg  shadow-none overflow-hidden gap-0 space-y-0"
     >
-      <TabsList className={cn(styles.list)}>
+      <TabsList className={cn("rounded-t-md rounded-b-none",styles.list)}>
         {tabs.map((tab) => (
           <TabsTrigger
             key={tab.value}
@@ -80,7 +82,11 @@ const TabsWrapper = ({
         <TabsContent
           key={tab.value}
           value={tab.value}
-          className={cn("mt-4", activeTab === tab.value && "block")}
+          className={cn(
+           
+            "animate-fadeIn",
+            activeTab === tab.value && "block"
+          )}
         >
           {tab.content}
         </TabsContent>

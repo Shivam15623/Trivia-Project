@@ -75,6 +75,7 @@ const Login = () => {
               className="space-y-6"
             >
               <RenderField
+                Inputvariant="solidred"
                 control={form.control}
                 label="Email"
                 name="email"
@@ -87,6 +88,7 @@ const Login = () => {
               <div>
                 {" "}
                 <RenderField
+                  Inputvariant="solidred"
                   control={form.control}
                   label="Password"
                   name="password"
