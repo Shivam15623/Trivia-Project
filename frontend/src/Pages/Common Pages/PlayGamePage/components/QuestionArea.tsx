@@ -11,7 +11,7 @@ import { Socket } from "socket.io-client";
 import OtherUserDisplay from "./otherUserDisplay";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 interface QuestionSectionProp {
   currentQuestionData: currentQuestionData;
   sessionInfo: GameSession;

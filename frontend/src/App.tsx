@@ -1,9 +1,9 @@
 import { RouterProvider } from "react-router-dom";
-
 import { useSilentAuthMutation } from "./services";
-
 import { useEffect } from "react";
 import router from "./routes";
+import './styles/fonts.css';
+import "./styles/animation.css"
 import "@/App.css";
 
 function App() {

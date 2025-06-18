@@ -27,8 +27,8 @@ export const ProfileUpload = ({ value, onChange }: ProfileUploadProps) => {
   }, [value]);
 
   return (
-    <div className="relative w-32 h-32">
-      <Avatar className="w-full h-full">
+    <div className="relative w-32 h-32 ">
+      <Avatar className="w-full h-full border-2 border-orange-300">
         {preview && <AvatarImage src={preview} alt="Profile" />}
         <AvatarFallback className="text-2xl font-bold">TRIVIA</AvatarFallback>
       </Avatar>

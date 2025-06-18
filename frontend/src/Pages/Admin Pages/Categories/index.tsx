@@ -13,9 +13,10 @@ import { useNavigate } from "react-router-dom";
 
 import { Switch } from "@/components/ui/switch";
 
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
 import { CategoryDialog } from "@/Pages/Admin Pages/Categories/components/CategoryDialog";
+import DeleteCategory from "./components/DeleteCategory";
 
 const Categories = () => {
   const {
@@ -158,6 +159,10 @@ const Categories = () => {
                 <CategoryDialog
                   slug={category.slug}
                   triggerclass="p-1.5 rounded-md"
+                />
+                <DeleteCategory
+                  categoryId={category._id}
+                  categoryName={category.name}
                 />
               </div>
             </CardFooter>

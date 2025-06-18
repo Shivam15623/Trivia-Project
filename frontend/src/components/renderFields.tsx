@@ -48,6 +48,7 @@ type RenderFieldProps<
     React.SelectHTMLAttributes<HTMLSelectElement>;
   options?: TOption[];
   className?: string;
+  Inputvariant?: "default" | "underline" | "ghost" | "solid" | "solidred";
   getOptionLabel?: (option: TOption) => string;
   getOptionValue?: (option: TOption) => string | number;
 };
@@ -60,6 +61,7 @@ export function RenderField<TForm extends FieldValues, TOption = unknown>({
   inputProps = {},
   labelClass = "",
   options = [],
+  Inputvariant = "default",
   getOptionLabel,
   getOptionValue,
   className = "",
@@ -135,6 +137,7 @@ export function RenderField<TForm extends FieldValues, TOption = unknown>({
                 type={type}
                 className={className}
                 value={isFile ? undefined : field.value ?? ""}
+                variant={Inputvariant}
                 onChange={
                   isFile
                     ? (e) => field.onChange(e.target.files?.[0])

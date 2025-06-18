@@ -6,7 +6,7 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 
 import CategoryCard from "./CategoryCard";
 

@@ -4,12 +4,12 @@ import {
   useInitializeSoloGameMutation,
 } from "@/services";
 
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 import PlayGameDialog from "./components/playGameDialog";
-import { Hash, Users } from "lucide-react";
+import {  Users } from "lucide-react";
 
 const MyGames = () => {
   const { data: mygames, isLoading, isError } = useFetchMyGamesQuery(undefined);
@@ -86,9 +86,7 @@ const MyGames = () => {
                 onChange={(e) => setSessionCode(e.target.value)}
                 className="join-input bg-gray-50 text-gray-800 placeholder-gray-400 px-5 py-3 rounded-xl border border-gray-200 w-full focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
               />
-              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                <Hash className="h-5 w-5 text-gray-400" />
-              </div>
+              
             </div>
             <button
               className="bg-[#ff7546] hover:bg-orange-500 px-8 py-3 text-lg rounded-xl text-white font-bold "

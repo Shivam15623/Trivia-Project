@@ -1,21 +1,28 @@
+// hooks/useSocket.ts
 import { useEffect, useRef } from "react";
 import { initializeSocket } from "@/utills/Socket";
 import { Socket } from "socket.io-client";
 
-
-export const useSocket = (): Socket | null => {
+export const useSocket = (): Socket => {
   const socketRef = useRef<Socket | null>(null);
 
+  if (!socketRef.current) {
+    socketRef.current = initializeSocket();
+  }
+
   useEffect(() => {
-    if (!socketRef.current) {
-      socketRef.current = initializeSocket();
-    }
+    // Optional reconnect logging
+    socketRef.current?.on("connect", () => {
+      console.log("Socket connected");
+    });
+    socketRef.current?.on("disconnect", () => {
+      console.log("Socket disconnected");
+    });
 
     return () => {
-      // Don’t disconnect if you want persistence across routes
-      // socketRef.current?.disconnect();
+      // Optional: Leave this alone for persistence
     };
   }, []);
 
-  return socketRef.current;
+  return socketRef.current!;
 };

@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useResetPasswordRequestMutation } from "@/services";
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import { Mail } from "lucide-react";
+import AuthCardWrapper from "@/components/AuthCardWrapper";
 
 const RequestResetPassword: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -17,7 +18,7 @@ const RequestResetPassword: React.FC = () => {
 
     try {
       console.log("Requesting password reset for:", email);
-      const response = await resetPassword({ email }).unwrap();
+      const response = await resetPassword( email ).unwrap();
       console.log(response);
       if (response?.statuscode === 200) {
         setMessage("Reset link sent! Check your email.");
@@ -29,12 +30,7 @@ const RequestResetPassword: React.FC = () => {
 
   return (
     <div className="flex items-center patt justify-center min-h-screen ">
-      <div className="bg-white  rounded-xl shadow-lg w-full max-w-md overflow-hidden">
-        <div className="bg-gradient-to-r from-[#ff100f] to-[#ffc070] p-6 text-center">
-          <div className="bg-white/90 rounded-full w-20 h-20 mx-auto flex items-center justify-center hlogo-animation">
-            <Mail className="w-10 h-10 text-[#e34b4b]" />
-          </div>
-        </div>
+      <AuthCardWrapper icon={<Mail className="w-10 h-10 text-[#e34b4b]" />}>
         <div className="p-6">
           <h2 className="text-2xl font-semibold text-center mb-2 text-[#e34b4b]">
             Forgot Password?
@@ -102,7 +98,7 @@ const RequestResetPassword: React.FC = () => {
             </a>
           </p>
         </div>
-      </div>
+      </AuthCardWrapper>
     </div>
   );
 };

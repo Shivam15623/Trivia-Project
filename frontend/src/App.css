@@ -1,3 +1,13 @@
+@font-face {
+  font-family: "Montserrat";
+  src: url("../assets/fonts/Montserrat/static/Montserrat-Medium.ttf")
+    format(ttf);
+  font-weight: 400;
+  font-style: normal;
+}
+body {
+  font-family: "Montserrat", sans-serif;
+}
 .moon-banner {
   clip-path: ellipse(140% 60% at 50% 36%);
 }
@@ -110,21 +120,12 @@
     max-width: 1536px;
   }
 }
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
 
-.hlogo-animation {
-  animation: float 3s ease-in-out infinite;
-}
 .container {
   width: 100%;
+}
+.tab-gradient {
+  background-image: linear-gradient(to right, #fcbf49, #f29e4e);
 }
 .para-text {
   font-size: 1.125rem;
@@ -149,106 +150,4 @@
 .patt {
   background-color: #fff6f0;
   background-image: url("../public//bgsignup.svg");
-}
-.main-heading_text {
-  font-size: 1.875rem;
-  line-height: 2.25rem;
-}
-@media (min-width: 769px) {
-  .main-heading_text {
-    font-size: 2.25rem;
-    line-height: 2.5rem;
-  }
-}
-@media (min-width: 1660px) {
-  .main-heading_text {
-    font-size: 3rem;
-    line-height: 1;
-  }
-}
-
-.bg-dark-brown {
-  background-color: #3b2f2f; /* Replace with your actual dark brown color */
-}
-@media (min-width: 1920px) {
-  .custom-4xl-box {
-    width: 20rem; /* 4xl:w-80 */
-    height: 140px; /* 4xl:h-[140px] */
-    border-top-left-radius: 30px;
-    border-top-right-radius: 30px;
-  }
-}
-
-.scoreRight {
-  display: flex;
-  height: 33.333333%;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  border-top-right-radius: 0.25rem;
-  border-bottom-right-radius: 0.25rem;
-  font-size: 1.125rem;
-  line-height: 1.75rem;
-}
-@media (min-width: 576px) {
-  .scoreRight {
-    font-size: 1.5rem;
-    line-height: 2rem;
-  }
-}
-@media (min-width: 769px) {
-  .scoreRight {
-    font-size: 1.875rem;
-    line-height: 2.25rem;
-  }
-}
-@media (min-width: 1660px) {
-  .scoreRight {
-    font-size: 2.25rem;
-    line-height: 2.5rem;
-  }
-}
-@media (min-width: 1790px) {
-  .scoreRight {
-    font-size: 3rem;
-    line-height: 1;
-  }
-}
-
-.scoreLeft {
-  display: flex;
-  height: 33.333333%;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  border-top-left-radius: 0.25rem;
-  border-bottom-left-radius: 0.25rem;
-  font-size: 1.125rem;
-  line-height: 1.75rem;
-}
-@media (min-width: 576px) {
-  .scoreLeft {
-    font-size: 1.5rem;
-    line-height: 2rem;
-  }
-}
-@media (min-width: 769px) {
-  .scoreLeft {
-    font-size: 1.875rem;
-    line-height: 2.25rem;
-  }
-}
-@media (min-width: 1660px) {
-  .scoreLeft {
-    font-size: 2.25rem;
-    line-height: 2.5rem;
-  }
-}
-@media (min-width: 1790px) {
-  .scoreLeft {
-    font-size: 3rem;
-    line-height: 1;
-  }
 }

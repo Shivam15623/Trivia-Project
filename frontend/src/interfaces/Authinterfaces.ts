@@ -30,9 +30,7 @@ export interface LoginData {
 export interface VerifyEmailCredentials {
   token: string;
 }
-export interface RequestResetPasswordcredential {
-  email: string;
-}
+
 export interface ChangeUserDetailsPayLoad {
   UserData: {
     firstname: string;

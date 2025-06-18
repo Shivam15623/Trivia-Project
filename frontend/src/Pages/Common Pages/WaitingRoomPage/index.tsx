@@ -14,7 +14,7 @@ import { useSocket } from "@/hooks/useSocket";
 
 import { motion } from "framer-motion";
 import { useGetGameByIdQuery } from "@/services/GameApi";
-import logError from "@/utills/logError";
+import { handleApiError } from "@/utills/handleApiError";
 import { showError, showSuccess } from "@/components/toastUtills";
 
 const WaitingRoom = () => {
@@ -121,6 +121,7 @@ const WaitingRoom = () => {
     }
     try {
       const res = await startMatch(data.sessionId).unwrap();
+      console.log(data.sessionId,res)
       if (res.success === true) {
         showSuccess("Game started!");
         navigate(`/game/PlayGameSession/${sessionCode}`);
