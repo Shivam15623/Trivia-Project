@@ -1,9 +1,15 @@
 import { Category } from "@/interfaces/categoriesInterface";
 import { CategoryDialog } from "../../Categories/components/CategoryDialog";
-import { Calendar, LucideMessageCircleQuestion, User } from "lucide-react";
+import {
+  Calendar,
+  Edit,
+  LucideMessageCircleQuestion,
+  User,
+} from "lucide-react";
 
 import { QuestionDialog } from "./QuestionDialog/QuestionDialog";
 import DeleteCategory from "../../Categories/components/DeleteCategory";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   category: Category;
@@ -54,8 +60,14 @@ const CategoryDetails = ({ category, totalQuestions }: Props) => {
               <div className="flex space-x-2">
                 <CategoryDialog
                   slug={category.slug}
-                  triggerLabel=""
-                  triggerclass="p-1 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                  trigger={
+                    <Button
+                      className="p-1 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      variant={"ghost"}
+                    >
+                      <Edit />
+                    </Button>
+                  }
                 />
 
                 <DeleteCategory
@@ -122,8 +134,12 @@ const CategoryDetails = ({ category, totalQuestions }: Props) => {
 
             <div className="mt-6 flex space-x-3">
               <QuestionDialog
-                triggerLabel="Add Question"
-                triggerClass="px-4 py-2 bg-[#e34b4b] text-white rounded-md hover:bg-[#d43c3c] transition-colors flex items-center"
+                trigger={
+                  <Button className="px-4 py-2 bg-[#e34b4b] text-white rounded-md hover:bg-[#d43c3c] transition-colors flex items-center">
+                    Add Question
+                  </Button>
+                }
+               
               />
             </div>
           </div>

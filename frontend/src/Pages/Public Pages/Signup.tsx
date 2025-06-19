@@ -18,10 +18,8 @@ import {
 } from "@/components/ui/form";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-
 import { Button } from "@/components/ui/button";
-
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
 import { SignupSchema, SignupValues } from "@/SchemaValidations/AuthSchema";
@@ -212,15 +210,15 @@ const Signup = () => {
         </CardContent>
         <CardFooter className="bg-[#fff8f0] p-4 text-center  border-t border-orange-100">
           <div className="flex justify-center space-x-4 mx-auto">
-            <a href="#" className="text-sm text-gray-500 hover:text-[#e34b4b]">
+            <Link to="#" className="text-sm text-gray-500 hover:text-[#e34b4b]">
               Help
-            </a>
-            <a href="#" className="text-sm text-gray-500 hover:text-[#e34b4b]">
+            </Link>
+            <Link to="#" className="text-sm text-gray-500 hover:text-[#e34b4b]">
               Privacy
-            </a>
-            <a href="#" className="text-sm text-gray-500 hover:text-[#e34b4b]">
+            </Link>
+            <Link to="#" className="text-sm text-gray-500 hover:text-[#e34b4b]">
               Terms
-            </a>
+            </Link>
           </div>
         </CardFooter>
       </Card>

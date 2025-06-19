@@ -1,11 +1,9 @@
 import { Link, useParams } from "react-router-dom";
-import Confetti from "react-confetti";
-import useWindowSize from "react-use/lib/useWindowSize";
+
 import { useFetchScoreBoardQuery } from "@/services";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-
 import {
   Trophy,
   Users,
@@ -13,9 +11,15 @@ import {
   LoaderCircle,
   RefreshCcw,
 } from "lucide-react";
+
+import { Player } from "@/interfaces/GameSessionInterface";
+import CustomTable from "@/components/CustomTable";
+import { cn } from "@/lib/utils";
+import { fireConfetti } from "@/utills/confetti";
+
 const EndGamePage = () => {
   const { sessionCode } = useParams<{ sessionCode: string }>();
-  const { width, height } = useWindowSize();
+
   const userId = useSelector((state: RootState) => state.auth.user?._id);
   const userRole = useSelector((state: RootState) => state.auth.user?.role);
   const {
@@ -29,6 +33,14 @@ const EndGamePage = () => {
       sessionData.data.winner.members.some((player) => player.userId === userId)
     );
   }, [sessionData, userId]);
+  
+
+
+useEffect(() => {
+  if (isWinner && !isDraw) {
+    fireConfetti({spread:250});
+  }
+}, [isWinner]);
 
   if (isLoading) {
     return (
@@ -55,12 +67,12 @@ const EndGamePage = () => {
       </div>
     );
   }
-
-  const { winner, loser, isDraw } = sessionData.data;
+const { winner, loser, isDraw } = sessionData.data;
+  
 
   return (
     <div className="min-h-screen h-auto bg-gradient-to-br from-orange-50 via-white to-orange-100 text-gray-800 p-6">
-      {!isDraw && winner && <Confetti width={width} height={height} />}
+      
       <div className="max-w-7xl mx-auto text-center">
         <h1 className="text-5xl font-bold mb-4">🏁 Game Over!</h1>
         <p className="text-lg text-gray-400 mb-8">
@@ -98,7 +110,7 @@ const EndGamePage = () => {
                 title: "🥇 Wins!",
                 bg: "bg-red-100",
                 text: "text-red-700",
-                border: "border-red-400",
+
                 mvpColor: "bg-red-600 text-white",
                 winMsg: "You conquered the game with strategy and teamwork!",
               },
@@ -107,73 +119,103 @@ const EndGamePage = () => {
                 title: "😓 Lost",
                 bg: "bg-orange-100",
                 text: "text-orange-700",
-                border: "border-orange-400",
+
                 mvpColor: "bg-orange-500 text-white",
                 winMsg:
                   "Don’t give up! There’s always a next time to shine. 💪",
               },
-            ].map(({ team, title, bg, text, border, mvpColor, winMsg }) => (
-              <div
-                key={team?.name}
-                className={`${bg} p-6 rounded-xl shadow-xl`}
-              >
-                <h2 className="text-3xl font-bold mb-2">
-                  {title} {team?.name}
-                </h2>
-                <p className={`text-xl ${text} mb-4`}>
-                  Final Score: {team?.score}
-                </p>
-                <div className="overflow-x-auto">
-                  <table className={`min-w-full text-sm text-left ${text}`}>
-                    <thead className={`${border} border-b`}>
-                      <tr>
-                        <th className="py-2 px-4">Player</th>
-                        <th className="py-2 px-4 text-center">Score</th>
-                        <th className="py-2 px-4 text-center">Correct</th>
-                        <th className="py-2 px-4 text-center">Wrong</th>
-                        <th className="py-2 px-4 text-center">Total</th>
-                        <th className="py-2 px-4 text-center">Badge</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {team?.members.map((player, _idx, arr) => {
-                        const correct = player.attemptHistory.filter(
-                          (a) => a.isCorrect
-                        ).length;
-                        const total = player.attemptHistory.length;
-                        const wrong = total - correct;
-                        const isMVP =
-                          player.score === Math.max(...arr.map((p) => p.score));
-                        return (
-                          <tr
-                            key={player.username}
-                            className="border-b border-opacity-30"
+            ].map(({ team, title, bg, text, mvpColor, winMsg }) => {
+              const columns = [
+                {
+                  name: "Player",
+                  cell: (player: Player) => player.username,
+                },
+                {
+                  name: "Score",
+                  cell: (player: Player) => (
+                    <div className="text-center">{player.score}</div>
+                  ),
+                },
+                {
+                  name: "Correct",
+                  cell: (player: Player) => {
+                    const correct = player.attemptHistory.filter(
+                      (a) => a.isCorrect
+                    ).length;
+                    return <div className="text-center">{correct}</div>;
+                  },
+                },
+                {
+                  name: "Wrong",
+                  cell: (player: Player) => {
+                    const correct = player.attemptHistory.filter(
+                      (a) => a.isCorrect
+                    ).length;
+                    const total = player.attemptHistory.length;
+                    return <div className="text-center">{total - correct}</div>;
+                  },
+                },
+                {
+                  name: "Total",
+                  cell: (player: Player) => (
+                    <div className="text-center">
+                      {player.attemptHistory.length}
+                    </div>
+                  ),
+                },
+                {
+                  name: "Badge",
+                  cell: (player: Player, _idx?: number, arr?: Player[]) => {
+                    const isMVP =
+                      player.score ===
+                      Math.max(...(arr ?? []).map((p) => p.score));
+                    return (
+                      <div className="text-center">
+                        {isMVP && (
+                          <span
+                            className={cn(
+                              " px-2 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1",
+                              mvpColor
+                            )}
                           >
-                            <td className="py-2 px-4">{player.username}</td>
-                            <td className="py-2 px-4 text-center">
-                              {player.score}
-                            </td>
-                            <td className="py-2 px-4 text-center">{correct}</td>
-                            <td className="py-2 px-4 text-center">{wrong}</td>
-                            <td className="py-2 px-4 text-center">{total}</td>
-                            <td className="py-2 px-4 text-center">
-                              {isMVP && (
-                                <span
-                                  className={`${mvpColor} px-2 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1`}
-                                >
-                                  <BadgeCheck className="w-4 h-4" /> MVP
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                            <BadgeCheck className="w-4 h-4" /> MVP
+                          </span>
+                        )}
+                      </div>
+                    );
+                  },
+                },
+              ];
+              return (
+                <div
+                  key={team?.name}
+                  className={`${bg} p-6 rounded-xl shadow-xl`}
+                >
+                  <h2 className="text-3xl font-bold mb-2">
+                    {title} {team?.name}
+                  </h2>
+                  <p className={`text-xl ${text} mb-4`}>
+                    Final Score: {team?.score}
+                  </p>
+                  <div className="overflow-x-auto">
+                    {team?.members && team.members.length > 0 ? (
+                      <CustomTable
+                        columns={columns}
+                        data={team.members}
+                        variant={title.includes("Wins") ? "TeamA" : "TeamB"}
+                      />
+                    ) : (
+                      <p className="text-center text-sm italic text-gray-500">
+                        No players in this team.
+                      </p>
+                    )}
+                  </div>
+                  <p className="mt-6 italic text-sm text-opacity-80">
+                    {winMsg}
+                  </p>
                 </div>
-                <p className="mt-6 italic text-sm text-opacity-80">{winMsg}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

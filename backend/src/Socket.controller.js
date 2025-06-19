@@ -4,12 +4,12 @@ import Question from "./model/questionAnswer.model.js";
 
 // Handles client connection
 export const handleConnection = (socket) => {
-  console.log("Client connected:", socket.id);
+ 
 
   // Join session room
   socket.on("join-session-room", (sessionCode) => {
     socket.join(sessionCode);
-    console.log(`Socket ${socket.id} joined room ${sessionCode}`);
+
   });
 
   // Handle player joined event
@@ -52,7 +52,7 @@ export const handleConnection = (socket) => {
           thumbnail: newQuestion.categoryId.thumbnail,
         },
       };
-      console.log(currentQuestionResponse)
+   
   
       io.to(sessionCode).emit("chngeState", {
         session:session,
@@ -67,7 +67,7 @@ export const handleConnection = (socket) => {
 
   // Handle game end event
   socket.on("end-game", (sessionCode) => {
-    console.log(`Game ended for session: ${sessionCode}`);
+
     io.to(sessionCode).emit("game-ended");
   });
 

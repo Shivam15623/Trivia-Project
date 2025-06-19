@@ -28,16 +28,15 @@ import {
   QuestionSchema,
   QuestionValues,
 } from "@/SchemaValidations/QuestionSchema";
-import { Edit2 } from "lucide-react";
-import { useEffect } from "react";
+
+import { ReactNode, useEffect } from "react";
 
 const Points = [200, 400, 600];
 type Props = {
   id?: string;
-  triggerLabel?: string;
-  triggerClass?: string;
+  trigger: ReactNode;
 };
-export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
+export function QuestionDialog({ id, trigger }: Props) {
   const isEdit = Boolean(id);
   const form = useForm<QuestionValues>({
     resolver: zodResolver(QuestionSchema),
@@ -87,7 +86,7 @@ export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
             questionId: id ?? "",
           }).unwrap()
         : await addQuestionToCategory(formData).unwrap();
-      console.log("Response from API:", res); // Log the response for debugging
+
       if (res.success) {
         showSuccess(res.message);
         form.reset();
@@ -109,26 +108,17 @@ export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
       });
     }
   }, [isEdit, questionData, form]);
-  console.log("Form values:", form.getValues("questionImage"));
 
   return (
     <DialogWrapper
       title={isEdit ? "Update Question" : "Add Question"}
       type={isEdit ? "edit" : "add"}
-      triggerLabel={triggerLabel}
+      trigger={trigger}
       description={
         isEdit
           ? "Update the question details below."
           : "Add a new question to the category."
       }
-      icon={
-        isEdit ? (
-          <Edit2 className="text-[#e34b4b] hover:text-[#d14545] transition duration-200" />
-        ) : undefined
-      }
-      dialogClassName="sm:max-w-md h-[90vh] overflow-y-auto"
-      triggerClassName={triggerClass}
-      variant="outline"
       size="2xl"
       resetForm={() => form.reset()} // ✅ resets when dialog closes
     >
@@ -232,12 +222,16 @@ export function QuestionDialog({ id, triggerLabel, triggerClass }: Props) {
           </div>
 
           {/* Submit Button */}
-          <Button
-            type="submit"
-            className="w-full p-3 mt-4 bg-blue-600 text-white rounded-lg"
-          >
-            Submit
-          </Button>
+          <div className="grid grid-col-1 md:grid-cols-2 mt-4 gap-3">
+            <Button
+              type="submit"
+              variant={"gradient"}
+              className="w-full   rounded-lg"
+            >
+              Submit
+            </Button>
+            <DialogWrapper.CancelButton />
+          </div>
         </form>
       </Form>
     </DialogWrapper>

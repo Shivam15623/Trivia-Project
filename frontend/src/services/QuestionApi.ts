@@ -12,7 +12,7 @@ export const QuestionApi = api.injectEndpoints({
       string
     >({
       query: (categoryId) => ({
-        url: `/api/v1/question/getQuestionsByCategory/${categoryId}`,
+        url: `/api/v1/question/getQuestionsByCategory/${encodeURIComponent(categoryId)}`,
         method: "GET",
       }),
       providesTags: ["Questions"],
@@ -30,7 +30,7 @@ export const QuestionApi = api.injectEndpoints({
       { formData: FormData; questionId: string }
     >({
       query: ({ questionId, formData }) => ({
-        url: `/api/v1/question/updateQuestion/${questionId}`,
+        url: `/api/v1/question/updateQuestion/${encodeURIComponent(questionId)}`,
         body: formData,
         method: "PATCH",
       }),
@@ -38,7 +38,7 @@ export const QuestionApi = api.injectEndpoints({
     }),
     DeleteQuestion: builder.mutation<ApiGeneralResponse, string>({
       query: (questionId) => ({
-        url: `/api/v1/question/deleteQuestion/${questionId}`,
+        url: `/api/v1/question/deleteQuestion/${encodeURIComponent(questionId)}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Questions"],
@@ -46,7 +46,7 @@ export const QuestionApi = api.injectEndpoints({
 
     FetchQuestionById: builder.query<getQuestionDetailByIdResponse, string>({
       query: (questionId) => ({
-        url: `/api/v1/question/fetchQuestionById/${questionId}`,
+        url: `/api/v1/question/fetchQuestionById/${encodeURIComponent(questionId)}`,
         method: "GET",
       }),
       providesTags: ["Questions"],

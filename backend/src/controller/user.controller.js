@@ -20,7 +20,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
 export const updateProfile = asyncHandler(async (req, res) => {
   const { _id } = req.user;
   const { firstname, lastname, email, phoneNo, DOB } = req.body;
-  console.log(req.body);
+
 
   if (!firstname || !lastname || !email || !phoneNo || !DOB) {
     throw new ApiError(400, "All fields are required");

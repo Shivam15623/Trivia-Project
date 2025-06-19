@@ -13,10 +13,10 @@ export const useSocket = (): Socket => {
   useEffect(() => {
     // Optional reconnect logging
     socketRef.current?.on("connect", () => {
-      console.log("Socket connected");
+    
     });
     socketRef.current?.on("disconnect", () => {
-      console.log("Socket disconnected");
+     
     });
 
     return () => {

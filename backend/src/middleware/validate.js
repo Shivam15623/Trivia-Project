@@ -13,7 +13,7 @@ export const validateRequest = (schema, property = "body") => {
       req[property] = validatedData;
       next();
     } catch (err) {
-      console.log("Validation error:");
+    
       const deleteFile = (filePath) => {
         if (!filePath) return;
         fs.unlink(filePath, (unlinkErr) => {

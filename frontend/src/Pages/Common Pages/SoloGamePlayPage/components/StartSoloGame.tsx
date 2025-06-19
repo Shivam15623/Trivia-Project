@@ -124,7 +124,7 @@ const StartSoloGame = ({ gameId }: { gameId: string }) => {
             variant="ghost"
             onClick={HandleStartGame}
             size={"lg"}
-            className="start-button bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-bold px-8 py-7 rounded-xl shadow-lg transition duration-300 w-full sm:w-auto flex items-center justify-center"
+            className="start-button button-shine h-auto  bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-bold px-6 py-4 rounded-xl shadow-lg transition duration-300 w-full sm:w-auto flex items-center justify-center"
           >
             <PlayCircle />
             Start Game
@@ -133,7 +133,7 @@ const StartSoloGame = ({ gameId }: { gameId: string }) => {
             variant="ghost"
             onClick={HandleEndGame}
             size={"lg"}
-            className="bg-white border-2 border-red-500 text-red-500 hover:bg-red-50 font-bold px-8 py-7 rounded-xl shadow-md transition duration-300 w-full sm:w-auto flex items-center justify-center"
+            className="bg-white border-2 border-red-500 h-auto text-red-500 hover:bg-red-50 font-bold px-6 py-4 rounded-xl shadow-md transition duration-300 w-full sm:w-auto flex items-center justify-center"
           >
             {" "}
             <X />

@@ -1,9 +1,51 @@
-import { useFetchSessionInfoSoloQuery } from "@/services";
+import {
+  useFetchSessionInfoSoloQuery,
+  useInitializeSoloGameMutation,
+} from "@/services";
 import { RootState } from "@/redux/store";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { useParams, Link } from "react-router-dom";
+import { useParams,  useNavigate, Link } from "react-router-dom";
+import { SoloGameSession } from "@/interfaces/SoloGameInterface";
+import CustomTable from "@/components/CustomTable";
+import { Home, PlayCircle, Trophy } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { showSuccess } from "@/components/toastUtills";
+import { handleApiError } from "@/utills/handleApiError";
 
+const column = [
+  {
+    name: "Name",
+    cell: (p: SoloGameSession) => p.username,
+  },
+  {
+    name: "Attempted",
+    cell: (p: SoloGameSession) => (
+      <div className="text-center">{p.attemptHistory.length}</div>
+    ),
+  },
+  {
+    name: "Correct",
+    cell: (p: SoloGameSession) => (
+      <div className="text-center">
+        {p.attemptHistory.filter((a) => a.isCorrect).length}
+      </div>
+    ),
+  },
+  {
+    name: "Accuracy",
+    cell: (p: SoloGameSession) => {
+      const correctCount = p.attemptHistory.filter((a) => a.isCorrect).length;
+
+      const attemptedCount = p.attemptHistory?.length || 0;
+      const accuracy =
+        attemptedCount > 0
+          ? Math.round((correctCount / attemptedCount) * 100)
+          : 0;
+      return <div className="text-center">{accuracy}%</div>;
+    },
+  },
+];
 const SoloGameEnd = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const {
@@ -12,6 +54,20 @@ const SoloGameEnd = () => {
     error,
   } = useFetchSessionInfoSoloQuery(sessionId!);
   const user = useSelector((state: RootState) => state.auth.user);
+  const [initializesolo] = useInitializeSoloGameMutation();
+  const navigate = useNavigate();
+  const handleInitializeSoloPlay = async (gameId: string) => {
+    try {
+      const response = await initializesolo({ gameId }).unwrap();
+      if (response.success === true) {
+        showSuccess(response.message);
+
+        navigate(`/game/SoloGame/${response.data}`);
+      }
+    } catch (error) {
+      handleApiError(error);
+    }
+  };
 
   const correctCount = useMemo(() => {
     if (!sessionData?.data?.attemptHistory) return 0;
@@ -39,7 +95,7 @@ const SoloGameEnd = () => {
   if (error)
     return (
       <div className="text-center text-red-600 font-semibold mt-10">
-        ⚠️ Error fetching data
+        Something Went Wrong
       </div>
     );
 
@@ -60,59 +116,77 @@ const SoloGameEnd = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 bg-gradient-to-br from-orange-50 bg-[#fff6f0]">
-      <div className="bg-white rounded-2xl shadow-xl border-[5px] border-[#e34b4b] p-8 max-w-md w-full text-center space-y-6">
-        <h2 className="text-3xl font-bold text-gray-800">🎉 Game Completed!</h2>
+    <>
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
+        <div className="relative max-w-md w-full">
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="h-3 orange-gradient"></div>
 
-        <div className="text-xl text-gray-600">Your Score:</div>
-        <div className="text-5xl font-extrabold text-red-600">
-          {sessionData.data.score}
+            <div className="p-8 text-center space-y-6">
+              <div className="flex justify-center mb-2">
+                <div className="w-20 h-20 rounded-full bg-orange-50 flex items-center justify-center animate-scale">
+                  <Trophy className="h-12 w-12 text-amber-400 trophy-glow" />
+                </div>
+              </div>
+
+              <h2 className="text-3xl font-extrabold bg-clip-text text-transparent orange-gradient">
+                Game Completed!
+              </h2>
+
+              <div className="bg-gradient-to-br from-white to-orange-50 rounded-xl p-5 border border-orange-100 shadow-sm">
+                <div className="text-lg text-orange-500 font-medium">
+                  Your Score
+                </div>
+                <div className="text-5xl font-extrabold text-red-500 mt-1">
+                  {sessionData.data.score}
+                </div>
+
+                <div className="mt-3 text-lg font-semibold bg-clip-text text-transparent tab-gradient">
+                  {getFeedbackMessage()}
+                </div>
+              </div>
+
+              <div className="w-full overflow-hidden rounded-xl border border-orange-100">
+                <CustomTable
+                  columns={column}
+                  data={[{ ...sessionData.data }]}
+                  variant="SoloGameEnd"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <Button
+                  onClick={() =>
+                    handleInitializeSoloPlay(sessionData?.data.gameId)
+                  }
+                  variant={"gradient"}
+                  className="flex-1 button-shine h-auto px-6 py-3 rounded-xl shadow-md font-semibold hover:opacity-90 transition duration-200 flex items-center justify-center"
+                >
+                  <PlayCircle className="h-5 w-5 mr-2" />
+                  Play Again
+                </Button>
+                <a
+                  href={`/${user?.role}/mygames`}
+                  className="flex-1 bg-white border border-orange-400 text-orange-500 px-6 py-3 rounded-xl shadow-sm font-semibold hover:bg-orange-50 transition duration-200 flex items-center justify-center"
+                >
+                  <Home className="h-5 w-5 mr-2" />
+                  My Games
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Feedback Message */}
-        <div className="text-lg font-semibold text-orange-600">
-          {getFeedbackMessage()}
+        <div className="mt-6 text-center text-gray-500 text-sm">
+          <p>
+            Want to create your own quiz?{" "}
+            <Link to={`/${user?.role}/CreateGame`} className="text-orange-500 font-medium hover:underline">
+              Click here
+            </Link>
+          </p>
         </div>
-
-        {/* Stats Table */}
-        <div className="w-full overflow-x-auto">
-          <table className="table-auto w-full text-sm sm:text-base text-left border-collapse mt-4">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 text-red-600 border-b-2 border-red-400">
-                  Name
-                </th>
-                <th className="px-4 py-2 text-red-600 border-b-2 border-red-400">
-                  Attempted
-                </th>
-                <th className="px-4 py-2 text-red-600 border-b-2 border-red-400">
-                  Correct
-                </th>
-                <th className="px-4 py-2 text-red-600 border-b-2 border-red-400">
-                  Accuracy
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="text-gray-700 font-medium">
-                <td className="px-4 py-2">{sessionData.data.username}</td>
-                <td className="px-4 py-2">{attemptedCount}</td>
-                <td className="px-4 py-2">{correctCount}</td>
-                <td className="px-4 py-2">{accuracy}%</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        {/* Navigation Button */}
-        <Link
-          to={`/${user?.role}/mygames`}
-          className="inline-block bg-gradient-to-r from-red-500 to-orange-500 text-white px-6 py-3 rounded-xl shadow-md font-semibold hover:from-red-600 hover:to-orange-600 transition duration-200"
-        >
-          Back to My Games
-        </Link>
       </div>
-    </div>
+    </>
   );
 };
 

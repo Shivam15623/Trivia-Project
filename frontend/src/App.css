@@ -32,6 +32,29 @@ body {
   opacity: 0.7;
   transition: all 0.3s ease;
 }
+.button-shine {
+  position: relative;
+  overflow: hidden;
+}
+.trophy-glow {
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+}
+.button-shine::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(30deg);
+  animation: shine 3s infinite;
+}
 .category-card {
   position: relative;
   overflow: hidden;
