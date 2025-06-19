@@ -12,6 +12,7 @@ import { useGetUserProfileQuery, useLogoutMutation } from "@/services";
 import { setLoggedOut } from "@/redux/AuthSlice/authSlice";
 
 import { handleApiError } from "@/utills/handleApiError";
+import { Link } from "react-router-dom";
 
 const AccountPopover = () => {
   const { data: user } = useGetUserProfileQuery();
@@ -56,16 +57,16 @@ const AccountPopover = () => {
           </div>
         </div>
         <div className="p-2 space-y-1">
-          <a className="block" href={`/${user?.data.role}/userProfile/${user?.data.slug}`}>
+          <Link className="block" to={`/${user?.data.role}/userProfile/${user?.data.slug}`}>
             <Button variant="ghost" className="w-full justify-start">
               <User className="mr-2 h-4 w-4" /> My Profile
             </Button>
-          </a>
-          <a href={`/${user?.data.role}/mygames`} className="block">
+          </Link>
+          <Link to={`/${user?.data.role}/mygames`} className="block">
             <Button variant="ghost" className="w-full justify-start">
               <Gamepad2 className="mr-2 h-4 w-4" /> My Games
             </Button>
-          </a>
+          </Link>
           <Button
             variant="ghost"
             className="w-full justify-start text-red-500 hover:text-red-600"

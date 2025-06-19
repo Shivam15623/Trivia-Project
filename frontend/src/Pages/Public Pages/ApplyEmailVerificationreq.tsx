@@ -8,6 +8,7 @@ import StepBullet from "@/components/StepBullet";
 import AuthCardWrapper from "@/components/AuthCardWrapper";
 import { Label } from "@/components/ui/label";
 import SuccessErrorMessage from "@/components/SuccessErrorMessage";
+import { Link } from "react-router-dom";
 
 const ApplyEmailVerification: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -26,7 +27,7 @@ const ApplyEmailVerification: React.FC = () => {
         setMessage("Verification email sent! Please check your inbox.");
       }
     } catch (err) {
-      console.log(err)
+ 
       handleApiError(err);
     }
   };
@@ -97,12 +98,12 @@ const ApplyEmailVerification: React.FC = () => {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-500">
                 Already verified?{" "}
-                <a
-                  href="#"
+                <Link
+                  to="/login"
                   className="text-[#e34b4b] font-medium hover:underline"
                 >
                   Login here
-                </a>
+                </Link>
               </p>
             </div>
           </div>
@@ -113,19 +114,19 @@ const ApplyEmailVerification: React.FC = () => {
                 Didn't receive the email? Check your spam folder.
               </p>
               <div className="flex justify-center space-x-2">
-                <a
-                  href="#"
+                <Link
+                  to="#"
                   className="text-sm text-[#e34b4b] font-medium hover:underline"
                 >
                   Contact Support
-                </a>
+                </Link>
                 <span className="text-gray-400">|</span>
-                <a
-                  href="#"
+                <Link
+                  to="#"
                   className="text-sm text-[#e34b4b] font-medium hover:underline"
                 >
                   FAQ
-                </a>
+                </Link>
               </div>
             </div>
           </div>

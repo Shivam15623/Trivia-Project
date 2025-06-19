@@ -17,9 +17,9 @@ const RequestResetPassword: React.FC = () => {
     setMessage(null);
 
     try {
-      console.log("Requesting password reset for:", email);
+
       const response = await resetPassword( email ).unwrap();
-      console.log(response);
+   
       if (response?.statuscode === 200) {
         setMessage("Reset link sent! Check your email.");
       }

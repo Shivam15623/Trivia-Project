@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DialogWrapper } from "@/components/DialogWrapper";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import {
   useCreateCategoryMutation,
   useFetchCategorybyslugQuery,
@@ -16,17 +16,16 @@ import {
 } from "@/SchemaValidations/CategorySchema";
 import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
-import { Edit, Plus } from "lucide-react";
+
 import { FileField } from "@/components/renderFileField";
 import { RenderField } from "@/components/renderFields";
 
 type Props = {
   slug?: string;
-  triggerLabel?: string;
-  triggerclass?: string;
+  trigger: ReactNode;
 };
 
-export function CategoryDialog({ slug, triggerLabel, triggerclass }: Props) {
+export function CategoryDialog({ slug, trigger }: Props) {
   const isEdit = Boolean(slug);
   const { data, isLoading } = useFetchCategorybyslugQuery(slug!, {
     skip: !slug,
@@ -42,10 +41,8 @@ export function CategoryDialog({ slug, triggerLabel, triggerclass }: Props) {
   // Pre-fill form in edit mode
   useEffect(() => {
     if (isEdit && data?.data) {
-      console.log("Fetched category:", data.data); // ✅ Check this
       const { name, description, thumbnail } = data.data;
       form.reset({ name, description, thumbnail });
-      console.log("Form reset with:", form.getValues("thumbnail")); // ✅ Check this
     }
   }, [data, form, isEdit]);
 
@@ -84,11 +81,7 @@ export function CategoryDialog({ slug, triggerLabel, triggerclass }: Props) {
       description={
         isEdit ? "Edit your category details." : "Fill category details."
       }
-      triggerLabel={triggerLabel}
-      icon={isEdit ? <Edit /> : <Plus />}
-      triggerClassName={triggerclass}
-      dialogClassName="sm:max-w-md"
-      variant={isEdit ? "ghost" : "default"}
+      trigger={trigger}
       resetForm={() => form.reset()}
     >
       <Form {...form}>
@@ -116,13 +109,19 @@ export function CategoryDialog({ slug, triggerLabel, triggerclass }: Props) {
             // }}
           />
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={form.formState.isSubmitting}
-          >
-            {isEdit ? "Update" : "Add"}
-          </Button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+            <Button
+              type="submit"
+              className="w-full"
+              variant={"gradient"}
+              disabled={form.formState.isSubmitting}
+            >
+              {isEdit ? "Update" : "Add"}
+            </Button>
+
+            {/* Cancel button */}
+            <DialogWrapper.CancelButton />
+          </div>
         </form>
       </Form>
     </DialogWrapper>

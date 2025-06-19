@@ -35,7 +35,7 @@ export const CategoryApi = api.injectEndpoints({
       { categoryId: string; updatedData: FormData }
     >({
       query: ({ categoryId, updatedData }) => ({
-        url: `/api/v1/category/updateCategory/${categoryId}`,
+        url: `/api/v1/category/updateCategory/${encodeURIComponent(categoryId)}`,
         method: "PATCH",
         body: updatedData,
       }),
@@ -43,7 +43,7 @@ export const CategoryApi = api.injectEndpoints({
     }),
     DeleteCategory: builder.mutation<ApiGeneralResponse, string>({
       query: (categoryId) => ({
-        url: `/api/v1/category/Delete/${categoryId}`,
+        url: `/api/v1/category/Delete/${encodeURIComponent(categoryId)}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Category"],
@@ -57,7 +57,7 @@ export const CategoryApi = api.injectEndpoints({
     }),
     PublicToggle: builder.mutation<ApiGeneralResponse, string>({
       query: (categoryId) => ({
-        url: `/api/v1/category/publicToggle/${categoryId}`,
+        url: `/api/v1/category/publicToggle/${encodeURIComponent(categoryId)}`,
         method: "PATCH",
       }),
       invalidatesTags: ["Category"],

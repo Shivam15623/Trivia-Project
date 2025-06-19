@@ -9,14 +9,14 @@ dotenv.config({ path: "../../.env" });
 
 async function addSlugsToCategories() {
   try {
-    console.log("Mongo URI:", process.env.MONGODB_URI);
+  
     await mongoose.connect(
       "mongodb+srv://Rex123:Shivam123@cluster0.ubg6zxu.mongodb.net/test"
     );
 
     const users = await User.find({ slug: { $exists: false } });
 
-    console.log(`Found ${users.length} user without slugs.`);
+  
 
     for (const user of users) {
       const fullName = `${user.firstname} ${user.lastname}`;
@@ -25,10 +25,10 @@ async function addSlugsToCategories() {
 
       user.slug = `${baseSlug}-${uniqueId}`;
       await user.save({ validateBeforeSave: false });
-      console.log(`Updated: ${user.firstname} -> ${user.slug}`);
+  
     }
 
-    console.log("✅ Slug update complete.");
+ 
     process.exit(0);
   } catch (err) {
     console.error("❌ Error updating slugs:", err);

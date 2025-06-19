@@ -6,10 +6,11 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { DialogClose } from "@/components/ui/dialog";
+import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
-import { Plus, Pencil, Trash2, Info, AlertCircle } from "lucide-react";
+import { Plus, Trash2, Info, AlertCircle, Edit } from "lucide-react";
 
 type DialogType = "default" | "add" | "edit" | "delete" | "info" | "warning";
 type DialogSize = "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "full";
@@ -17,84 +18,86 @@ type DialogSize = "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "full";
 type Props = {
   title: string;
   description?: string;
+  trigger: ReactNode;
   children: ReactNode;
-  triggerLabel?: string;
-  icon?: ReactNode;
   onOpenChange?: (open: boolean) => void;
   resetForm?: () => void;
-  dialogClassName?: string;
-  triggerClassName?: string;
+
   type?: DialogType;
   size?: DialogSize;
-  showHeaderIcon?: boolean;
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
-  buttonSize?: "default" | "sm" | "lg" | "icon";
 };
-
-const typeStyleMap: Record<DialogType, {
-  titleClass: string;
-  dialogClass?: string;
-  icon: ReactNode;
-  iconBgClass: string;
-  headerClass?: string;
-  descriptionClass?: string;
-  contentClass?: string;
-  footerClass?: string;
-}> = {
+const typeStyleMap: Record<
+  DialogType,
+  {
+    titleClass: string;
+    dialogClass?: string;
+    icon: ReactNode;
+    iconBgClass: string;
+    headerClass?: string;
+    descriptionClass?: string;
+    contentClass?: string;
+    footerClass?: string;
+  }
+> = {
   default: {
-    titleClass: "text-xl font-semibold",
+    titleClass: "text-xl font-semibold text-[#ff8c42]",
+    dialogClass: "border border-[#fff0e5] bg-[#fff8f0]",
     icon: <Info className="w-5 h-5" />,
-    iconBgClass: "bg-gray-100 text-gray-700",
+    iconBgClass: "bg-[#fff0e5] text-[#ff8c42]",
+    headerClass: "pb-2 border-b border-[#fff0e5]",
+    descriptionClass: "text-sm text-[#6b7280] mt-1",
+    contentClass: "bg-[#fff8f0]",
+    footerClass: "pt-2 border-t border-[#fff0e5]",
   },
   add: {
-    titleClass: "text-green-600 font-bold",
-    dialogClass: "border-green-100",
+    titleClass: "text-[#fcbf49] font-bold",
+    dialogClass: "border border-[#ffc070]/30 bg-[#fff8f0]",
     icon: <Plus className="w-5 h-5" />,
-    iconBgClass: "bg-green-100 text-green-600",
-    headerClass: "pb-2 border-b border-green-100",
-    descriptionClass: "text-sm text-green-700/70 mt-1",
-    contentClass: "bg-green-50/30",
-    footerClass: "pt-2 border-t border-green-100",
+    iconBgClass: "bg-[#fff0e5] text-[#fcbf49]",
+    headerClass: "pb-2 border-b border-[#ffc070]/30",
+    descriptionClass: "text-sm text-[#ff8c42]/80 mt-1",
+    contentClass: "bg-[#fff8f0]",
+    footerClass: "pt-2 border-t border-[#ffc070]/30",
   },
   edit: {
-    titleClass: "text-blue-600 font-bold",
-    dialogClass: "border-blue-100",
-    icon: <Pencil className="w-5 h-5" />,
-    iconBgClass: "bg-blue-100 text-blue-600",
-    headerClass: "pb-2 border-b border-blue-100",
-    descriptionClass: "text-sm text-blue-700/70 mt-1",
-    contentClass: "bg-blue-50/30",
-    footerClass: "pt-2 border-t border-blue-100",
+    titleClass: "text-[#ff8c42] font-bold",
+    dialogClass: "border border-[#ffc070]/30 bg-[#fff8f0]",
+    icon: <Edit className="w-5 h-5" />,
+    iconBgClass: "bg-[#fff0e5] text-[#ff8c42]",
+    headerClass: "pb-2 border-b border-[#ffc070]/30",
+    descriptionClass: "text-sm text-[#ff8c42]/80 mt-1",
+    contentClass: "bg-[#fff8f0]",
+    footerClass: "pt-2 border-t border-[#ffc070]/30",
   },
   delete: {
-    titleClass: "text-red-600 font-bold",
-    dialogClass: "border-red-100",
+    titleClass: "text-[#e34b4b] font-bold",
+    dialogClass: "border border-[#e34b4b]/20 bg-[#fff8f0]",
     icon: <Trash2 className="w-5 h-5" />,
-    iconBgClass: "bg-red-100 text-red-600",
-    headerClass: "pb-2 border-b border-red-100",
-    descriptionClass: "text-sm text-red-700/70 mt-1",
-    contentClass: "bg-red-50/30",
-    footerClass: "pt-2 border-t border-red-100",
+    iconBgClass: "bg-[#e34b4b]/10 text-[#e34b4b]",
+    headerClass: "pb-2 border-b border-[#e34b4b]/20",
+    descriptionClass: "text-sm text-[#a90000]/80 mt-1",
+    contentClass: "bg-[#e34b4b]/5",
+    footerClass: "pt-2 border-t border-[#e34b4b]/20",
   },
   info: {
-    titleClass: "text-blue-600 font-medium",
-    dialogClass: "border-blue-200",
+    titleClass: "text-[#f29e4e] font-medium",
+    dialogClass: "border border-[#fcbf49]/30 bg-[#fff8f0]",
     icon: <Info className="w-5 h-5" />,
-    iconBgClass: "bg-blue-100 text-blue-600",
-    headerClass: "pb-2 border-b border-blue-200",
-    descriptionClass: "text-sm text-blue-600/80 mt-1",
-    contentClass: "bg-blue-50/30",
-    footerClass: "pt-2 border-t border-blue-200",
+    iconBgClass: "bg-[#fff0e5] text-[#f29e4e]",
+    headerClass: "pb-2 border-b border-[#fcbf49]/30",
+    descriptionClass: "text-sm text-[#ff8c42]/80 mt-1",
+    contentClass: "bg-[#fff8f0]",
+    footerClass: "pt-2 border-t border-[#fcbf49]/30",
   },
   warning: {
-    titleClass: "text-amber-600 font-bold",
-    dialogClass: "border-amber-100",
+    titleClass: "text-[#a90000] font-bold",
+    dialogClass: "border border-[#e34b4b]/20 bg-[#fff8f0]",
     icon: <AlertCircle className="w-5 h-5" />,
-    iconBgClass: "bg-amber-100 text-amber-600",
-    headerClass: "pb-2 border-b border-amber-100",
-    descriptionClass: "text-sm text-amber-700/70 mt-1",
-    contentClass: "bg-amber-50/30",
-    footerClass: "pt-2 border-t border-amber-100",
+    iconBgClass: "bg-[#e34b4b]/10 text-[#a90000]",
+    headerClass: "pb-2 border-b border-[#e34b4b]/20",
+    descriptionClass: "text-sm text-[#a90000]/80 mt-1",
+    contentClass: "bg-[#e34b4b]/5",
+    footerClass: "pt-2 border-t border-[#e34b4b]/20",
   },
 };
 
@@ -102,21 +105,15 @@ export const DialogWrapper = ({
   title,
   description,
   children,
-  triggerLabel,
-  icon,
+  trigger,
+
   onOpenChange,
   resetForm,
-  dialogClassName,
-  triggerClassName,
+
   type = "default",
   size = "md",
-  showHeaderIcon = true,
-  variant = "outline",
-  buttonSize = "default",
 }: Props) => {
   const style = typeStyleMap[type];
-
-  const triggerIcon = icon ?? (type !== "default" ? style.icon : null);
 
   return (
     <Dialog
@@ -125,28 +122,21 @@ export const DialogWrapper = ({
         onOpenChange?.(open);
       }}
     >
-      <DialogTrigger asChild>
-        <Button
-          className={cn(triggerClassName)}
-          variant={variant}
-          size={buttonSize}
-        >
-          {triggerIcon}
-          {triggerLabel && <span className={triggerIcon ? "ml-2" : ""}>{triggerLabel}</span>}
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
 
       <DialogContent
         size={size}
         className={cn(
           "shadow-lg animate-in fade-in-0 zoom-in-95 duration-200 gap-2",
-          style.dialogClass,
-          dialogClassName
+
+          style.dialogClass
         )}
       >
-        <DialogHeader className={style.headerClass}>
-          <DialogTitle className={cn("flex items-center gap-2", style.titleClass)}>
-            {showHeaderIcon && (
+        <DialogHeader className={cn(style.headerClass, "flex")}>
+          
+            <DialogTitle
+              className={cn("flex items-center gap-2", style.titleClass)}
+            >
               <div
                 className={cn(
                   "p-1.5 rounded-full flex items-center justify-center",
@@ -155,18 +145,27 @@ export const DialogWrapper = ({
               >
                 {style.icon}
               </div>
+
+              <span>{title}</span>
+            </DialogTitle>
+            {description && (
+              <DialogDescription className={style.descriptionClass}>
+                {description}
+              </DialogDescription>
             )}
-            <span>{title}</span>
-          </DialogTitle>
-          {description && (
-            <DialogDescription className={style.descriptionClass}>
-              {description}
-            </DialogDescription>
-          )}
+          
         </DialogHeader>
 
         <div className={cn("py-1", style.contentClass)}>{children}</div>
       </DialogContent>
     </Dialog>
+  );
+};
+
+DialogWrapper.CancelButton = function CancelButton() {
+  return (
+    <DialogClose asChild>
+      <Button variant="outline">Cancel</Button>
+    </DialogClose>
   );
 };

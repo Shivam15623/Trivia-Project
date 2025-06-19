@@ -155,7 +155,7 @@ export const LogOut = asyncHandler(async (req, res) => {
 });
 export const ForgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
-  console.log(email);
+
   if (!email) {
     throw new ApiError(400, "Email is Required ");
   }

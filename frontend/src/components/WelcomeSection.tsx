@@ -1,5 +1,6 @@
 import { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 const WelcomeSection = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -23,18 +24,18 @@ const WelcomeSection = () => {
             </p>
           </div>
           <div className="mt-4 md:mt-0 flex space-x-3">
-            <a
-              href={`${userRole}/CreateGame`}
+            <Link
+              to={`${userRole}/CreateGame`}
               className="cta-button bg-[#a90000] hover:bg-red-800 text-white font-bold px-6 py-3 rounded-full shadow-lg"
             >
               Create New Game
-            </a>
-            <a
-              href={`${userRole}/mygames`}
+            </Link>
+            <Link
+              to={`${userRole}/mygames`}
               className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-6 py-3 rounded-full shadow-lg transition-colors"
             >
               Join Game
-            </a>
+            </Link>
           </div>
         </div>
       </div>
