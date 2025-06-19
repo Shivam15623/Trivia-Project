@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 
 import { Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CreateGameHero = () => {
   return (
@@ -34,10 +35,10 @@ const CreateGameHero = () => {
 
             <div className="mt-16 flex justify-center">
               <Button className="relative bg-white text-[#a90000] hover:bg-[#fff5f5] text-xl font-bold px-10 py-6 rounded-full shadow-xl transition-all duration-300 flex items-center gap-3">
-                <a href="#createGame">
+                <Link to="#createGame">
                   <Sparkles className="w-6 h-6" />
                   Create a Game
-                </a>
+                </Link>
               </Button>
             </div>
           </div>

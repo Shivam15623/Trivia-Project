@@ -1,5 +1,3 @@
-
-
 import { useNavigate } from "react-router-dom";
 import PlayGameDialog from "./playGameDialog";
 import { showSuccess } from "@/components/toastUtills";
@@ -42,11 +40,7 @@ const GameCard = ({ game }: Props) => {
             Solo Play
           </div>{" "}
           or
-          <PlayGameDialog game={game}>
-            <div className=" cursor-pointer bg-white text-[#a90000] text-center text-lg 2xl:text-2xl font-semibold px-6 py-2 rounded-full hover:bg-gray-100 transition-colors">
-              Team Play
-            </div>
-          </PlayGameDialog>
+          <PlayGameDialog game={game} />
         </div>
       </div>
 

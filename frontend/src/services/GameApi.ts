@@ -20,7 +20,7 @@ export const GameApi = api.injectEndpoints({
     }),
     GetGameById: builder.query<MyGameResponse, string>({
       query: (gameId) => ({
-        url: `/api/v1/game/fetchGame/${gameId}`,
+        url: `/api/v1/game/fetchGame/${encodeURIComponent(gameId)}`,
         method: "GET",
       }),
     }),

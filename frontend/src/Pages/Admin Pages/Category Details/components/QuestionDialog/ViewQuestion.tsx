@@ -1,7 +1,8 @@
 import { DialogWrapper } from "@/components/DialogWrapper";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useFetchQuestionByIdQuery } from "@/services";
-import { ViewIcon } from "lucide-react";
+import { Eye } from "lucide-react";
 
 const ViewQuestion = ({ questionId }: { questionId: string }) => {
   const {
@@ -14,10 +15,11 @@ const ViewQuestion = ({ questionId }: { questionId: string }) => {
     <DialogWrapper
       title="View Question"
       description="Here you can view the details of the question."
-      dialogClassName="max-w-2xl"
-      icon={<ViewIcon />}
-      variant="outline"
-      triggerLabel=""
+      trigger={
+        <Button variant={"ghost"} className="p-1.5 rounded-md text-[#ff8c42] hover:bg-[#ff8c42]/10 transition-colors">
+          <Eye/>
+        </Button>
+      }
       type="info"
       size="xl"
     >

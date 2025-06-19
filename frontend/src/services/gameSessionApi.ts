@@ -29,7 +29,7 @@ export const GameSessionApi = api.injectEndpoints({
     }),
     FetchGameSessionInfo: builder.query<FullSessionResponse, string>({
       query: (sessionCode) => ({
-        url: `/api/v1/gamesession/session/${sessionCode}`,
+        url: `/api/v1/gamesession/session/${encodeURIComponent(sessionCode)}`,
         method: "GET",
       }),
     }),
@@ -59,13 +59,13 @@ export const GameSessionApi = api.injectEndpoints({
     }),
     FetchWaitingroominfo: builder.query<sessionInfoResponse, string>({
       query: (sessionCode) => ({
-        url: `/api/v1/gamesession/Waitingroom/${sessionCode}`,
+        url: `/api/v1/gamesession/Waitingroom/${encodeURIComponent(sessionCode)}`,
         method: "GET",
       }),
     }),
     FetchCurrentQuestion: builder.query<CurrentQuestionResponse, string>({
       query: (sessionCode) => ({
-        url: `/api/v1/gamesession/currentQuestion/${sessionCode}`,
+        url: `/api/v1/gamesession/currentQuestion/${encodeURIComponent(sessionCode)}`,
         method: "GET",
       }),
     }),
@@ -81,7 +81,7 @@ export const GameSessionApi = api.injectEndpoints({
     }),
     FetchScoreBoard: builder.query<ScoreBoardResponse, string>({
       query: (sessionCode) => ({
-        url: `/api/v1/gamesession/FetchScoreBoard/${sessionCode}`,
+        url: `/api/v1/gamesession/FetchScoreBoard/${encodeURIComponent(sessionCode)}`,
         method: "GET",
       }),
     }),

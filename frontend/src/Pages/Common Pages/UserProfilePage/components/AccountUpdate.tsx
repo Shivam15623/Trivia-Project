@@ -53,7 +53,7 @@ const AccountUpdate = () => {
     try {
       const formData = new FormData();
       formData.append("firstname", values.firstname);
-      console.log("Profile Pic:", values.profilePic);
+  
       if (
         values.profilePic instanceof FileList &&
         values.profilePic.length > 0
@@ -65,12 +65,9 @@ const AccountUpdate = () => {
       formData.append("phoneNo", values.phoneNo);
       formData.append("DOB", values.DOB.toISOString().split("T")[0]);
 
-      for (const pair of formData.entries()) {
-        console.log(`${pair[0]}:`, pair[1]);
-      }
-
+      
       const response = await updateDetails(formData).unwrap();
-      console.log("Update Response:", response);
+
 
       // Check for success
       if (response?.success === true) {

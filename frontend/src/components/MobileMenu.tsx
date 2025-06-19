@@ -1,6 +1,7 @@
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "./ui/sheet";
 import { Button } from "./ui/button";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 type MobileMenuProps = {
   urls: {
     name: string;
@@ -15,8 +16,8 @@ const MobileMenu = ({ urls, isPublic=false }: MobileMenuProps) => {
     <div className="md:hidden">
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="lg" aria-label="Open menu">
-            <Menu color="#a90000" strokeWidth={2.5} />
+          <Button variant="ghost" className="p-2 rounded-md text-[#a90000] hover:bg-gray-200 focus:outline-none transition-colors" size="lg" aria-label="Open menu">
+            <Menu color="#a90000" className="h-6 w-6" />
           </Button>
         </SheetTrigger>
 
@@ -45,26 +46,26 @@ const MobileMenu = ({ urls, isPublic=false }: MobileMenuProps) => {
           {/* Navigation */}
           <nav className="px-4 py-6 space-y-4 flex flex-col">
             {urls.map((url) => (
-              <a
-                href={url.path}
+              <Link
+                to={url.path}
                 className={`block  px-5 py-2 rounded-full font-semibold transition-colors ${
                   pathname === url.path
                     ? "bg-[#a90000] text-white"
-                    : "text-gray-800 hover:bg-gray-100"
+                    : "text-gray-800 hover:text-[#a90000] transition-colors"
                 }`}
               >
                 {url.name}
-              </a>
+              </Link>
             ))}
           </nav>
           {isPublic && (
             <div className="mt-6">
-              <a
-                href="/signup"
+              <Link
+                to="/signup"
                 className="block w-full bg-[#a90000] hover:bg-red-800 text-white text-center px-5 py-2 rounded-full font-medium transition-colors shadow-md"
               >
                 Sign Up
-              </a>
+              </Link>
             </div>
           )}
         </SheetContent>

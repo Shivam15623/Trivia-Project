@@ -25,20 +25,29 @@ const DeleteCategory = ({ categoryId, categoryName }: Props) => {
     <DialogWrapper
       title={`Remove Category ${categoryName}?`}
       description="Are you sure you want to remove the Category?"
-      icon={<Trash2 className="w-4 h-4" />}
-      variant="destructive"
-      triggerLabel=""
+      trigger={
+        <Button variant="destructive">
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      }
+      size="xl"
       type="delete"
     >
-      <Button
-        type="button"
-        variant="destructive"
-        onClick={handleRemove}
-        className="w-full mt-4"
-        disabled={isLoading}
-      >
-        {isLoading ? "Removing..." : "Remove"}
-      </Button>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+        <Button
+          type="button"
+          variant="destructive"
+          onClick={handleRemove}
+          disabled={isLoading}
+          className=" wrap-break-word"
+          
+        >
+          {isLoading ? "Removing..." : `Yes, Delete "${categoryName}"`}
+        </Button>
+
+        {/* Cancel button */}
+        <DialogWrapper.CancelButton />
+      </div>
     </DialogWrapper>
   );
 };

@@ -1,7 +1,4 @@
 import * as yup from "yup";
-
-
-
 export const JoinGameSessionSchema = yup.object({
   sessionCode: yup.string().required("Session code is required"),
   teamName: yup.string().required("Team name is required"),

@@ -30,9 +30,11 @@ const RemoveQuestionDialog = ({
     <DialogWrapper
       title="Remove Question?"
       description="Are you sure you want to remove the question"
-      icon={<Trash2 className="w-4 h-4" />}
-      variant="destructive"
-      triggerLabel=""
+      trigger={
+        <Button  variant={"ghost"} className="p-1.5 rounded-md text-[#e34b4b] hover:bg-[#e34b4b]/10 transition-colors">
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      }
       type="delete"
     >
       {" "}
@@ -40,15 +42,20 @@ const RemoveQuestionDialog = ({
       <br />
       This action{" "}
       <span className="text-red-500 font-semibold">cannot be undone</span>.
-      <Button
-        type="button"
-        variant="destructive"
-        onClick={handleRemove}
-        className="w-full mt-4"
-        disabled={isLoading}
-      >
-        {isLoading ? "Removing..." : "Remove"}
-      </Button>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4 pt-2">
+        <Button
+          type="button"
+          variant="destructive"
+          onClick={handleRemove}
+          className="w-full "
+          disabled={isLoading}
+        >
+          {isLoading ? "Removing..." : "Remove"}
+        </Button>
+
+        {/* Cancel button */}
+        <DialogWrapper.CancelButton />
+      </div>
     </DialogWrapper>
   );
 };
