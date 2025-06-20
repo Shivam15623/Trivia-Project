@@ -1,20 +1,36 @@
-// components/Pagination.tsx
-import React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react"; // optional icons
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "./button";
+
+const PaginationVariants = {
+  default: {
+    active: "gradient",
+    normal: "pagebutt",
+  },
+  MyGames: {
+    active: "brownPageButtonActive",
+    normal: "brownPage",
+  },
+} as const;
+
+// This creates a strict union of only valid keys
+type PageVariants = keyof typeof PaginationVariants;
 
 interface PaginationProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
+  variant: PageVariants;
 }
 
 const Pagination = ({
   totalPages,
   currentPage,
   onPageChange,
+  variant,
 }: PaginationProps) => {
   if (totalPages <= 1) return null;
+
+  const pvariant = PaginationVariants[variant];
 
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
@@ -23,11 +39,12 @@ const Pagination = ({
   };
 
   return (
-    <div className="flex items-center justify-center gap-1 mt-4">
+    <div className="flex items-center justify-center gap-1">
       <Button
-        variant={"pagebutt"}
+        variant={pvariant.normal}
         onClick={() => handlePageChange(currentPage - 1)}
         disabled={currentPage === 1}
+        className="px-3 py-1 rounded-full w-10 h-10"
       >
         <ChevronLeft size={16} />
       </Button>
@@ -36,17 +53,18 @@ const Pagination = ({
         <Button
           key={page}
           onClick={() => handlePageChange(page)}
-          variant={page === currentPage ? "gradient" : "pagebutt"}
-          className={`px-3 py-1 rounded-full w-10 h-10`}
+          variant={page === currentPage ? pvariant.active : pvariant.normal}
+          className="px-3 py-1 rounded-full w-10 h-10"
         >
           {page}
         </Button>
       ))}
 
       <Button
-        variant={"pagebutt"}
+        variant={pvariant.normal}
         onClick={() => handlePageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
+        className="px-3 py-1 rounded-full w-10 h-10"
       >
         <ChevronRight size={16} />
       </Button>

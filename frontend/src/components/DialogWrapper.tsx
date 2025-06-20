@@ -156,7 +156,7 @@ export const DialogWrapper = ({
           
         </DialogHeader>
 
-        <div className={cn("py-1", style.contentClass)}>{children}</div>
+        {children}
       </DialogContent>
     </Dialog>
   );

@@ -38,5 +38,5 @@ export const { setLoggedIn, setLoggedOut,UpdateUserDetails } = authSlice.actions
 export const selectIsLoggedIn = (state: RootState) => state.auth.isLoggedIn;
 export const selectUser=(state:RootState)=>state.auth.user;
 export const token = (state: RootState) => state.auth.accessToken;
-
+export const selectAuth = (state: RootState) => state.auth;
 export default authSlice;

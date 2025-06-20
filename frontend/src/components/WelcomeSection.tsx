@@ -1,9 +1,10 @@
-import { RootState } from "@/redux/store";
+
+import { selectAuth } from "@/redux/AuthSlice/authSlice";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 const WelcomeSection = () => {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const {user} = useSelector(selectAuth);
   const userRole = user?.role;
   const userName = user?.firstname || "there";
 
