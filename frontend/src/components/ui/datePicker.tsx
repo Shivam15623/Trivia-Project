@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
@@ -17,18 +18,20 @@ type Props = {
 };
 
 export function DatePickerDemo({ value, onChange, className }: Props) {
+  const [open, setOpen] = useState(false); // 👈 track popover state
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
           className={cn(
-            "w-[240px] justify-between text-left font-normal",
+            "w-[240px] justify-between text-left font-normal transition-all",
             !value && "text-muted-foreground",
+            open && "border-2 border-[#e34b4b] shadow-sm", // 👈 custom style when open
             className
           )}
         >
-          
           {value ? format(value, "PPP") : <span>Pick a date</span>}
           <CalendarIcon className="mr-2 h-4 w-4" />
         </Button>
@@ -40,14 +43,14 @@ export function DatePickerDemo({ value, onChange, className }: Props) {
             caption_dropdowns: "flex gap-2 justify-center mb-2",
             dropdown:
               "bg-white border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none",
-            caption_label: "hidden", // Hide the duplicated label above
+            caption_label: "hidden",
           }}
           selected={value}
           onSelect={onChange}
           initialFocus
-          captionLayout="dropdown" // ✅ enables dropdown for month & year
-          fromYear={1910} // ✅ optional: controls earliest year
-          toYear={new Date().getFullYear()} // ✅ optional: limit to current year
+          captionLayout="dropdown"
+          fromYear={1910}
+          toYear={new Date().getFullYear()}
         />
       </PopoverContent>
     </Popover>

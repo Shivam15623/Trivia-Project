@@ -3,7 +3,8 @@ import http from "http"; // Import http for socket server
 import { Server } from "socket.io"; // Import Socket.IO
 import ConnectDb from "./db/db.js";
 import { app } from "./app.js";
-import { handleConnection } from "./Socket.controller.js";
+import { handleConnection } from "./controller/Socket.controller.js";
+
 
 dotenv.config({
   path: "./.env",
