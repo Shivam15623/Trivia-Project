@@ -5,6 +5,7 @@ import { useResetPasswordRequestMutation } from "@/services";
 import { handleApiError } from "@/utills/handleApiError";
 import { Mail } from "lucide-react";
 import AuthCardWrapper from "@/components/AuthCardWrapper";
+import { Link } from "react-router-dom";
 
 const RequestResetPassword: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -17,9 +18,8 @@ const RequestResetPassword: React.FC = () => {
     setMessage(null);
 
     try {
+      const response = await resetPassword(email).unwrap();
 
-      const response = await resetPassword( email ).unwrap();
-   
       if (response?.statuscode === 200) {
         setMessage("Reset link sent! Check your email.");
       }
@@ -90,12 +90,12 @@ const RequestResetPassword: React.FC = () => {
         <div className="bg-[#fff8f0] p-4 text-center border-t border-orange-100">
           <p className="text-sm text-gray-600">
             Remember your password?{" "}
-            <a
-              href="/login"
+            <Link
+              to="/login"
               className="text-[#e34b4b] hover:underline font-medium"
             >
               Back to Login
-            </a>
+            </Link>
           </p>
         </div>
       </AuthCardWrapper>

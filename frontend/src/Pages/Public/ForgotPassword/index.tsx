@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { LoaderCircle, Lock, Shield, Verified } from "lucide-react";
 import PasswordStrength from "@/components/PasswordStrength";
 import PasswordRequirementSection from "@/components/PasswordRequirementSection";
@@ -149,12 +149,12 @@ const ForgotPassword: React.FC = () => {
             <div className="bg-[#fff8f0] p-4 text-center border-t border-orange-100">
               <p className="text-sm text-gray-500">
                 Remember your password?{" "}
-                <a
-                  href="#"
+                <Link
+                  to="/login"
                   className="text-[#e34b4b] font-medium hover:underline"
                 >
                   Login here
-                </a>
+                </Link>
               </p>
             </div>
           </AuthCardWrapper>
