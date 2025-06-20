@@ -1,69 +1,57 @@
 import { lazy } from "react";
 export const LazyLoader = lazy(() => import("../components/Loader"));
-export const LazyAdminRoot = lazy(
-  () => import("../Layouts/Admin Layouts/AdminRoot")
-);
-export const LazyCustomerRoot = lazy(
-  () => import("../Layouts/Customer Layouts")
-);
+export const LazyAdminRoot = lazy(() => import("../Layouts/Admin/AdminRoot"));
+export const LazyCustomerRoot = lazy(() => import("../Layouts/Customer"));
 export const LazyCustomerHome = lazy(
-  () => import("@/Pages/Customer pages/Customer Home")
+  () => import("@/Pages/Customer/Customer Home")
 );
 export const LazyAdminHome = lazy(
-  () => import("@/Pages/Admin Pages/Dashboard/AdminHome")
+  () => import("@/Pages/Admin/Dashboard")
 );
-export const LazyPublicHome = lazy(
-  () => import("@/Pages/Public Pages/Public Home")
-);
-export const LazyPlay = lazy(() => import("@/Pages/Public Pages/Play"));
+export const LazyPublicHome = lazy(() => import("@/Pages/Public/Public Home"));
 
-export const LazySignup = lazy(() => import("@/Pages/Public Pages/Signup"));
+
+export const LazySignup = lazy(() => import("@/Pages/Public/Signup"));
 export const LazyverifyUserEmail = lazy(
-  () => import("@/Pages/Public Pages/VerifyEmail")
+  () => import("@/Pages/Public/VerifyEmail")
 );
-export const LazyMyGames = lazy(
-  () => import("@/Pages/Common Pages/MyGamesPage")
-);
+export const LazyMyGames = lazy(() => import("@/Pages/Common/MyGames"));
 export const LazyCreateGame = lazy(
-  () => import("@/Pages/Common Pages/CreateGamePage")
+  () => import("@/Pages/Common/CreateGame")
 );
 export const LazyUserProfile = lazy(
-  () => import("@/Pages/Common Pages/UserProfilePage")
+  () => import("@/Pages/Common/UserProfile")
 );
-export const LazyCategories = lazy(
-  () => import("@/Pages/Admin Pages/Categories")
-);
+export const LazyCategories = lazy(() => import("@/Pages/Admin/Categories"));
 
 export const LazyCategoryDetailsPage = lazy(
-  () => import("@/Pages/Admin Pages/Category Details")
+  () => import("@/Pages/Admin/CategoryDetails")
 );
 export const LazyWaitingRoom = lazy(
-  () => import("@/Pages/Common Pages/WaitingRoomPage")
+  () => import("@/Pages/Common/WaitingRoom")
 );
 export const LazyPlayGamePage = lazy(
-  () => import("@/Pages/Common Pages/PlayGamePage")
+  () => import("@/Pages/Common/PlayGame")
 );
 
-export const LazyLogin = lazy(() => import("@/Pages/Public Pages/Login"));
-export const LazyEndGame = lazy(
-  () => import("@/Pages/Common Pages/EndGamePage")
-);
+export const LazyLogin = lazy(() => import("@/Pages/Public/Login"));
+export const LazyEndGame = lazy(() => import("@/Pages/Common/EndGame"));
 
 export const LazyRequestResetPassword = lazy(
-  () => import("@/Pages/Public Pages/RequestResetPassword")
+  () => import("@/Pages/Public/RequestResetPassword")
 );
 export const LazyForgotPassword = lazy(
-  () => import("@/Pages/Public Pages/ForgotPassword")
+  () => import("@/Pages/Public/ForgotPassword")
 );
 export const LazySoloGamePlay = lazy(
-  () => import("@/Pages/Common Pages/SoloGamePlayPage")
+  () => import("@/Pages/Common/SoloGamePlay")
 );
 export const LazySoloGameEnd = lazy(
-  () => import("@/Pages/Common Pages/SoloGameEndPage")
+  () => import("@/Pages/Common/SoloGameEnd")
 );
 export const LazyEmailVerificationSent = lazy(
-  () => import("@/Pages/Public Pages/EmailVerificationSentPage")
+  () => import("@/Pages/Public/EmailVerificationSent")
 );
 export const LazyApplyEmailVerification = lazy(
-  () => import("@/Pages/Public Pages/ApplyEmailVerificationreq")
+  () => import("@/Pages/Public/ApplyEmailVerification")
 );

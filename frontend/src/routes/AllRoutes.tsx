@@ -1,4 +1,4 @@
-import PublicRoot from "@/Layouts/Public Layouts";
+import PublicRoot from "@/Layouts/Public";
 import {
   LazyCategories,
   LazyAdminHome,
@@ -11,7 +11,7 @@ import {
   LazyLoader,
   LazyLogin,
   LazyMyGames,
-  LazyPlay,
+
   LazyPublicHome,
   LazyRequestResetPassword,
   LazySignup,
@@ -43,7 +43,7 @@ export const AllRoutes: RouteObject[] = [
     ),
     children: [
       { index: true, element: withSuspense(<LazyPublicHome />) },
-      { path: "play", element: withSuspense(<LazyPlay />) },
+      
     ],
   },
   {

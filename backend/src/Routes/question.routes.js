@@ -17,20 +17,27 @@ router.route("/AddQuestion").post(
   upload.fields([
     { name: "questionImage", maxCount: 1 },
     { name: "answerImage", maxCount: 1 },
-  ]),requireAdminRole,
+  ]),
+  requireAdminRole,
   validateRequest(QuestionSchema),
   addQuestionToCategory
 );
-router.route("/getQuestionsByCategory/:slug").get(getQuestionsByCategory);
+router
+  .route("/getQuestionsByCategory/:slug")
+  .get(requireAdminRole, getQuestionsByCategory);
 router.route("/updateQuestion/:questionId").patch(
   upload.fields([
     { name: "questionImage", maxCount: 1 },
     { name: "answerImage", maxCount: 1 },
-  ]),requireAdminRole,
+  ]),
+  requireAdminRole,
   validateRequest(QuestionSchema),
   updateQuestion
 );
-
-router.route("/deleteQuestion/:questionId").delete(requireAdminRole,deleteQuestion);
-router.route("/fetchQuestionById/:questionId").get(fetchQuestionById);
+router
+  .route("/deleteQuestion/:questionId")
+  .delete(requireAdminRole, deleteQuestion);
+router
+  .route("/fetchQuestionById/:questionId")
+  .get(requireAdminRole, fetchQuestionById);
 export default router;

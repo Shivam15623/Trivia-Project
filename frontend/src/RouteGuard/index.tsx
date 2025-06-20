@@ -1,7 +1,8 @@
 import { useEffect, ReactNode } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { RootState } from "@/redux/store";
+
+import { selectAuth } from "@/redux/AuthSlice/authSlice";
 
 interface RouteGuardProps {
   children: ReactNode;
@@ -18,7 +19,7 @@ const RouteGuard: React.FC<RouteGuardProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoggedIn, user } = useSelector((state: RootState) => state.auth);
+  const { isLoggedIn, user } = useSelector(selectAuth);
 
   const role = user?.role;
   const isVerified = user?.isVerified;

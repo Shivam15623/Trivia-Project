@@ -18,6 +18,9 @@ body {
   background-image: radial-gradient(#000 1px, transparent 1px);
   background-size: 20px 20px;
 }
+.gradient-btn {
+    background: linear-gradient(to right, #a90000, #e34b4b);
+}
 .category-overlay {
   position: absolute;
   top: 0;
