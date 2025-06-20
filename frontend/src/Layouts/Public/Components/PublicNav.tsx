@@ -25,24 +25,24 @@ export function PublicHeader() {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
-            <a
-              href="/"
+            <Link
+              to="/"
               className=" font-medium px-3 lg:px-4 py-2 rounded-full  hover:text-[#a90000] transition-colors"
             >
               Home
-            </a>
-            <a
-              href="#how-to-play"
+            </Link>
+            <Link
+              to="#how-to-play"
               className="font-medium px-3 lg:px-4 py-2 rounded-full  hover:text-[#a90000] transition-colors"
             >
               How to Play
-            </a>
-            <a
-              href="#categories"
+            </Link>
+            <Link
+              to="#categories"
               className="font-medium px-3 lg:px-4 py-2 rounded-full  hover:text-[#a90000] transition-colors"
             >
               Categories
-            </a>
+            </Link>
           </nav>
 
           {/* Right Actions */}

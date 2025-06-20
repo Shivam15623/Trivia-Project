@@ -55,3 +55,4 @@ export const LazyEmailVerificationSent = lazy(
 export const LazyApplyEmailVerification = lazy(
   () => import("@/Pages/Public/ApplyEmailVerification")
 );
+export const LazyNotFound=lazy(()=>import("@/Pages/Public/NotFound"))

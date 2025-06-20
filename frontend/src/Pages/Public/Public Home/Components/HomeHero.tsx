@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const HomeHero = () => {
   return (
     <>
@@ -16,18 +18,18 @@ const HomeHero = () => {
                 glory!
               </p>
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
-                <a
-                  href="/customer/mygames"
+                <Link
+                  to="/customer/mygames"
                   className="cta-button bg-[#a90000] hover:bg-red-800 text-white text-lg font-bold px-8 py-4 rounded-full shadow-lg text-center"
                 >
                   Play Now
-                </a>
-                <a
-                  href="#how-to-play"
+                </Link>
+                <Link
+                  to="#how-to-play"
                   className="bg-white text-[#a90000] text-lg font-bold px-8 py-4 rounded-full shadow-lg hover:bg-gray-100 transition-colors text-center"
                 >
                   How to Play
-                </a>
+                </Link>
               </div>
             </div>
 

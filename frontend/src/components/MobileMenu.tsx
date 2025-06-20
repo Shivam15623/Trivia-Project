@@ -9,25 +9,29 @@ type MobileMenuProps = {
   }[];
   isPublic: boolean;
 };
-const MobileMenu = ({ urls, isPublic=false }: MobileMenuProps) => {
+const MobileMenu = ({ urls, isPublic = false }: MobileMenuProps) => {
   const pathname = location.pathname;
 
   return (
     <div className="md:hidden">
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="ghost" className="p-2 rounded-md text-[#a90000] hover:bg-gray-200 focus:outline-none transition-colors" size="lg" aria-label="Open menu">
-            <Menu color="#a90000" className="h-6 w-6" />
+          <Button
+            variant="ghost"
+            className="p-2 rounded-xl text-[#a90000] hover:bg-[#fef1f0] focus-visible:ring-2 focus-visible:ring-[#a90000]/40 transition-all"
+            size="icon"
+            aria-label="Open menu"
+          >
+            <Menu className="w-6 h-6" strokeWidth={2} />
           </Button>
         </SheetTrigger>
 
         <SheetContent
           side="right"
-          className="w-72 sm:w-80 px-4 p-0"
+          className="w-72 sm:w-80 px-4 p-0 gap-0"
           hideCloseButton
         >
-  
-          <div className="flex items-center justify-between p-4 border-b-1 border-[#f3f4f6 ">
+          <div className="flex items-center justify-between  p-2.5 border-b-1 border-[#f3f4f6] ">
             <div className="flex items-center space-x-2">
               <div className="w-10 h-10 orange-gradient p-1 rounded-full border-2 border-[#a90000] flex items-center justify-center">
                 <img
@@ -44,7 +48,7 @@ const MobileMenu = ({ urls, isPublic=false }: MobileMenuProps) => {
           </div>
 
           {/* Navigation */}
-          <nav className="px-4 py-6 space-y-4 flex flex-col">
+          <nav className="px-4 py-2 space-y-4 flex flex-col">
             {urls.map((url) => (
               <Link
                 to={url.path}

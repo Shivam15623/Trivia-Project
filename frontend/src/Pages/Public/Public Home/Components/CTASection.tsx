@@ -1,4 +1,4 @@
-
+import { Link } from "react-router-dom";
 
 const CTASection = () => {
   return (
@@ -12,18 +12,18 @@ const CTASection = () => {
           solo or create a team!
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <a
-            href="/Signup"
+          <Link
+            to="/Signup"
             className="cta-button bg-white text-[#a90000] text-lg font-bold px-8 py-4 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
           >
             Sign Up Free
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            to="#"
             className="bg-[#a90000] hover:bg-red-800 text-white text-lg font-bold px-8 py-4 rounded-full shadow-lg border-2 border-white/30 transition-colors"
           >
             Learn More
-          </a>
+          </Link>
         </div>
       </div>
     </section>
