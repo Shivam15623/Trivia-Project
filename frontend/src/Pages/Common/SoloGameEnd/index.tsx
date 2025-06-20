@@ -54,7 +54,7 @@ const SoloGameEnd = () => {
     isLoading,
     error,
   } = useFetchSessionInfoSoloQuery(sessionId!);
-  const {user} = useSelector(selectAuth);
+  const { user } = useSelector(selectAuth);
   const [initializesolo] = useInitializeSoloGameMutation();
   const navigate = useNavigate();
   const handleInitializeSoloPlay = async (gameId: string) => {
@@ -166,13 +166,13 @@ const SoloGameEnd = () => {
                   <PlayCircle className="h-5 w-5 mr-2" />
                   Play Again
                 </Button>
-                <a
-                  href={`/${user?.role}/mygames`}
+                <Link
+                  to={`/${user?.role}/mygames`}
                   className="flex-1 bg-white border border-orange-400 text-orange-500 px-6 py-3 rounded-xl shadow-sm font-semibold hover:bg-orange-50 transition duration-200 flex items-center justify-center"
                 >
                   <Home className="h-5 w-5 mr-2" />
                   My Games
-                </a>
+                </Link>
               </div>
             </div>
           </div>

@@ -2,7 +2,7 @@ import AuthCardWrapper from "@/components/AuthCardWrapper";
 import StepBullet from "@/components/StepBullet";
 import { Button } from "@/components/ui/button";
 import { MailCheck, Repeat2, LifeBuoy } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const EmailVerificationSentPage = () => {
   const navigate = useNavigate();
@@ -58,13 +58,13 @@ const EmailVerificationSentPage = () => {
           <div className="bg-[#fff8f0] p-4 text-center border-t border-orange-100">
             <p className="text-sm text-gray-500">
               Need help?{" "}
-              <a
-                href="#"
+              <Link
+                to="#"
                 className="text-[#e34b4b] font-medium hover:underline inline-flex items-center gap-1"
               >
                 <LifeBuoy className="w-4 h-4" />
                 Contact Support
-              </a>
+              </Link>
             </p>
           </div>
         </AuthCardWrapper>
@@ -72,12 +72,12 @@ const EmailVerificationSentPage = () => {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
             Return to{" "}
-            <a
-              href="/login"
+            <Link
+              to="/login"
               className="text-[#e34b4b] font-medium hover:underline"
             >
               Login
-            </a>
+            </Link>
           </p>
         </div>
       </div>

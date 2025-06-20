@@ -20,7 +20,7 @@ import { showSuccess } from "@/components/toastUtills";
 import { RenderField } from "@/components/FormRender/renderFields";
 import { LoginSchema, LoginValues } from "@/SchemaValidations/AuthSchema";
 import { User } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 // 🔁 Replace with actual hook if different
 
 const Login = () => {
@@ -107,12 +107,12 @@ const Login = () => {
                   }}
                 />
                 <p>
-                  <a
-                    href="/reset-request-password"
+                  <Link
+                    to="/reset-request-password"
                     className="text-xs mt-2 text-[#e34b4b] hover:underline text-right flex justify-end"
                   >
                     forgot Password?
-                  </a>
+                  </Link>
                 </p>
               </div>
               <Button
@@ -127,12 +127,12 @@ const Login = () => {
         <CardFooter className="bg-[#fff8f0] p-4 text-center border-t border-orange-100">
           <p className="text-sm text-gray-600 mx-auto">
             Don't have an account?
-            <a
-              href="/signup"
+            <Link
+              to="/signup"
               className="text-[#e34b4b]  hover:underline font-medium"
             >
               Sign up
-            </a>
+            </Link>
           </p>
         </CardFooter>
       </Card>

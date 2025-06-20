@@ -35,7 +35,7 @@ const AccountPopover = () => {
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          className="p-0 block w-6 sm:w-8 lg:w-10 xl:w-[60px] h-6 sm:h-8 lg:h-10 xl:h-[60px]  rounded-full"
+          className="w-10 sm:w-11 sm:h-11 2xl:w-18 h-10 2xl:h-18 grid border-2 p-0  border-[#a90000] rounded-full place-content-center"
         >
           <Avatar className="h-full w-full">
             <AvatarImage src={user?.data.profilePic} alt="profile" />
@@ -47,7 +47,7 @@ const AccountPopover = () => {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" className=" z-53 p-0  space-y-0">
+      <PopoverContent align="start" className=" z-53 p-0  space-y-0 max-w-fit">
         <div className="px-4 py-3 border-b border-[#f3f4f6]">
           <div className="text-[#111827] text-sm font-semibold">
             {user?.data.firstname} {user?.data.lastname}
@@ -57,7 +57,10 @@ const AccountPopover = () => {
           </div>
         </div>
         <div className="p-2 space-y-1">
-          <Link className="block" to={`/${user?.data.role}/userProfile/${user?.data.slug}`}>
+          <Link
+            className="block"
+            to={`/${user?.data.role}/userProfile/${user?.data.slug}`}
+          >
             <Button variant="ghost" className="w-full justify-start">
               <User className="mr-2 h-4 w-4" /> My Profile
             </Button>

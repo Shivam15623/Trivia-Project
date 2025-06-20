@@ -1,6 +1,6 @@
 import logError from "./logError";
 
-type ApiErrorShape = {
+export type ApiErrorShape = {
   status?: number;
   data?: {
     message?: string;

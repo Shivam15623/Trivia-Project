@@ -69,7 +69,7 @@ const AdminNav = () => {
 
                 <MobileMenu urls={navlinks} isPublic={false} />
                 <Link
-                  className="w-10 sm:w-11 2xl:w-18 h-11 2xl:h-18 grid border-2 p-1 orange-gradient border-[#a90000] rounded-full place-content-center"
+                  className="w-10 sm:w-11 sm:h-11 2xl:w-18 h-10 2xl:h-18 grid border-2 p-1 orange-gradient border-[#a90000] rounded-full place-content-center"
                   to="/customer"
                 >
                   <img src="/Trivial logo.png" alt="Logo" />

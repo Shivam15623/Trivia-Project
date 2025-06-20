@@ -11,7 +11,6 @@ import {
   LazyLoader,
   LazyLogin,
   LazyMyGames,
-
   LazyPublicHome,
   LazyRequestResetPassword,
   LazySignup,
@@ -24,6 +23,7 @@ import {
   LazyEndGame,
   LazyEmailVerificationSent,
   LazyApplyEmailVerification,
+  LazyNotFound,
 } from "@/lazy components";
 import RouteGuard from "@/RouteGuard";
 import { Suspense } from "react";
@@ -41,10 +41,7 @@ export const AllRoutes: RouteObject[] = [
         <PublicRoot />
       </RouteGuard>
     ),
-    children: [
-      { index: true, element: withSuspense(<LazyPublicHome />) },
-      
-    ],
+    children: [{ index: true, element: withSuspense(<LazyPublicHome />) }],
   },
   {
     path: "login",
@@ -166,5 +163,9 @@ export const AllRoutes: RouteObject[] = [
         element: withSuspense(<LazySoloGameEnd />),
       },
     ],
+  },
+  {
+    path: "*",
+    element: withSuspense(<LazyNotFound />),
   },
 ];
