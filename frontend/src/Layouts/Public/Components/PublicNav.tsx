@@ -12,10 +12,10 @@ export function PublicHeader() {
   return (
     <header className="bg-[#efefef] sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-3">
+        <div className="flex justify-between items-center py-2.5">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 orange-gradient rounded-full flex items-center justify-center shadow-md">
+            <div className="w-10 sm:w-11 sm:h-11 2xl:w-18 h-10 2xl:h-18  border-2 p-0  border-[#a90000] rounded-full place-content-center orange-gradient  flex items-center justify-center shadow-md">
               <img src="/Trivial logo.png" alt="Logo" />
             </div>
             <span className="text-2xl font-bold gradient-text tracking-tight">

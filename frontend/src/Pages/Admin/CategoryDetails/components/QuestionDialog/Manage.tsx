@@ -20,9 +20,6 @@ import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
 
 import { DialogWrapper } from "@/components/DialogWrapper";
-
-
-
 import { FileField } from "@/components/FormRender/renderFileField";
 import {
   QuestionSchema,
@@ -181,7 +178,7 @@ export function QuestionDialog({ id, trigger }: Props) {
                 <FormControl>
                   <div className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-2">
                     {field.value.map((option, index) => (
-                      <Input
+                      <Input variant="solidred"
                         key={index}
                         placeholder={`Option ${index + 1}`}
                         value={option}
