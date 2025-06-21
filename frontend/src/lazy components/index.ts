@@ -1,7 +1,7 @@
 import { lazy } from "react";
-export const LazyLoader = lazy(() => import("../components/Loader"));
-export const LazyAdminRoot = lazy(() => import("../Layouts/Admin/AdminRoot"));
-export const LazyCustomerRoot = lazy(() => import("../Layouts/Customer"));
+export const LazyLoader = lazy(() => import("@/components/Loader"));
+export const LazyAdminRoot = lazy(() => import("@/Layouts/Admin/AdminRoot"));
+export const LazyCustomerRoot = lazy(() => import("@/Layouts/Customer"));
 export const LazyCustomerHome = lazy(
   () => import("@/Pages/Customer/CustomerHome")
 );
