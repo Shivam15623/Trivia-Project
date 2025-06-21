@@ -13,7 +13,7 @@ import { setLoggedOut } from "@/redux/AuthSlice/authSlice";
 
 import { handleApiError } from "@/utills/handleApiError";
 import { Link } from "react-router-dom";
-import Loader from "./Loader";
+
 
 const AccountPopover = () => {
   const { data: user,isLoading } = useGetUserProfileQuery();
@@ -31,7 +31,7 @@ const AccountPopover = () => {
     }
   };
   if(isLoading){
-    return<Loader/>
+    return null
   }
 
   return (
@@ -39,6 +39,7 @@ const AccountPopover = () => {
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
+          onClick={()=>console.log("called")}
           className="w-10 sm:w-11 sm:h-11 2xl:w-18 h-10 2xl:h-18 grid border-2 p-0  border-[#a90000] rounded-full place-content-center"
         >
           <Avatar className="h-full w-full">
