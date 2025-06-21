@@ -47,7 +47,10 @@ const AccountPopover = () => {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" className=" z-53 p-0  space-y-0 max-w-fit">
+      <PopoverContent
+        align="start"
+        className="z-[999] p-0  space-y-0 max-w-fit"
+      >
         <div className="px-4 py-3 border-b border-[#f3f4f6]">
           <div className="text-[#111827] text-sm font-semibold">
             {user?.data.firstname} {user?.data.lastname}
