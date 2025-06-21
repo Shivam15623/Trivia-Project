@@ -5,7 +5,6 @@ import ConnectDb from "./db/db.js";
 import { app } from "./app.js";
 import { handleConnection } from "./controller/Socket.controller.js";
 
-
 dotenv.config({
   path: "./.env",
 });
@@ -24,10 +23,8 @@ io.on("connect", (socket) => {
 });
 ConnectDb()
   .then(() => {
-    server.listen(process.env.PORT || 8000, process.env.HOST, () => {
-      console.log(
-        `Server running at http://${process.env.HOST}:${process.env.PORT}`
-      );
+    server.listen(process.env.PORT || 8000, () => {
+      console.log(`Server running on port ${process.env.PORT || 8000}`);
     });
   })
   .catch((err) => {
