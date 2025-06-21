@@ -39,7 +39,7 @@ export const CategoryApi = api.injectEndpoints({
         url: `/api/v1/category/fetchCategoryDetails/${id}`,
         method: "GET",
       }),
-      providesTags: (result, error, id) => [{ type: "Category", id }],
+      providesTags: (_result, _error, id) => [{ type: "Category", id }],
     }),
 
     updateCategory: builder.mutation<
@@ -53,7 +53,7 @@ export const CategoryApi = api.injectEndpoints({
         method: "PATCH",
         body: updatedData,
       }),
-      invalidatesTags: (result, error, { categoryId }) => [
+      invalidatesTags: (_result, _error, { categoryId }) => [
         { type: "Category", id: categoryId },
         { type: "Category", id: "LIST" },
       ],
@@ -63,7 +63,7 @@ export const CategoryApi = api.injectEndpoints({
         url: `/api/v1/category/Delete/${encodeURIComponent(categoryId)}`,
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, categoryId) => [
+      invalidatesTags: (_result, _error, categoryId) => [
         { type: "Category", id: categoryId },
         { type: "Category", id: "LIST" },
       ],
@@ -80,7 +80,7 @@ export const CategoryApi = api.injectEndpoints({
         url: `/api/v1/category/publicToggle/${encodeURIComponent(categoryId)}`,
         method: "PATCH",
       }),
-      invalidatesTags: (result, error, categoryId) => [
+      invalidatesTags: (_result, _error, categoryId) => [
         { type: "Category", id: categoryId },
         { type: "Category", id: "LIST" },
       ],

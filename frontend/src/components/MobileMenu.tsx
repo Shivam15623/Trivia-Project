@@ -22,7 +22,7 @@ const MobileMenu = ({ urls, isPublic = false }: MobileMenuProps) => {
             size="icon"
             aria-label="Open menu"
           >
-            <Menu className="w-6 h-6" strokeWidth={2} />
+            <Menu className="w-6 h-6" strokeWidth={3} />
           </Button>
         </SheetTrigger>
 
@@ -31,9 +31,9 @@ const MobileMenu = ({ urls, isPublic = false }: MobileMenuProps) => {
           className="w-72 sm:w-80 px-4 p-0 gap-0"
           hideCloseButton
         >
-          <div className="flex items-center justify-between  p-2.5 border-b-1 border-[#f3f4f6] ">
+          <div className="flex items-center justify-between  p-2.5 sm:py-4 border-b-1 border-[#f3f4f6] ">
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 orange-gradient p-1 rounded-full border-2 border-[#a90000] flex items-center justify-center">
+              <div className="w-10 sm:w-11 sm:h-11 2xl:w-18 h-10 2xl:h-18 orange-gradient p-1 rounded-full border-2 border-[#a90000] flex items-center justify-center">
                 <img
                   src="/Trivial logo.png"
                   alt="Logo"

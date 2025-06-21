@@ -67,7 +67,7 @@ const RequestResetPassword: React.FC = () => {
                 <Input
                   type="email"
                   id="email"
-                  name="email"
+                  name="email" variant="solidred"
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e34b4b] focus:border-transparent transition-all"
