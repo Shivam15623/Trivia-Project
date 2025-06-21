@@ -1,6 +1,5 @@
 import { useRegisterCustomerMutation } from "@/services";
 import { useForm } from "react-hook-form";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Card,
@@ -9,14 +8,6 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
@@ -73,13 +64,14 @@ const Signup = () => {
             >
               <div className="flex flex-col sm:flex-row w-full  gap-4">
                 {/* First Name */}
-                <div className="w-1/2">
+                <div className="w-full sm:w-1/2">
                   <RenderField
                     Inputvariant="solidred"
                     control={form.control}
                     label="First Name"
                     name="firstname"
-                    type="text"
+                    type="text" 
+                   
                     labelClass="block text-sm font-medium text-gray-700 mb-1"
                     inputProps={{
                       placeholder: "john",
@@ -89,7 +81,7 @@ const Signup = () => {
                 </div>
 
                 {/* Last Name */}
-                <div className="w-1/2">
+                <div className="w-full sm:w-1/2">
                   {" "}
                   <RenderField
                     Inputvariant="solidred"
@@ -152,42 +144,16 @@ const Signup = () => {
               </div>
 
               {/* Phone Number */}
-              <FormField
-                control={form.control}
-                name="phoneNo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number
-                    </FormLabel>
-                    <FormControl>
-                      <PhoneInput
-                        country="in"
-                        value={field.value}
-                        onChange={(value) => field.onChange(value)}
-                        inputStyle={{
-                          width: "100%",
-                          height: "38px",
-                          borderRadius: "0.375rem",
-                          border: form.formState.errors.phoneNo
-                            ? "1px solid #ef4444" // red-500
-                            : "1px solid #d1d5db", // gray-300
-                          paddingLeft: "50px",
-                        }}
-                        buttonStyle={{
-                          borderTopLeftRadius: "0.375rem",
-                          borderBottomLeftRadius: "0.375rem",
-                          border: "1px solid #d1d5db",
-                        }}
-                        dropdownStyle={{
-                          zIndex: 10000,
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+               <RenderField
+                  control={form.control}
+                  label="Phone No"
+                  name="phoneNo"
+                  type="phone"
+                  className="w-full"
+                  inputProps={{
+                    required: true,
+                  }}
+                />
               <div className="pt-4 flex flex-col gap-2">
                 <Button
                   type="submit"

@@ -27,7 +27,6 @@ const ApplyEmailVerification: React.FC = () => {
         setMessage("Verification email sent! Please check your inbox.");
       }
     } catch (err) {
- 
       handleApiError(err);
     }
   };
@@ -74,6 +73,7 @@ const ApplyEmailVerification: React.FC = () => {
                   <Input
                     type="email"
                     id="email"
+                    variant="solidred"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"

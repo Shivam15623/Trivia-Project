@@ -1,14 +1,7 @@
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import PhoneInput from "react-phone-input-2";
+
 import { useGetUserProfileQuery, useUpdateProfileMutation } from "@/services";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
@@ -20,6 +13,7 @@ import {
   UserDetailsValues,
 } from "@/SchemaValidations/UserSchema";
 import { showSuccess } from "@/components/toastUtills";
+
 const AccountUpdate = () => {
   const { data: userdata, isLoading } = useGetUserProfileQuery(undefined);
   const [updateDetails] = useUpdateProfileMutation();
@@ -53,7 +47,7 @@ const AccountUpdate = () => {
     try {
       const formData = new FormData();
       formData.append("firstname", values.firstname);
-  
+
       if (
         values.profilePic instanceof FileList &&
         values.profilePic.length > 0
@@ -65,9 +59,7 @@ const AccountUpdate = () => {
       formData.append("phoneNo", values.phoneNo);
       formData.append("DOB", values.DOB.toISOString().split("T")[0]);
 
-      
       const response = await updateDetails(formData).unwrap();
-
 
       // Check for success
       if (response?.success === true) {
@@ -115,7 +107,6 @@ const AccountUpdate = () => {
                     placeholder: "john",
                     required: true,
                   }}
-                 
                 />
 
                 {/* Last Name */}
@@ -129,7 +120,6 @@ const AccountUpdate = () => {
                     placeholder: "Doe",
                     required: true,
                   }}
-                
                 />
               </div>
 
@@ -144,7 +134,6 @@ const AccountUpdate = () => {
                   placeholder: "you@example.com",
                   required: true,
                 }}
-         
               />
               {/* DOB */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -157,43 +146,17 @@ const AccountUpdate = () => {
                   inputProps={{
                     required: true,
                   }}
-                 
                 />
 
                 {/* Phone Number */}
-                <FormField
+                <RenderField
                   control={form.control}
+                  label="Phone No"
                   name="phoneNo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <PhoneInput
-                          country="in"
-                          value={field.value}
-                          onChange={(value) => field.onChange(value)}
-                          inputStyle={{
-                            width: "100%",
-                            height: "38px",
-                            borderRadius: "0.375rem",
-                            border: form.formState.errors.phoneNo
-                              ? "1px solid #ef4444" // red-500
-                              : "1px solid #d1d5db", // gray-300
-                            paddingLeft: "50px",
-                          }}
-                          buttonStyle={{
-                            borderTopLeftRadius: "0.375rem",
-                            borderBottomLeftRadius: "0.375rem",
-                            border: "1px solid #d1d5db",
-                          }}
-                          dropdownStyle={{
-                            zIndex: 10000,
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  type="phone"
+                  inputProps={{
+                    required: true,
+                  }}
                 />
               </div>
             </div>

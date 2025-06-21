@@ -4,7 +4,6 @@ import { useUpdatePasswordMutation } from "@/services";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { handleApiError } from "@/utills/handleApiError";
-
 import { RenderField } from "@/components/FormRender/renderFields";
 import {
   passwordChangeSchema,
@@ -16,7 +15,6 @@ import PasswordRequirementSection from "@/components/PasswordRequirementSection"
 
 const AccountPassword = () => {
   const [passwordChange] = useUpdatePasswordMutation();
-
   const form = useForm<passwordChangeValue>({
     resolver: zodResolver(passwordChangeSchema),
     defaultValues: {
@@ -26,7 +24,6 @@ const AccountPassword = () => {
     },
   });
   const password = form.watch("newpassword");
-
   const handleSubmit = async (data: passwordChangeValue) => {
     try {
       const response = await passwordChange(data).unwrap();
@@ -41,7 +38,7 @@ const AccountPassword = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="max-w-4xl w-1/2   mx-auto  bg-white space-y-6"
+        className="max-w-4xl w-1/2 p-4  mx-auto  bg-white space-y-6"
       >
         <RenderField
           Inputvariant="solidred"
@@ -87,5 +84,4 @@ const AccountPassword = () => {
     </Form>
   );
 };
-
 export default AccountPassword;

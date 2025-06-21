@@ -76,7 +76,7 @@ const MyGames = () => {
           </h2>
           <div className="flex flex-col sm:flex-row w-full gap-3 justify-center items-center">
             <div className="relative flex-grow flex-row ">
-              <Input
+              <Input 
                 type="text"
                 placeholder="Enter Session Code"
                 value={sessionCode}
