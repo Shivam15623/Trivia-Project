@@ -3,7 +3,8 @@ import http from "http"; // Import http for socket server
 import { Server } from "socket.io"; // Import Socket.IO
 import ConnectDb from "./db/db.js";
 import { app } from "./app.js";
-import { handleConnection } from "./Socket.controller.js";
+import { handleConnection } from "./controller/Socket.controller.js";
+
 
 dotenv.config({
   path: "./.env",
@@ -13,7 +14,7 @@ export const io = new Server(server, {
   cors: {
     methods: ["GET", "POST"],
     credentials: true,
-    origin: ["http://localhost:5173", "http://192.168.1.17:5173"],
+    origin: ["http://localhost:5173", "http://192.168.1.3:5173"],
   },
 });
 

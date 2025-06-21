@@ -8,7 +8,7 @@ import { uploadOnCloudinary } from "../utills/cloudinary.js";
 import { fetchQuestionsForOneCategory } from "../helper/fetchrandomquestion.js";
 export const addQuestionToCategory = asyncHandler(async (req, res) => {
   const { categoryId, points, questionText, answer, options } = req.body;
-  console.log("Request options:",options.length );
+
 
 
   // Ensure all required fields are present
@@ -104,7 +104,7 @@ export const getQuestionsByCategory = asyncHandler(async (req, res) => {
 });
 export const updateQuestion = asyncHandler(async (req, res) => {
   const { points, questionText, answer, categoryId } = req.body;
-console.log("Request body:", points, questionText, answer, categoryId);
+
   // Check if all required fields are present
   if (!categoryId || !points || !questionText || !answer) {
     throw new ApiError(400, "All fields are required");

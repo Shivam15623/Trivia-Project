@@ -2,7 +2,7 @@ import { ApiError } from "../utills/ApiError.js";
 import fs from "fs";
 export const validateRequest = (schema, property = "body") => {
   return async (req, res, next) => {
-    console.log(`Validating request for ${property}:`, req.body);
+
     try {
       const validatedData = await schema.validate(req[property], {
         abortEarly: false, // return all errors, not just the first
@@ -13,7 +13,7 @@ export const validateRequest = (schema, property = "body") => {
       req[property] = validatedData;
       next();
     } catch (err) {
-      console.log("Validation error:");
+    
       const deleteFile = (filePath) => {
         if (!filePath) return;
         fs.unlink(filePath, (unlinkErr) => {

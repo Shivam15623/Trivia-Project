@@ -1,17 +1,16 @@
-import PublicRoot from "@/Layouts/Public Layouts/PublicRoot";
+import PublicRoot from "@/Layouts/Public";
 import {
   LazyCategories,
   LazyAdminHome,
   LazyAdminRoot,
   LazyCategoryDetailsPage,
   LazyCustomerHome,
-  LazyCustomerPlay,
+  LazyCreateGame,
   LazyCustomerRoot,
   LazyForgotPassword,
   LazyLoader,
   LazyLogin,
   LazyMyGames,
-  LazyPlay,
   LazyPublicHome,
   LazyRequestResetPassword,
   LazySignup,
@@ -22,8 +21,11 @@ import {
   LazyPlayGamePage,
   LazyWaitingRoom,
   LazyEndGame,
+  LazyEmailVerificationSent,
+  LazyApplyEmailVerification,
+  LazyNotFound,
 } from "@/lazy components";
-import RouteGuard from "@/RouteGuard/RouteGuard";
+import RouteGuard from "@/RouteGuard";
 import { Suspense } from "react";
 import { Outlet, RouteObject } from "react-router-dom";
 
@@ -39,10 +41,7 @@ export const AllRoutes: RouteObject[] = [
         <PublicRoot />
       </RouteGuard>
     ),
-    children: [
-      { index: true, element: withSuspense(<LazyPublicHome />) },
-      { path: "play", element: withSuspense(<LazyPlay />) },
-    ],
+    children: [{ index: true, element: withSuspense(<LazyPublicHome />) }],
   },
   {
     path: "login",
@@ -85,6 +84,22 @@ export const AllRoutes: RouteObject[] = [
     ),
   },
   {
+    path: "/email-verification-sent",
+    element: withSuspense(
+      <RouteGuard isPublic={true}>
+        <LazyEmailVerificationSent />
+      </RouteGuard>
+    ),
+  },
+  {
+    path: "/resent-email",
+    element: withSuspense(
+      <RouteGuard isPublic={true}>
+        <LazyApplyEmailVerification />
+      </RouteGuard>
+    ),
+  },
+  {
     path: "/customer",
     element: withSuspense(
       <RouteGuard requireRole="customer">
@@ -94,7 +109,7 @@ export const AllRoutes: RouteObject[] = [
     children: [
       { index: true, element: withSuspense(<LazyCustomerHome />) },
       { path: "mygames", element: withSuspense(<LazyMyGames />) },
-      { path: "play", element: withSuspense(<LazyCustomerPlay />) },
+      { path: "CreateGame", element: withSuspense(<LazyCreateGame />) },
       { path: "userProfile/:slug", element: withSuspense(<LazyUserProfile />) },
     ],
   },
@@ -116,7 +131,7 @@ export const AllRoutes: RouteObject[] = [
       },
       { path: "userProfile/:slug", element: withSuspense(<LazyUserProfile />) },
       { path: "mygames", element: withSuspense(<LazyMyGames />) },
-      { path: "CreateGame", element: withSuspense(<LazyCustomerPlay />) },
+      { path: "CreateGame", element: withSuspense(<LazyCreateGame />) },
     ],
   },
   {
@@ -148,5 +163,9 @@ export const AllRoutes: RouteObject[] = [
         element: withSuspense(<LazySoloGameEnd />),
       },
     ],
+  },
+  {
+    path: "*",
+    element: withSuspense(<LazyNotFound />),
   },
 ];

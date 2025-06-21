@@ -8,9 +8,9 @@ import { PersistGate } from "redux-persist/es/integration/react";
 import { Provider } from "react-redux";
 import { Toaster } from "./components/ui/sonner.tsx";
 import "react-phone-input-2/lib/style.css";
-import { initializeSocket } from "./utills/Socket.ts";
+
 const persistor = persistStore(store);
-initializeSocket();
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>

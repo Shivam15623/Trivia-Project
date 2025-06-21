@@ -1,10 +1,11 @@
-import { showError } from "@/CustomComponent/toastUtills";
+import { showError } from "@/components/toastUtills";
 
-const logError = (error: unknown) => {
+
+const logError = (error:string) => {
   if (import.meta.env.DEV) {
     console.error(error);
   } else {
-    showError("An unexpected error occurred. Please try again later.");
+    showError(error||"An unexpected error occurred. Please try again later.");
   }
 };
 

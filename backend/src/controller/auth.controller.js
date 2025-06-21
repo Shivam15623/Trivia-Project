@@ -155,7 +155,7 @@ export const LogOut = asyncHandler(async (req, res) => {
 });
 export const ForgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
-  console.log(email);
+
   if (!email) {
     throw new ApiError(400, "Email is Required ");
   }
@@ -276,4 +276,18 @@ export const silentAuth = asyncHandler(async (req, res) => {
         accessToken,
       })
     );
+});
+export const verificationRequest = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    throw new ApiError(400, "email provide");
+  }
+  const checkemail = await User.findOne({
+    email: email,
+  });
+  if (!checkemail) {
+    throw new ApiError(400, "No Such User exists");
+  }
+  await sendVerificationEmail({ email: email, userId: checkemail._id });
+  return res.status(200).json(new ApiResponse(200, "email verification sent"));
 });

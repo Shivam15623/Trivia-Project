@@ -7,6 +7,7 @@ import {
   RegisterCustomer,
   silentAuth,
   updateForgotpassword,
+  verificationRequest,
   verifyEmail,
 } from "../controller/auth.controller.js";
 import passport from "passport";
@@ -23,4 +24,5 @@ router.route("/verifyEmail").post(verifyEmail);
 router.route("/forgotpassword").post(updateForgotpassword);
 router.route("/resetpasswordrequest").post(ForgotPassword);
 router.route("/silentAuth").post(silentAuth);
+router.route("/verificationRequest").post(verificationRequest);
 export default router;

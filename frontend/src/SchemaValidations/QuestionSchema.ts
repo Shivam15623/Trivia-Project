@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { imageField } from ".";
 
 export const QuestionSchema = z
   .object({
@@ -9,15 +10,9 @@ export const QuestionSchema = z
       message: "Invalid point value",
     }),
     options: z.array(z.string()).length(4, "There must be exactly 4 options"),
-    questionImage: z.union([
-      z.string(), // image URL
-      z.instanceof(File),
-    ]),
+    questionImage: imageField,
 
-    answerImage: z.union([
-      z.string(), // image URL
-      z.instanceof(File),
-    ]),
+    answerImage: imageField
   })
   .refine((data) => data.options.includes(data.answer), {
     path: ["answer"],
