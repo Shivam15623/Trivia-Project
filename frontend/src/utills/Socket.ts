@@ -1,10 +1,10 @@
 import { io, Socket } from "socket.io-client";
 
 let socket: Socket;
-
+const environment = import.meta.env;
 export const initializeSocket = (): Socket => {
   if (!socket) {
-    socket = io("http://192.168.1.3:8000", {
+    socket = io(environment.BASE_URL, {
       withCredentials: true,
       transports: ["websocket"], // 🚀 Ensures WebSocket connection
     });
