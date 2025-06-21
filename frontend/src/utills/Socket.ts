@@ -1,12 +1,12 @@
 import { io, Socket } from "socket.io-client";
 
 let socket: Socket;
-const environment = import.meta.env;
+
 export const initializeSocket = (): Socket => {
   if (!socket) {
-    socket = io(environment.BASE_URL, {
+    socket = io(import.meta.env.VITE_API_BASE_URL, {
       withCredentials: true,
-      transports: ["websocket"], // 🚀 Ensures WebSocket connection
+      transports: ["websocket"], 
     });
 
     socket.on("connect", () => {
