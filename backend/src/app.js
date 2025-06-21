@@ -9,11 +9,11 @@ const app = express();
 ConPassport(passport);
 app.use(passport.initialize());
 app.use(cookieParser());
-
+const allowedOrigins = [process.env.CORS_ORIGIN, "http://localhost:3000"];
 app.use(
   cors({
     credentials: true,
-    origin: ["http://localhost:5173", "http://192.168.1.3:5173"],
+    origin: allowedOrigins,
   })
 );
 
@@ -29,7 +29,6 @@ import CategoryRouter from "./Routes/category.routes.js";
 import GameSessionRouter from "./Routes/GameSession.routes.js";
 import questionRouter from "./Routes/question.routes.js";
 import SoloGameRouter from "./Routes/SoloGame.routes.js";
-
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
