@@ -19,7 +19,7 @@ const Categories = () => {
     isLoading,
     isError,
   } = useFetchCategoriesQuery(undefined);
-  console.log(isError);
+
 
   const [searchQuery, setSearchQuery] = useState("");
 

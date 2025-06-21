@@ -13,9 +13,10 @@ import { setLoggedOut } from "@/redux/AuthSlice/authSlice";
 
 import { handleApiError } from "@/utills/handleApiError";
 import { Link } from "react-router-dom";
+import Loader from "./Loader";
 
 const AccountPopover = () => {
-  const { data: user } = useGetUserProfileQuery();
+  const { data: user,isLoading } = useGetUserProfileQuery();
 
   const [Logout] = useLogoutMutation();
   const dispatch = useDispatch();
@@ -29,6 +30,9 @@ const AccountPopover = () => {
       handleApiError(error);
     }
   };
+  if(isLoading){
+    return<Loader/>
+  }
 
   return (
     <Popover>
