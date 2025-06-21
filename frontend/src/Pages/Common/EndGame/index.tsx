@@ -21,28 +21,41 @@ import { Button } from "@/components/ui/button";
 
 const EndGamePage = () => {
   const { sessionCode } = useParams<{ sessionCode: string }>();
+  const { user } = useSelector(selectAuth);
+  const userId = user?._id;
+  const userRole = user?.role;
 
-  const {user} = useSelector(selectAuth);
-  const userId=user?._id
-  const userRole=user?.role
-
+  // ❌ Don't run query if user is not ready
+  const shouldSkip = !userId;
   const {
     data: sessionData,
     isLoading,
     error,
-  } = useFetchScoreBoardQuery(sessionCode!);
+  } = useFetchScoreBoardQuery(sessionCode!, { skip: shouldSkip });
+
   const isWinner = useMemo(() => {
     return (
-      Array.isArray(sessionData?.data?.winner?.members) &&
-      sessionData.data.winner.members.some((player) => player.userId === userId)
+      sessionData?.data?.winner?.members?.some(
+        (player) => player.userId === userId
+      ) ?? false
     );
   }, [sessionData, userId]);
 
   useEffect(() => {
-    if (isWinner && !isDraw) {
+    if (isWinner && !sessionData?.data?.isDraw) {
       fireConfetti({ spread: 250 });
     }
-  }, [isWinner]);
+  }, [isWinner, sessionData]);
+
+  // ✅ Loader while user is undefined
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-white">
+        <LoaderCircle className="animate-spin w-8 h-8 mr-2" />
+        <span>Initializing user...</span>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -69,6 +82,7 @@ const EndGamePage = () => {
       </div>
     );
   }
+
   const { winner, loser, isDraw } = sessionData.data;
 
   return (

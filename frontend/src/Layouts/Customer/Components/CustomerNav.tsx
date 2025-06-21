@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 
 import MobileMenu from "@/components/MobileMenu";
 import { selectAuth } from "@/redux/AuthSlice/authSlice";
+import Loader from "@/components/Loader";
 
 export function CustomerNavHeader() {
   const location = useLocation();
@@ -23,6 +24,10 @@ export function CustomerNavHeader() {
       path: "/customer/CreateGame",
     },
   ];
+  
+    if (!user) {
+      return <Loader />;
+    }
 
   return (
     <>

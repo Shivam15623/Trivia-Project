@@ -5,11 +5,13 @@ import { useSelector } from "react-redux";
 
 import MobileMenu from "@/components/MobileMenu";
 import { selectAuth } from "@/redux/AuthSlice/authSlice";
+import Loader from "@/components/Loader";
 
 const AdminNav = () => {
   const location = useLocation();
   const pathname = location.pathname;
-  const {user} = useSelector(selectAuth);
+  const { user } = useSelector(selectAuth);
+
   const navlinks = [
     {
       name: "Dashboard",
@@ -28,6 +30,10 @@ const AdminNav = () => {
       path: "/admin/CreateGame",
     },
   ];
+
+  if (!user) {
+    return <Loader />;
+  }
 
   return (
     <>

@@ -6,6 +6,16 @@ import { useNavigate } from "react-router-dom";
 const TestKnowledge = () => {
   const navigate=useNavigate()
   const {user}=useSelector(selectAuth)
+   const isUserReady = !!user?.role;
+
+  if (!isUserReady) {
+    // Option 1: Simple loader
+    return (
+      <div className="min-h-[200px] flex items-center justify-center text-gray-500">
+        Loading your game options...
+      </div>
+    );
+  }
   const userRole=user?.role
   return (
     <section className="py-20 patt text-black">

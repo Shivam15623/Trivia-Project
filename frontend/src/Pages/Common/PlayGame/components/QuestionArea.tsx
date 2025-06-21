@@ -32,6 +32,7 @@ const QuestionSection = ({
   const [showAnswerSection, setShowAnswerSection] = useState(false);
   const [submitAnswer] = useSubmitAnswerMutation();
   const {user} = useSelector(selectAuth);
+  
   const userId=user?._id
   const currentTeamIndex = sessionInfo.progress?.currentTeamIndex;
   const teams = sessionInfo?.teams;

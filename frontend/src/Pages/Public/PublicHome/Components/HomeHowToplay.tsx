@@ -4,6 +4,17 @@ import { Link } from "react-router-dom";
 
 const HomeHowToplay = () => {
   const { user } = useSelector(selectAuth);
+  const isUserReady = !!user?.role;
+
+  if (!isUserReady) {
+    // Option 1: Simple loader
+    return (
+      <div className="min-h-[200px] flex items-center justify-center text-gray-500">
+        Loading your game options...
+      </div>
+    );
+  }
+
   return (
     <section id="how-to-play" className="py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">

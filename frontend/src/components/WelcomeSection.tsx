@@ -1,10 +1,14 @@
-
 import { selectAuth } from "@/redux/AuthSlice/authSlice";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import Loader from "./Loader";
 
 const WelcomeSection = () => {
-  const {user} = useSelector(selectAuth);
+  const { user } = useSelector(selectAuth);
+
+  if (!user) {
+    return <Loader />;
+  }
   const userRole = user?.role;
   const userName = user?.firstname || "there";
 
