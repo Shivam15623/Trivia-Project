@@ -9,11 +9,11 @@ const app = express();
 ConPassport(passport);
 app.use(passport.initialize());
 app.use(cookieParser());
-const allowedOrigins = [process.env.CORS_ORIGIN, "http://localhost:3000"];
+// const allowedOrigins = [process.env.CORS_ORIGIN, "http://localhost:3000"];
 app.use(
   cors({
     credentials: true,
-    origin: allowedOrigins,
+    origin: process.env.CORS_ORIGIN,
   })
 );
 
