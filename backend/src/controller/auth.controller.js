@@ -106,15 +106,15 @@ export const LoginUser = asyncHandler(async (req, res) => {
 
   const accessOptions = {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: true, // must be true for HTTPS (Render uses HTTPS)
+    sameSite: "None", // must be 'None' for cross-site cookies
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   };
 
   const refreshOptions = {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: true, // must be true for HTTPS (Render uses HTTPS)
+    sameSite: "None", // must be 'None' for cross-site cookies
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   };
 
@@ -257,12 +257,14 @@ export const silentAuth = asyncHandler(async (req, res) => {
   };
   const accessoptions = {
     httpOnly: true,
-    // secure: true,
+    secure: true, // must be true for HTTPS (Render uses HTTPS)
+    sameSite: "None", // must be 'None' for cross-site cookies
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   };
   const refreshoptions = {
     httpOnly: true,
-    // secure: true,
+    secure: true, // must be true for HTTPS (Render uses HTTPS)
+    sameSite: "None", // must be 'None' for cross-site cookies
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
   };
   return res
