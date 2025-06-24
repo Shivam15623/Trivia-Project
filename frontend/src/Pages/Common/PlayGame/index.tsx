@@ -180,7 +180,15 @@ const PlayGamePage = () => {
       socket?.emit("end-game", sessionCode);
     }
   };
-
+  const handleAid = async (aid: "Deduct" | "None" | "twicePoint") => {
+    if (["Deduct", "twicePoint"].includes(aid)) {
+      if (useAid === aid) {
+        setUseAid("None");
+      } else {
+        setUseAid(aid);
+      }
+    }
+  };
   const handlefiftyfifty = async () => {
     if (!sessionInfo?._id || !questionData?.questionId) {
       return;
@@ -226,11 +234,11 @@ const PlayGamePage = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center text-red-500 text-sm font-medium">
-          Oops! Something went wrong. Please try again later.
+      <section className="px-2 sm:px-10 mt-9 text-center">
+        <div className="inline-block px-6 py-4 border border-red-300 bg-red-50 text-red-700 rounded-xl font-medium">
+          Failed to fetch games. Please try again later.
         </div>
-      </div>
+      </section>
     );
   }
 
@@ -309,7 +317,7 @@ const PlayGamePage = () => {
 
                 <Button
                   disabled={!DeductUsed}
-                  onClick={() => setUseAid("Deduct")}
+                  onClick={() => handleAid("Deduct")}
                   className={`w-full sm:w-auto flex-1 p-3 rounded-lg transition-all duration-300 flex justify-center items-center gap-2 text-sm font-medium
     ${
       useAid === "Deduct"
@@ -325,7 +333,7 @@ const PlayGamePage = () => {
 
                 <Button
                   disabled={!twiceUsed}
-                  onClick={() => setUseAid("twicePoint")}
+                  onClick={() => handleAid("twicePoint")}
                   className={`w-full sm:w-auto flex-1 p-3 rounded-lg transition-all duration-300 flex justify-center items-center gap-2 text-sm font-medium
     ${
       useAid === "twicePoint"

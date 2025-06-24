@@ -11,6 +11,7 @@ import Pagination from "@/components/ui/paggination";
 import { usePagination } from "@/hooks/usePagination";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const MyGames = () => {
   const { data: mygames, isLoading, isError } = useFetchMyGamesQuery(undefined);
@@ -33,20 +34,31 @@ const MyGames = () => {
     navigate(`/game/Waitingroom/${sessionCode}`);
   };
 
-  if (isLoading) {
-    return (
-      <section className="px-2 sm:px-10 mt-9 text-center">
-        <p className="text-lg text-gray-400">Loading your games...</p>
-      </section>
-    );
-  }
+if (isLoading) {
+  return (
+    <section className="px-2 sm:px-10 mt-9 text-center">
+      <div className="space-y-6">
+        <Skeleton className="h-12 w-48 mx-auto rounded" /> {/* Title */}
+        <Skeleton className="h-44 max-w-xl mx-auto rounded-xl" /> {/* Join box */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-10 mt-8 sm:mt-14 md:mt-18 xl:mt-20 2xl:mt-25">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-[300px] w-full rounded-xl" />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
   if (isError) {
     return (
       <section className="px-2 sm:px-10 mt-9 text-center">
-        <p className="text-lg text-red-500">
-          Failed to fetch games: "Unknown error"
-        </p>
+        <h2 className="text-3xl font-bold font-cairo mb-4 text-gray-700">
+          My Games
+        </h2>
+        <div className="inline-block px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-md">
+          Failed to fetch your games. Please try again later.
+        </div>
       </section>
     );
   }
@@ -76,7 +88,7 @@ const MyGames = () => {
           </h2>
           <div className="flex flex-col sm:flex-row w-full gap-3 justify-center items-center">
             <div className="relative flex-grow flex-row ">
-              <Input 
+              <Input
                 type="text"
                 placeholder="Enter Session Code"
                 value={sessionCode}
