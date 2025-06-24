@@ -264,7 +264,7 @@ const PlayGamePage = () => {
       <section className="px-4 py-6 sm:px-6 pb-30 sm:pb-0 w-full h-full mx-auto md:w-11/12 lg:w-3/4  bg-gray-50 ">
         <div className="flex flex-col sm:flex-row gap-6">
           {/* Question Area */}
-          <div className="w-full sm:w-full  md:w-9/12 lg:w-9/12 mx-auto  ">
+          <div className="w-full sm:w-full md:w-9/12 lg:w-9/12 mx-auto  ">
             <div className="bg-white rounded-2xl shadow-lg p-1  sm:p-6 flex flex-col gap-6 relative border-[5px] border-[#e34b4b]">
               {questionLoading ? (
                 <div className="text-gray-500 text-lg text-center animate-pulse">
