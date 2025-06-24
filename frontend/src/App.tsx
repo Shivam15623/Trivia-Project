@@ -1,6 +1,6 @@
 import { RouterProvider } from "react-router-dom";
 import { useSilentAuthMutation } from "./services";
-import { useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import router from "./routes";
 import "./styles/fonts.css";
 import "./styles/animation.css";
@@ -8,16 +8,20 @@ import "@/App.css";
 import Loader from "./components/Loader";
 
 function App() {
-  // Removed unused user selector
   const [silentAuth, { isLoading }] = useSilentAuthMutation();
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    silentAuth();
+    silentAuth().finally(() => setReady(true));
   }, [silentAuth]);
 
-  if (isLoading) return <Loader />;
+  if (!ready || isLoading) return <Loader />;
 
-  return <RouterProvider router={router} />;
+  return (
+    <Suspense fallback={<Loader />}>
+      <RouterProvider router={router} />
+    </Suspense>
+  );
 }
 
 export default App;
