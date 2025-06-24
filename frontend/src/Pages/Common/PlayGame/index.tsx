@@ -208,20 +208,40 @@ const PlayGamePage = () => {
     } catch (error) {
       handleApiError(error);
     } finally {
-      setIsFiftyLoading(true);
+      setIsFiftyLoading(false);
     }
   };
-
-  if (isLoading)
-    return <div className="text-center py-10">Loading session info...</div>;
-  if (error)
+  if (isLoading) {
     return (
-      <div className="text-center py-10 text-red-500">
-        Error loading session
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm text-gray-600 animate-pulse">
+            Preparing game environment...
+          </p>
+        </div>
       </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center text-red-500 text-sm font-medium">
+          Oops! Something went wrong. Please try again later.
+        </div>
+      </div>
+    );
+  }
+
   if (sessionInfo?.status === "completed") {
-    return <div>game ended</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center text-gray-700 text-sm font-medium">
+          This game has already ended.
+        </div>
+      </div>
+    );
   }
   return (
     <div className="flex flex-col w-screen max-w-screen overflow-y-scroll h-screen max-h-screen gap-6  ">
@@ -277,43 +297,43 @@ const PlayGamePage = () => {
                   disabled={!isFifty}
                   onClick={handlefiftyfifty}
                   className={`w-full sm:w-auto flex-1 p-3 rounded-lg transition-all duration-300 flex justify-center items-center gap-2 text-sm font-medium
-        ${
-          isFifty
-            ? "bg-purple-600 text-white hover:bg-purple-700"
-            : "bg-gray-200 text-gray-400 cursor-not-allowed"
-        }`}
+    ${
+      isFifty
+        ? "bg-indigo-600 text-white hover:bg-indigo-700"
+        : "bg-gray-200 text-gray-400 cursor-not-allowed"
+    }`}
                 >
                   <Divide size={18} />
                   50-50
                 </Button>
 
                 <Button
-                  disabled={!DeductUsed || useAid !== "None"}
+                  disabled={!DeductUsed}
                   onClick={() => setUseAid("Deduct")}
                   className={`w-full sm:w-auto flex-1 p-3 rounded-lg transition-all duration-300 flex justify-center items-center gap-2 text-sm font-medium
-        ${
-          useAid === "Deduct"
-            ? "bg-blue-600 text-white hover:bg-blue-700"
-            : !DeductUsed || useAid !== "None"
-            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-            : "bg-gray-100 text-gray-800 hover:bg-blue-100"
-        }`}
+    ${
+      useAid === "Deduct"
+        ? "bg-rose-600 text-white hover:bg-rose-700"
+        : !DeductUsed
+        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+        : "bg-gray-100 text-gray-800 hover:bg-rose-100"
+    }`}
                 >
                   <MinusCircle size={18} />
                   Deduct
                 </Button>
 
                 <Button
-                  disabled={!twiceUsed || useAid !== "None"}
+                  disabled={!twiceUsed}
                   onClick={() => setUseAid("twicePoint")}
                   className={`w-full sm:w-auto flex-1 p-3 rounded-lg transition-all duration-300 flex justify-center items-center gap-2 text-sm font-medium
-        ${
-          useAid === "twicePoint"
-            ? "bg-green-600 text-white hover:bg-green-700"
-            : !twiceUsed || useAid !== "None"
-            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-            : "bg-gray-100 text-gray-800 hover:bg-green-100"
-        }`}
+    ${
+      useAid === "twicePoint"
+        ? "bg-emerald-600 text-white hover:bg-emerald-700"
+        : !twiceUsed
+        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+        : "bg-gray-100 text-gray-800 hover:bg-emerald-100"
+    }`}
                 >
                   <Zap size={18} />
                   2x Points
