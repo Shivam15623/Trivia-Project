@@ -41,6 +41,7 @@ const WelcomeSection = () => {
             >
               Join Game
             </Link>
+           
           </div>
         </div>
       </div>
