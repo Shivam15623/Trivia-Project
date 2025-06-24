@@ -23,7 +23,7 @@ const WaitingRoom = () => {
   const userId = user?._id;
 
   const [joinGame] = useJoinGameSessionMutation();
-  const [startMatch] = useStartGameMutation();
+  const [startMatch, { isLoading: isStarting }] = useStartGameMutation();
   const [endGameSession, { isLoading: isEnding }] = useGameSessionEndMutation();
 
   const {
@@ -282,9 +282,10 @@ const WaitingRoom = () => {
             {allTeamsFull && (
               <Button
                 onClick={handleStartGame}
+                 disabled={isStarting}
                 className="bg-green-600 hover:bg-green-700 px-6 py-3 text-white text-lg rounded-xl"
               >
-                Start Match
+                {isStarting ? "Starting..." : "Start Match"}
               </Button>
             )}
             <Button
