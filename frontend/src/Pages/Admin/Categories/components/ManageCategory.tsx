@@ -19,7 +19,7 @@ import { showSuccess } from "@/components/toastUtills";
 
 import { FileField } from "@/components/FormRender/renderFileField";
 import { RenderField } from "@/components/FormRender/renderFields";
-
+import Loader from "@/components/Loader";
 
 type Props = {
   slug?: string;
@@ -77,8 +77,21 @@ export function CategoryDialog({ slug, trigger }: Props) {
     }
   };
 
-  if (isEdit && isLoading) return <div className="p-4">Loading...</div>;
-
+  if (isEdit && isLoading) {
+    return (
+      <DialogWrapper
+        type="edit"
+        title="Update Category"
+        description="Edit your category details."
+        trigger={trigger}
+        resetForm={() => form.reset()}
+      >
+        <div className="flex items-center justify-center min-h-[200px]">
+          <Loader />
+        </div>
+      </DialogWrapper>
+    );
+  }
   return (
     <DialogWrapper
       type={isEdit ? "edit" : "add"}
@@ -119,10 +132,14 @@ export function CategoryDialog({ slug, trigger }: Props) {
             <Button
               type="submit"
               className="w-full"
-              variant={"gradient"}
+              variant="gradient"
               disabled={form.formState.isSubmitting}
             >
-              {isEdit ? "Update" : "Add"}
+              {form.formState.isSubmitting
+                ? "Saving..."
+                : isEdit
+                ? "Update"
+                : "Add"}
             </Button>
 
             {/* Cancel button */}
