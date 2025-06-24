@@ -34,21 +34,24 @@ const MyGames = () => {
     navigate(`/game/Waitingroom/${sessionCode}`);
   };
 
-if (isLoading) {
-  return (
-    <section className="px-2 sm:px-10 mt-9 text-center">
-      <div className="space-y-6">
-        <Skeleton className="h-12 w-48 mx-auto rounded" /> {/* Title */}
-        <Skeleton className="h-44 max-w-xl mx-auto rounded-xl" /> {/* Join box */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-10 mt-8 sm:mt-14 md:mt-18 xl:mt-20 2xl:mt-25">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-[300px] w-full rounded-xl" />
-          ))}
+  if (isLoading) {
+    return (
+      <section className="px-2 sm:px-10 mt-9 text-center">
+        <div className="space-y-6">
+          <h2 className="text-3xl font-bold font-cairo mb-4">My Games</h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-10 mt-8 sm:mt-14 md:mt-18 xl:mt-20 2xl:mt-25">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton
+                key={i}
+                className="aspect-[6/7] bg-orange-100 w-full rounded-xl"
+              />
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
+    );
+  }
 
   if (isError) {
     return (
