@@ -16,11 +16,14 @@ const PlaySoloGame = () => {
     refetch: refetchCurrentQuestion,
   } = useCurrentQuestionSoloQuery(sessionId!);
 
-  const [submitAnswer] = useSubmitAnswerSoloMutation();
+  const [submitAnswer, { isLoading: isSubmitting }] =
+    useSubmitAnswerSoloMutation();
   const navigate = useNavigate();
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  const showLoader = isFetching || isSubmitting;
 
   const handleSubmit = async () => {
     if (
@@ -32,13 +35,13 @@ const PlaySoloGame = () => {
       return;
 
     try {
+      setHasSubmitted(true);
+
       const response = await submitAnswer({
         sessionId,
         answer: selectedOption,
         questionId: currentQuestionData.data.questionId,
       }).unwrap();
-
-      setHasSubmitted(true);
 
       if (response.success === true) {
         if (response.data.gameEnded) {
@@ -68,17 +71,22 @@ const PlaySoloGame = () => {
           )}
 
           <div className="w-full md:w-9/12 mx-auto relative">
-            {/* 🔄 Loader overlay */}
-            {isFetching && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white bg-opacity-50 pointer-events-none">
-                <div className="w-14 h-14 border-4 border-gray-500 border-t-transparent rounded-full animate-spin" />
+            {/* 🔄 Unified loader during submit or fetch */}
+            {showLoader && (
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center backdrop-blur-sm bg-orange-50 bg-opacity-60 pointer-events-none transition-all">
+                <div className="relative w-16 h-16 mb-4">
+                  <div className="absolute inset-0 rounded-full border-4 border-orange-500 border-t-transparent animate-spin" />
+                  <div className="absolute inset-1 rounded-full border-2 border-orange-300 opacity-50 animate-ping" />
+                </div>
+                <p className="text-orange-600 font-semibold text-sm sm:text-base animate-pulse">
+                  Loading next question...
+                </p>
               </div>
             )}
 
-            {/* 🎮 Question Card */}
             <div
               className={`bg-white rounded-2xl shadow-lg p-1 sm:p-6 flex flex-col gap-6 border-[5px] border-[#e34b4b] ${
-                isFetching ? "pointer-events-none opacity-50" : ""
+                showLoader ? "pointer-events-none opacity-50" : ""
               }`}
             >
               <div className="w-full max-w-2xl mx-auto space-y-2 sm:space-y-3.5 md:space-y-6">
@@ -105,7 +113,7 @@ const PlaySoloGame = () => {
                       <li
                         key={index}
                         onClick={() => {
-                          if (!hasSubmitted && !isFetching) {
+                          if (!hasSubmitted && !showLoader) {
                             setSelectedOption(option);
                           }
                         }}
@@ -123,9 +131,9 @@ const PlaySoloGame = () => {
 
                 <Button
                   onClick={handleSubmit}
-                  disabled={!selectedOption}
+                  disabled={!selectedOption || showLoader}
                   className={`transition-all mb-2 sm:mb-0 duration-200 text-white font-bold py-3 px-6 rounded-xl w-full shadow-lg ${
-                    !selectedOption
+                    !selectedOption || showLoader
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 active:scale-95"
                   }`}
