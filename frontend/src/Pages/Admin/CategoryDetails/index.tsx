@@ -3,22 +3,21 @@ import {
   useFetchQuestionsbyCategoryQuery,
 } from "@/services";
 import { useParams } from "react-router-dom";
-import { Skeleton } from "@/components/ui/skeleton";
 import TabForQuestions from "./components/TabForQuestions";
 import { useMemo } from "react";
 import CategoryDetails from "./components/Categorydetails";
-
+import SkeletonCategoryDetails from "./components/SkelatonCategoryDetails";
+import { AlertTriangle, LucideMessageCircleQuestion } from "lucide-react";
 const CategoryDetailsPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: category, isLoading: categoryLoading } =
     useFetchCategorybyslugQuery(slug!, {
       skip: !slug,
     });
-  const { data: questionsData } =
-    useFetchQuestionsbyCategoryQuery(slug!, {
-      skip: !slug,
-    });
-  const toatalQuestions = useMemo(() => {
+  const { data: questionsData } = useFetchQuestionsbyCategoryQuery(slug!, {
+    skip: !slug,
+  });
+  const totalQuestions = useMemo(() => {
     if (!questionsData?.data) {
       return 0;
     }
@@ -30,13 +29,17 @@ const CategoryDetailsPage = () => {
   }, [questionsData?.data]);
 
   if (categoryLoading) {
-    return <Skeleton className="h-64 w-full rounded-xl" />;
+    return <SkeletonCategoryDetails />;
   }
 
   if (!category) {
     return (
-      <div className="p-4 border border-red-300 rounded-xl text-red-500">
-        Category not found.
+      <div className="flex flex-col items-center justify-center py-16 text-center text-red-500 border border-red-200 bg-red-50 rounded-xl">
+        <AlertTriangle className="w-12 h-12 mb-4" />
+        <h2 className="text-xl font-semibold">Category Not Found</h2>
+        <p className="text-sm text-red-400 mt-1">
+          The category you’re looking for doesn’t exist or has been removed.
+        </p>
       </div>
     );
   }
@@ -46,14 +49,18 @@ const CategoryDetailsPage = () => {
       <div className="container mx-auto p-4 space-y-10 ">
         <CategoryDetails
           category={category.data}
-          totalQuestions={toatalQuestions}
+          totalQuestions={totalQuestions}
         />
 
         {questionsData?.data ? (
           <TabForQuestions questionsData={questionsData.data} />
         ) : (
-          <div className="text-red-500 font-medium">
-            No questions available.
+          <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
+            <LucideMessageCircleQuestion className="w-12 h-12 mb-4 text-orange-400" />
+            <p className="text-lg font-semibold">No Questions Found</p>
+            <p className="text-sm">
+              This category doesn’t have any questions yet.
+            </p>
           </div>
         )}
       </div>

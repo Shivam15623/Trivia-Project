@@ -1,4 +1,3 @@
-
 import { useFetchCategoryPublicQuery } from "@/services";
 import { useForm } from "react-hook-form";
 
@@ -25,6 +24,7 @@ import {
 } from "@/SchemaValidations/GameSchema";
 import CreateGameHero from "./components/CreateGameHero";
 import { RenderField } from "@/components/FormRender/renderFields";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const CreateGame = () => {
   const { data: categories, isLoading } = useFetchCategoryPublicQuery();
@@ -71,7 +71,33 @@ const CreateGame = () => {
         </p>
 
         {isLoading ? (
-          <p>Loading categories...</p>
+          <div className="mt-12 space-y-10">
+            {/* Heading skeletons */}
+            <div className="flex flex-col items-center space-y-3">
+              <Skeleton className="h-10 w-48 rounded-full" />
+              <Skeleton className="h-6 w-[70%] max-w-3xl rounded" />
+            </div>
+
+            {/* Category card skeletons */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-5 max-w-[1574px] mx-auto">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <Skeleton
+                  key={index}
+                  className="aspect-[3/4] rounded-xl w-full"
+                />
+              ))}
+            </div>
+
+            {/* Game title input skeleton */}
+            <div className="flex justify-center mt-12">
+              <Skeleton className="h-14 w-[300px] rounded-full" />
+            </div>
+
+            {/* Button skeleton */}
+            <div className="text-center mt-10">
+              <Skeleton className="h-12 w-40 rounded-full mx-auto" />
+            </div>
+          </div>
         ) : (
           <Form {...form}>
             <form
