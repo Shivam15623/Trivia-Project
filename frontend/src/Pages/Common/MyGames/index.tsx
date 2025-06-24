@@ -23,7 +23,7 @@ const MyGames = () => {
     paginatedData: paginatedgame,
     setPage,
     totalPages,
-  } = usePagination(mygames?.data || [], 3);
+  } = usePagination(mygames?.data || [], 4);
 
   const handleJoinSession = () => {
     if (!sessionCode.trim()) {
@@ -99,7 +99,7 @@ const MyGames = () => {
           <GameCard game={game} />
         ))}
       </div>
-      {mygames.data && mygames.data.length > 3 && (
+      {mygames.data && mygames.data.length > 4 && (
         <div className="mt-12">
           <Pagination
             variant="MyGames"

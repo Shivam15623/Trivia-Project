@@ -49,6 +49,7 @@ const PlayGamePage = () => {
   const [useAid, setUseAid] = useState<"Deduct" | "None" | "twicePoint">(
     "None"
   );
+  const [isFiftyLoading, setIsFiftyLoading] = useState(false);
 
   useEffect(() => {
     if (sessionSuccess && sessionInfoFromAPI?.data) {
@@ -87,8 +88,8 @@ const PlayGamePage = () => {
       setQuestionData(undefined);
     }
   }, [currentQuestionDataFromAPI, questionSuccess]);
-  const {user} = useSelector(selectAuth);
-  const userId=user?._id
+  const { user } = useSelector(selectAuth);
+  const userId = user?._id;
   const isHost = sessionInfo?.host === userId;
   const isFifty = useMemo(() => {
     if (!sessionInfo || !userId) return false;
@@ -185,6 +186,7 @@ const PlayGamePage = () => {
       return;
     }
     try {
+      setIsFiftyLoading(true);
       const response = await fiftyfifty({
         gameSessionId: sessionInfo._id,
         questionId: questionData.questionId,
@@ -205,6 +207,8 @@ const PlayGamePage = () => {
       }
     } catch (error) {
       handleApiError(error);
+    } finally {
+      setIsFiftyLoading(true);
     }
   };
 
@@ -252,6 +256,7 @@ const PlayGamePage = () => {
                   currentQuestionData={questionData}
                   socket={socket!}
                   aid={useAid}
+                  isFiftyLoading={isFiftyLoading}
                 />
               ) : null}
             </div>
@@ -267,7 +272,7 @@ const PlayGamePage = () => {
               <h3 className="text-base font-semibold text-gray-700">
                 Lifelines
               </h3>
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="flex flex-col flex-wrap sm:flex-row  justify-between items-center gap-4">
                 <Button
                   disabled={!isFifty}
                   onClick={handlefiftyfifty}
