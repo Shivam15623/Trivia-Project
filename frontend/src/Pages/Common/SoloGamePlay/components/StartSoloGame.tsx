@@ -11,15 +11,18 @@ import { useSelector } from "react-redux";
 
 import { PlayCircle, X } from "lucide-react";
 import { selectAuth } from "@/redux/AuthSlice/authSlice";
+import InitialSoloGameLoader from "./InitialSoloGameLoader";
+import StartSoloGameLoader from "./StartSoloGameLoader";
 
 const StartSoloGame = ({ gameId }: { gameId: string }) => {
   const { sessionId } = useParams<{ sessionId: string }>();
-  const { data: GameInfo } = useGetGameByIdQuery(gameId);
-  const [startGame] = useStartSoloGameMutation();
+  const { data: GameInfo, isLoading } = useGetGameByIdQuery(gameId);
+  const [startGame, { isLoading: StartGameLoading }] =
+    useStartSoloGameMutation();
   const [EndGame] = useEndSoloGameMutation();
   const navigate = useNavigate();
-  const {user} = useSelector(selectAuth);
-  const role=user?.role
+  const { user } = useSelector(selectAuth);
+  const role = user?.role;
 
   const HandleStartGame = async () => {
     try {
@@ -42,6 +45,8 @@ const StartSoloGame = ({ gameId }: { gameId: string }) => {
       handleApiError(error);
     }
   };
+  if (isLoading) return <InitialSoloGameLoader />;
+  if (StartGameLoading) return <StartSoloGameLoader />;
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 py-12 bg-gradient-to-br from-orange-50 to-orange-100 ">
