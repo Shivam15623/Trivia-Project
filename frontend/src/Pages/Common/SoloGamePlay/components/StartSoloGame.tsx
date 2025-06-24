@@ -11,8 +11,9 @@ import { useSelector } from "react-redux";
 
 import { PlayCircle, X } from "lucide-react";
 import { selectAuth } from "@/redux/AuthSlice/authSlice";
-import InitialSoloGameLoader from "./InitialSoloGameLoader";
+
 import StartSoloGameLoader from "./StartSoloGameLoader";
+import Loader from "@/components/Loader";
 
 const StartSoloGame = ({ gameId }: { gameId: string }) => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -45,7 +46,7 @@ const StartSoloGame = ({ gameId }: { gameId: string }) => {
       handleApiError(error);
     }
   };
-  if (isLoading) return <InitialSoloGameLoader />;
+  if (isLoading) return <Loader />;
   if (StartGameLoading) return <StartSoloGameLoader />;
 
   return (
