@@ -4,7 +4,7 @@ const StartSoloGameLoader = () => {
       <div className="w-full max-w-7xl game-container border-2 border-orange-600 rounded-3xl shadow-2xl p-8 relative overflow-hidden bg-[#ffffffe6]">
         <div className="absolute -top-20 -right-20 w-64 h-64 bg-orange-200 rounded-full opacity-30"></div>
         <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-orange-300 rounded-full opacity-20"></div>
-        <div id="start-loader" className="start-loader relative z-10 hidden">
+        <div id="start-loader" className="start-loader relative z-10 ">
           <div className="flex items-center justify-center mb-2">
             <div className="w-10 h-10 bg-orange-600 rounded-full flex items-center justify-center mr-3">
               <svg
