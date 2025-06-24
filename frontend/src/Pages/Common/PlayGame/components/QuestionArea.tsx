@@ -18,22 +18,24 @@ interface QuestionSectionProp {
   sessionInfo: GameSession;
   socket: Socket;
   aid: "Deduct" | "None" | "twicePoint";
+  isFiftyLoading: boolean;
 }
 const QuestionSection = ({
   currentQuestionData,
   socket,
   sessionInfo,
   aid,
+  isFiftyLoading,
 }: QuestionSectionProp) => {
   const { sessionCode } = useParams<{ sessionCode: string }>();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [showTurnOverlay, setShowTurnOverlay] = useState(false);
   const [showAnswerSection, setShowAnswerSection] = useState(false);
-  const [submitAnswer] = useSubmitAnswerMutation();
-  const {user} = useSelector(selectAuth);
-  
-  const userId=user?._id
+  const [submitAnswer, { isLoading: isSubmitting }] = useSubmitAnswerMutation();
+  const { user } = useSelector(selectAuth);
+
+  const userId = user?._id;
   const currentTeamIndex = sessionInfo.progress?.currentTeamIndex;
   const teams = sessionInfo?.teams;
 
@@ -176,41 +178,57 @@ const QuestionSection = ({
                   />
                 </div>
               )}
+              {isFiftyLoading ? (
+                <div className="flex flex-col items-center justify-center gap-3 py-6 text-center text-gray-600">
+                  <div className="relative w-10 h-10">
+                    <div className="absolute inset-0 rounded-full border-4 border-orange-400 border-t-transparent animate-spin"></div>
+                  </div>
+                  <p className="text-sm font-medium tracking-wide animate-pulse">
+                    Applying 50-50 Lifeline...
+                  </p>
+                </div>
+              ) : (
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-1 sm:p-0 items-stretch">
+                  {currentQuestionData?.options.map(
+                    (option: string, index: number) => {
+                      const isSelected = selectedOption === option;
 
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-1 sm:p-0 items-stretch">
-                {currentQuestionData?.options.map(
-                  (option: string, index: number) => {
-                    const isSelected = selectedOption === option;
-
-                    return (
-                      <li
-                        key={index}
-                        onClick={() => {
-                          if (!hasSubmitted) setSelectedOption(option);
-                        }}
-                        className={`p-2 sm:p-4 flex items-center justify-center text-sm sm:text-lg leading-3 text-center border-2 rounded-xl font-semibold cursor-pointer transition-all duration-200 ${
-                          isSelected
-                            ? "bg-blue-600 text-white border-blue-700 shadow-md"
-                            : "bg-white hover:bg-blue-100 border-blue-300 text-gray-800"
-                        }`}
-                      >
-                        {option}
-                      </li>
-                    );
-                  }
-                )}
-              </ul>
+                      return (
+                        <motion.li
+                          key={index}
+                          onClick={() => {
+                            if (!hasSubmitted) setSelectedOption(option);
+                          }}
+                          initial={{ scale: 1 }}
+                          whileTap={{ scale: 0.95 }}
+                          whileHover={{ scale: hasSubmitted ? 1 : 1.03 }}
+                          transition={{ duration: 0.15 }}
+                          className={`p-2 sm:p-4 flex items-center justify-center text-sm sm:text-lg leading-3 text-center border-2 rounded-xl font-semibold cursor-pointer transition-all duration-200 ${
+                            isSelected
+                              ? "bg-blue-600 text-white border-blue-700 shadow-md"
+                              : hasSubmitted
+                              ? "bg-gray-100 border-gray-300 text-gray-400"
+                              : "bg-white hover:bg-blue-100 border-blue-300 text-gray-800"
+                          }`}
+                        >
+                          {option}
+                        </motion.li>
+                      );
+                    }
+                  )}
+                </ul>
+              )}
 
               <Button
                 onClick={handleSubmit}
-                disabled={!selectedOption}
+                disabled={!selectedOption || isSubmitting}
                 className={`transition-all mb-2 sm:mb-0 duration-200 text-white font-bold py-3 px-6 rounded-xl w-full shadow-lg ${
-                  !selectedOption
+                  !selectedOption || isSubmitting
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 active:scale-95"
                 }`}
               >
-                Submit Answer
+                {isSubmitting ? "Submitting..." : "Submit Answer"}
               </Button>
             </div>
           )}
