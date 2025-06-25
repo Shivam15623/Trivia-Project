@@ -54,7 +54,12 @@ const Login = () => {
   return (
     <div className=" flex items-center patt min-h-screen justify-center px-4">
       <AuthCardWrapper icon={<User className="w-10 h-10 text-[#e34b4b]" />}>
-        <div className="p-6 w-full sm:w-[450px] ">
+        <div className="p-6 w-full sm:w-[450px] relative">
+          {isLoading && (
+            <div className="absolute inset-0 z-10 bg-white/70 pointer-events-none backdrop-blur-sm flex items-center justify-center rounded-2xl">
+              <Loader2 className="animate-spin h-6 w-6 text-[#e34b4b]" />
+            </div>
+          )}
           <h2 className="text-2xl font-semibold text-center mb-2 text-[#e34b4b]">
             Welcome Back
           </h2>
@@ -62,61 +67,54 @@ const Login = () => {
             Sign in to your account to continue
           </p>
           <Form {...form}>
-            <div className="relative">
-              {" "}
-              {isLoading && (
-                <div className="absolute inset-0 z-10 bg-white/70 pointer-events-none backdrop-blur-sm flex items-center justify-center rounded-2xl">
-                  <Loader2 className="animate-spin h-6 w-6 text-[#e34b4b]" />
-                </div>
-              )}
-              <form
-                onSubmit={form.handleSubmit(handleLogin)}
-                className="space-y-6"
-              >
+            {" "}
+            <form
+              onSubmit={form.handleSubmit(handleLogin)}
+              className="space-y-6"
+            >
+              <RenderField
+                Inputvariant="solidred"
+                control={form.control}
+                label="Email"
+                name="email"
+                type="email"
+                inputProps={{
+                  placeholder: "you@example.com",
+                  required: true,
+                }}
+              />
+              <div>
+                {" "}
                 <RenderField
                   Inputvariant="solidred"
                   control={form.control}
-                  label="Email"
-                  name="email"
-                  type="email"
+                  label="Password"
+                  name="password"
+                  className="w-full"
+                  type="password"
                   inputProps={{
-                    placeholder: "you@example.com",
+                    placeholder: "••••••••",
                     required: true,
                   }}
                 />
-                <div>
-                  {" "}
-                  <RenderField
-                    Inputvariant="solidred"
-                    control={form.control}
-                    label="Password"
-                    name="password"
-                    className="w-full"
-                    type="password"
-                    inputProps={{
-                      placeholder: "••••••••",
-                      required: true,
-                    }}
-                  />
-                  <p>
-                    <Link
-                      to="/reset-request-password"
-                      className="text-xs mt-2 text-[#e34b4b] hover:underline text-right flex justify-end"
-                    >
-                      forgot Password?
-                    </Link>
-                  </p>
-                </div>
-                <Button
-                  type="submit"
-                  variant={"gradient"}
-                  disabled={isLoading}
-                  className="w-full"
-                >
-                  Log In
-                </Button>
-              </form>
-            </div>
+                <p>
+                  <Link
+                    to="/reset-request-password"
+                    className="text-xs mt-2 text-[#e34b4b] hover:underline text-right flex justify-end"
+                  >
+                    forgot Password?
+                  </Link>
+                </p>
+              </div>
+              <Button
+                type="submit"
+                variant={"gradient"}
+                disabled={isLoading}
+                className="w-full"
+              >
+                Log In
+              </Button>
+            </form>
           </Form>
         </div>
         <div className="bg-[#fff8f0] p-4 text-center border-t border-orange-100">
