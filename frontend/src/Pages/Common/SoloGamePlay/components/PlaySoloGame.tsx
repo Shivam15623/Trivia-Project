@@ -1,12 +1,14 @@
 import { Button } from "@/components/ui/button";
 import {
   useCurrentQuestionSoloQuery,
+  useEndSoloGameMutation,
   useSubmitAnswerSoloMutation,
 } from "@/services";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { handleApiError } from "@/utills/handleApiError";
 import CategoryCard from "./CategoryCard";
+import { showSuccess } from "@/components/toastUtills";
 
 const PlaySoloGame = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -15,7 +17,7 @@ const PlaySoloGame = () => {
     isFetching,
     refetch: refetchCurrentQuestion,
   } = useCurrentQuestionSoloQuery(sessionId!);
-
+  const [EndGame, { isLoading: EndLoading }] = useEndSoloGameMutation();
   const [submitAnswer, { isLoading: isSubmitting }] =
     useSubmitAnswerSoloMutation();
   const navigate = useNavigate();
@@ -24,7 +26,20 @@ const PlaySoloGame = () => {
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const showLoader = isFetching || isSubmitting;
-
+  const handleEndGame = async () => {
+    if (!sessionId) {
+      return;
+    }
+    try {
+      const res = await EndGame(sessionId).unwrap();
+      if (res.success) {
+        showSuccess("Game Ended SuccessFully!");
+        navigate(`/game/SoloGameEnd/${sessionId}`);
+      }
+    } catch (error) {
+      handleApiError(error);
+    }
+  };
   const handleSubmit = async () => {
     if (
       !selectedOption ||
@@ -60,7 +75,32 @@ const PlaySoloGame = () => {
   }, [currentQuestionData?.data?.questionId]);
 
   return (
-    <section className="px-4 py-6 sm:px-6 w-full h-full min-h-[100vh] bg-gradient-to-br from-orange-50 to-orange-100">
+    <section className="relative px-4 py-6 sm:px-6 w-full h-full min-h-[100vh] bg-gradient-to-br from-orange-50 to-orange-100">
+      {EndLoading && (
+        <div className="absolute inset-0 z-40 flex flex-col items-center justify-center backdrop-blur-sm bg-orange-50 bg-opacity-70 pointer-events-none transition-all">
+          <div className="relative w-16 h-16 mb-4">
+            <div className="absolute inset-0 rounded-full border-4 border-red-500 border-t-transparent animate-spin" />
+            <div className="absolute inset-1 rounded-full border-2 border-red-300 opacity-50 animate-ping" />
+          </div>
+          <p className="text-red-600 font-semibold text-sm sm:text-base animate-pulse">
+            Ending game...
+          </p>
+        </div>
+      )}
+      <div className="absolute top-4 right-4 z-30">
+        <Button
+          variant="ghost"
+          onClick={handleEndGame}
+          disabled={EndLoading}
+          className="flex items-center gap-2 bg-white border border-red-400 text-red-500 hover:bg-red-50 font-semibold py-2 px-4 rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {EndLoading ? (
+            <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+          ) : (
+            "End Game"
+          )}
+        </Button>
+      </div>
       <div className="mx-auto md:w-11/12 lg:w-3/4">
         <div className="flex flex-col gap-6">
           {currentQuestionData?.data.category && (
