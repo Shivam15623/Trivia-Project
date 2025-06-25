@@ -227,7 +227,7 @@ export const silentAuth = asyncHandler(async (req, res) => {
   );
   const user = await User.findById(decodedToken._id);
   if (!user) {
-    throw new ApiError(401, "User not found");
+    throw new ApiError(404, "User not found");
   }
 
   if (incomingRefreshToken !== user.refreshToken) {
@@ -272,7 +272,7 @@ export const silentAuth = asyncHandler(async (req, res) => {
     .cookie("accessToken", accessToken, accessoptions)
     .cookie("refreshToken", refreshToken, refreshoptions)
     .json(
-      new ApiResponse(200, "User Loggin Successfull", {
+      new ApiResponse(200, "User Authentication Successfull", {
         user: LoginResponse,
         refreshToken,
         accessToken,

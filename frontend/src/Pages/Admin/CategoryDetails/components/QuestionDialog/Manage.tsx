@@ -28,6 +28,7 @@ import {
 
 import { ReactNode, useEffect } from "react";
 import { RenderField } from "@/components/FormRender/renderFields";
+import { Loader2 } from "lucide-react";
 
 const Points = [200, 400, 600];
 type Props = {
@@ -49,8 +50,10 @@ export function QuestionDialog({ id, trigger }: Props) {
     },
   });
 
-  const [addQuestionToCategory] = useAddQuestiontoCategoryMutation();
-  const [editQuestion] = useUpdateQuestionMutation();
+  const [addQuestionToCategory, { isLoading: addLoading }] =
+    useAddQuestiontoCategoryMutation();
+  const [editQuestion, { isLoading: editLoading }] =
+    useUpdateQuestionMutation();
   const { data: categoryList } = useFetchCategoriesQuery();
   const { data: questionData } = useFetchQuestionByIdQuery(id!, {
     skip: !id, // Skip if not editing
@@ -93,6 +96,7 @@ export function QuestionDialog({ id, trigger }: Props) {
       handleApiError(err);
     }
   };
+  const isSubmitting = addLoading || editLoading;
   useEffect(() => {
     if (isEdit && questionData) {
       form.reset({
@@ -123,7 +127,9 @@ export function QuestionDialog({ id, trigger }: Props) {
       {" "}
       <Form {...form}>
         <form
-          className="space-y-6 p-4"
+          className={`space-y-6 p-4 ${
+            isSubmitting ? "pointer-events-none opacity-50" : ""
+          }`}
           onSubmit={form.handleSubmit(handleSubmit)}
         >
           {/* Category Dropdown */}
@@ -178,7 +184,8 @@ export function QuestionDialog({ id, trigger }: Props) {
                 <FormControl>
                   <div className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-2">
                     {field.value.map((option, index) => (
-                      <Input variant="solidred"
+                      <Input
+                        variant="solidred"
                         key={index}
                         placeholder={`Option ${index + 1}`}
                         value={option}
@@ -223,10 +230,18 @@ export function QuestionDialog({ id, trigger }: Props) {
           <div className="grid grid-col-1 md:grid-cols-2 mt-4 gap-3">
             <Button
               type="submit"
-              variant={"gradient"}
-              className="w-full   rounded-lg"
+              variant="gradient"
+              className="w-full rounded-lg"
+              disabled={isSubmitting}
             >
-              Submit
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="animate-spin w-4 h-4" />
+                  Submitting...
+                </span>
+              ) : (
+                "Submit"
+              )}
             </Button>
             <DialogWrapper.CancelButton />
           </div>

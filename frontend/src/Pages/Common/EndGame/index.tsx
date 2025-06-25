@@ -1,9 +1,7 @@
 import { Link, useParams } from "react-router-dom";
-
 import { useFetchScoreBoardQuery } from "@/services";
 import { useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
-
 import {
   Trophy,
   Users,
@@ -11,14 +9,12 @@ import {
   LoaderCircle,
   RefreshCcw,
 } from "lucide-react";
-
 import { Player } from "@/interfaces/GameSessionInterface";
 import CustomTable from "@/components/CustomTable";
 import { cn } from "@/lib/utils";
 import { fireConfetti } from "@/utills/confetti";
 import { selectAuth } from "@/redux/AuthSlice/authSlice";
 import { Button } from "@/components/ui/button";
-
 const EndGamePage = () => {
   const { sessionCode } = useParams<{ sessionCode: string }>();
   const { user } = useSelector(selectAuth);
