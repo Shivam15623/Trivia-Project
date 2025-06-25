@@ -109,7 +109,7 @@ export const endSoloGame = asyncHandler(async (req, res) => {
     await session.save();
     return res
       .status(200)
-      .json(new ApiResponse(200, "Session ended successfully"));
+      .json(new ApiResponse(200, "Game ended successfully"));
   }
   if (session.status === "waiting") {
     session.status = "completed";
@@ -120,7 +120,6 @@ export const endSoloGame = asyncHandler(async (req, res) => {
         new ApiResponse(200, "Session was waiting, now marked as completed")
       );
   }
-
   throw new ApiError(400, "Invalid session status");
 });
 export const SubmitAnswerSolo = asyncHandler(async (req, res) => {
