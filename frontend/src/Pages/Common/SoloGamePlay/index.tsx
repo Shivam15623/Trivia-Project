@@ -13,9 +13,9 @@ const SoloGamePlay = () => {
   const { user } = useSelector(selectAuth);
   const userId = user?._id;
 
-  const { data: sessionData, isLoading } = useFetchSessionInfoSoloQuery(sessionId!);
+  const { data: sessionData, isFetching } = useFetchSessionInfoSoloQuery(sessionId!);
 
-  if (isLoading) return <Loader />;
+  if (isFetching) return <Loader />;
 
   const status = sessionData?.data?.status;
   const gameId = sessionData?.data?.gameId;
