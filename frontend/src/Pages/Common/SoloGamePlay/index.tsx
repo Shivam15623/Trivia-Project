@@ -1,19 +1,19 @@
-import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { Suspense } from "react";
-
+import Loader from "@/components/Loader";
 import { selectAuth } from "@/redux/AuthSlice/authSlice";
 import { useFetchSessionInfoSoloQuery } from "@/services";
-
-import Loader from "@/components/Loader";
-import { LazyPlaySoloGame, LazyStartSoloGame } from "@/lazy components";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import StartSoloGame from "./components/StartSoloGame";
+import PlaySoloGame from "./components/PlaySoloGame";
 
 const SoloGamePlay = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const { user } = useSelector(selectAuth);
   const userId = user?._id;
 
-  const { data: sessionData, isFetching } = useFetchSessionInfoSoloQuery(sessionId!);
+  const { data: sessionData, isFetching } = useFetchSessionInfoSoloQuery(
+    sessionId!
+  );
 
   if (isFetching) return <Loader />;
 
@@ -21,17 +21,14 @@ const SoloGamePlay = () => {
   const gameId = sessionData?.data?.gameId;
   const sessionOwnerId = sessionData?.data?.userId;
 
-  // 💡 Handle invalid session or missing data
   if (!status || !gameId) return <div>Invalid session</div>;
 
-  return (
-    <Suspense fallback={<Loader />}>
-      {status === "waiting" && <LazyStartSoloGame gameId={gameId} />}
-      {status === "active" && userId === sessionOwnerId && <LazyPlaySoloGame />}
-      {status === "active" && userId !== sessionOwnerId && <div>Unauthorized Access</div>}
-      {status === "completed" && <div>Game Ended</div>}
-    </Suspense>
-  );
-};
+  if (status === "waiting") return <StartSoloGame gameId={gameId} />;
+  if (status === "active" && userId === sessionOwnerId) return <PlaySoloGame />;
+  if (status === "active" && userId !== sessionOwnerId)
+    return <div>Unauthorized</div>;
+  if (status === "completed") return <div>Game Ended</div>;
 
+  return null;
+};
 export default SoloGamePlay;

@@ -43,9 +43,3 @@ export const LazyApplyEmailVerification = lazy(
   () => import("@/Pages/Public/ApplyEmailVerification")
 );
 export const LazyNotFound = lazy(() => import("@/Pages/Public/NotFound"));
-export const LazyStartSoloGame = lazy(
-  () => import("@/Pages/Common/SoloGamePlay/components/StartSoloGame")
-);
-export const LazyPlaySoloGame = lazy(
-  () => import("@/Pages/Common/SoloGamePlay/components/PlaySoloGame")
-);
