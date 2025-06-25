@@ -36,7 +36,6 @@ const PlaySoloGame = () => {
 
     try {
       setHasSubmitted(true);
-
       const response = await submitAnswer({
         sessionId,
         answer: selectedOption,

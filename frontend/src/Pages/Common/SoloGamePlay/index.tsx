@@ -1,41 +1,37 @@
+import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Suspense } from "react";
+
+import { selectAuth } from "@/redux/AuthSlice/authSlice";
 import { useFetchSessionInfoSoloQuery } from "@/services";
 
-import { useSelector } from "react-redux";
-
-import { useParams } from "react-router-dom";
-import { selectAuth } from "@/redux/AuthSlice/authSlice";
 import Loader from "@/components/Loader";
-import { Suspense } from "react";
 import { LazyPlaySoloGame, LazyStartSoloGame } from "@/lazy components";
+
 const SoloGamePlay = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const { user } = useSelector(selectAuth);
   const userId = user?._id;
-  const { data: Sessiondata, isLoading } = useFetchSessionInfoSoloQuery(
-    sessionId!
-  );
+
+  const { data: sessionData, isLoading } = useFetchSessionInfoSoloQuery(sessionId!);
 
   if (isLoading) return <Loader />;
 
-  <Suspense fallback={<Loader />}>
-    {Sessiondata?.data.status === "waiting" && (
-      <LazyStartSoloGame gameId={Sessiondata.data.gameId} />
-    )}
-    {Sessiondata?.data.status === "active" &&
-      userId === Sessiondata.data.userId && <LazyPlaySoloGame />}
-  </Suspense>;
+  const status = sessionData?.data?.status;
+  const gameId = sessionData?.data?.gameId;
+  const sessionOwnerId = sessionData?.data?.userId;
 
-  if (
-    Sessiondata?.data.status === "active" &&
-    userId !== Sessiondata.data.userId
-  ) {
-    return <div>UnAuthorized Access</div>;
-  }
+  // 💡 Handle invalid session or missing data
+  if (!status || !gameId) return <div>Invalid session</div>;
 
-  if (Sessiondata?.data.status === "completed") {
-    return <div>Game Ended</div>;
-  }
-
-  return null;
+  return (
+    <Suspense fallback={<Loader />}>
+      {status === "waiting" && <LazyStartSoloGame gameId={gameId} />}
+      {status === "active" && userId === sessionOwnerId && <LazyPlaySoloGame />}
+      {status === "active" && userId !== sessionOwnerId && <div>Unauthorized Access</div>}
+      {status === "completed" && <div>Game Ended</div>}
+    </Suspense>
+  );
 };
+
 export default SoloGamePlay;
