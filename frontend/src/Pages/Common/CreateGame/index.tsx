@@ -77,7 +77,7 @@ const CreateGame = () => {
               {Array.from({ length: 6 }).map((_, index) => (
                 <Skeleton
                   key={index}
-                  className="aspect-[1/1.26] rounded-xl w-full bg-orange-100"
+                  className="aspect-[1/1.26] rounded-xl w-full bg-orange-200"
                 />
               ))}
             </div>

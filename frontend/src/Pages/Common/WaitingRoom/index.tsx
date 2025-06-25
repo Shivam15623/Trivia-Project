@@ -7,7 +7,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSocket } from "@/hooks/useSocket";
 import { motion } from "framer-motion";
 import { useGetGameByIdQuery } from "@/services/GameApi";
@@ -22,7 +22,7 @@ const WaitingRoom = () => {
   const { user } = useSelector(selectAuth);
   const userId = user?._id;
 
-  const [joinGame] = useJoinGameSessionMutation();
+  const [joinGame, { isLoading: isJoining }] = useJoinGameSessionMutation();
   const [startMatch, { isLoading: isStarting }] = useStartGameMutation();
   const [endGameSession, { isLoading: isEnding }] = useGameSessionEndMutation();
 
@@ -35,7 +35,7 @@ const WaitingRoom = () => {
 
   const sessionData = sessionInfo?.data;
   const gameId = sessionData?.gameId;
-
+  const [joiningTeam, setJoiningTeam] = useState<string | null>(null);
   const { data: gameInfoData, isLoading: isGameLoading } = useGetGameByIdQuery(
     gameId ?? "",
     { skip: !gameId }
@@ -79,7 +79,7 @@ const WaitingRoom = () => {
 
   const handleJoinTeam = async (teamName: string) => {
     if (!socket?.id || !sessionData?.sessionCode) return;
-
+    setJoiningTeam(teamName);
     try {
       await joinGame({
         sessionCode: sessionData.sessionCode,
@@ -96,6 +96,8 @@ const WaitingRoom = () => {
       showSuccess(`Joined team "${teamName}"`);
     } catch (error) {
       handleApiError(error);
+    } finally {
+      setJoiningTeam(null); // 🔸 reset after request finishes
     }
   };
 
@@ -119,7 +121,6 @@ const WaitingRoom = () => {
       const res = await startMatch(sessionData.sessionId).unwrap();
 
       if (res.success) {
-        showSuccess("Game started!");
         navigate(`/game/PlayGameSession/${sessionCode}`);
       } else {
         showError(res.message || "Failed to start game");
@@ -217,11 +218,20 @@ const WaitingRoom = () => {
                   </h3>
                   {!userAlreadyInTeam ? (
                     <Button
-                      disabled={isFull}
+                      disabled={isFull || isJoining}
                       onClick={() => handleJoinTeam(team.name)}
-                      className="bg-orange-800 hover:bg-orange-900 text-white"
+                      className="bg-orange-800 hover:bg-orange-900 text-white flex items-center justify-center gap-2"
                     >
-                      {isFull ? "Team Full" : "Join"}
+                      {isJoining && joiningTeam === team.name ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Joining...
+                        </>
+                      ) : isFull ? (
+                        "Team Full"
+                      ) : (
+                        "Join"
+                      )}
                     </Button>
                   ) : isUserInTeam ? (
                     <span className="text-green-600 font-medium text-sm">

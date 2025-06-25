@@ -39,7 +39,12 @@ export const SoloGameApi = api.injectEndpoints({
         method: "PATCH",
         body: credentials,
       }),
-      invalidatesTags: ["SoloGame"],
+      invalidatesTags: (result) => {
+        if (result?.success && result.data?.gameEnded) {
+          return [{ type: "SoloGame" }];
+        }
+        return [];
+      },
     }),
     EndSoloGame: builder.mutation<ApiGeneralResponse, string>({
       query: (sessionId) => ({
