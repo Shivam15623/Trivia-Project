@@ -17,24 +17,13 @@ const SoloGamePlay = () => {
 
   if (isLoading) return <Loader />;
 
-  if (Sessiondata?.data.status === "waiting") {
-    return (
-      <Suspense fallback={<Loader />}>
-        <LazyStartSoloGame gameId={Sessiondata.data.gameId} />
-      </Suspense>
-    );
-  }
-
-  if (
-    Sessiondata?.data.status === "active" &&
-    userId === Sessiondata.data.userId
-  ) {
-    return (
-      <Suspense fallback={<Loader />}>
-        <LazyPlaySoloGame />
-      </Suspense>
-    );
-  }
+  <Suspense fallback={<Loader />}>
+    {Sessiondata?.data.status === "waiting" && (
+      <LazyStartSoloGame gameId={Sessiondata.data.gameId} />
+    )}
+    {Sessiondata?.data.status === "active" &&
+      userId === Sessiondata.data.userId && <LazyPlaySoloGame />}
+  </Suspense>;
 
   if (
     Sessiondata?.data.status === "active" &&
