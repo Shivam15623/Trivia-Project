@@ -97,7 +97,7 @@ const WaitingRoom = () => {
     } catch (error) {
       handleApiError(error);
     } finally {
-      setJoiningTeam(null); // 🔸 reset after request finishes
+      setJoiningTeam(null); 
     }
   };
 

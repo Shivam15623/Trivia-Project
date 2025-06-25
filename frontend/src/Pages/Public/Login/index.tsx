@@ -9,7 +9,7 @@ import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
 import { RenderField } from "@/components/FormRender/renderFields";
 import { LoginSchema, LoginValues } from "@/SchemaValidations/AuthSchema";
-import { User } from "lucide-react";
+import { Loader2, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthCardWrapper from "@/components/AuthCardWrapper";
 // 🔁 Replace with actual hook if different
@@ -26,7 +26,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [login] = useLoginUserMutation(); // ⛳️ Change if needed
+  const [login, { isLoading }] = useLoginUserMutation(); // ⛳️ Change if needed
 
   const handleLogin = async (data: LoginValues) => {
     try {
@@ -62,51 +62,61 @@ const Login = () => {
             Sign in to your account to continue
           </p>
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleLogin)}
-              className="space-y-6"
-            >
-              <RenderField
-                Inputvariant="solidred"
-                control={form.control}
-                label="Email"
-                name="email"
-                type="email"
-                inputProps={{
-                  placeholder: "you@example.com",
-                  required: true,
-                }}
-              />
-              <div>
-                {" "}
+            <div className="relative">
+              {" "}
+              {isLoading && (
+                <div className="absolute inset-0 z-10 bg-white/70 pointer-events-none backdrop-blur-sm flex items-center justify-center rounded-2xl">
+                  <Loader2 className="animate-spin h-6 w-6 text-[#e34b4b]" />
+                </div>
+              )}
+              <form
+                onSubmit={form.handleSubmit(handleLogin)}
+                className="space-y-6"
+              >
                 <RenderField
                   Inputvariant="solidred"
                   control={form.control}
-                  label="Password"
-                  name="password"
-                  className="w-full"
-                  type="password"
+                  label="Email"
+                  name="email"
+                  type="email"
                   inputProps={{
-                    placeholder: "••••••••",
+                    placeholder: "you@example.com",
                     required: true,
                   }}
                 />
-                <p>
-                  <Link
-                    to="/reset-request-password"
-                    className="text-xs mt-2 text-[#e34b4b] hover:underline text-right flex justify-end"
-                  >
-                    forgot Password?
-                  </Link>
-                </p>
-              </div>
-              <Button
-                type="submit"
-                className="w-full py-2.5 px-4 bg-gradient-to-r from-[#fcbf49] to-[#f29e4e] text-white font-medium rounded-md hover:opacity-90 transition-opacity"
-              >
-                Log In
-              </Button>
-            </form>
+                <div>
+                  {" "}
+                  <RenderField
+                    Inputvariant="solidred"
+                    control={form.control}
+                    label="Password"
+                    name="password"
+                    className="w-full"
+                    type="password"
+                    inputProps={{
+                      placeholder: "••••••••",
+                      required: true,
+                    }}
+                  />
+                  <p>
+                    <Link
+                      to="/reset-request-password"
+                      className="text-xs mt-2 text-[#e34b4b] hover:underline text-right flex justify-end"
+                    >
+                      forgot Password?
+                    </Link>
+                  </p>
+                </div>
+                <Button
+                  type="submit"
+                  variant={"gradient"}
+                  disabled={isLoading}
+                  className="w-full"
+                >
+                  Log In
+                </Button>
+              </form>
+            </div>
           </Form>
         </div>
         <div className="bg-[#fff8f0] p-4 text-center border-t border-orange-100">

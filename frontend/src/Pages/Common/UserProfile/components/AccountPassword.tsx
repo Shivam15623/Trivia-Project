@@ -38,7 +38,7 @@ const AccountPassword = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="max-w-4xl w-1/2 p-4  mx-auto  bg-white space-y-6"
+        className="max-w-4xl w-full sm:w-3/4 md:w-2/3 lg:w-1/2 p-4  mx-auto  bg-white space-y-6"
       >
         <RenderField
           Inputvariant="solidred"
