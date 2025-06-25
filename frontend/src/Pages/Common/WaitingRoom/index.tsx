@@ -197,7 +197,7 @@ const WaitingRoom = () => {
 
         {/* Teams */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 relative">
-          <motion.div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-white px-6 py-3 text-2xl font-black shadow-md rounded-full border border-orange-900">
+          <motion.div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-white text-red-800 px-6 py-3 text-2xl font-black shadow-md rounded-full border border-orange-900">
             VS
           </motion.div>
 
@@ -282,7 +282,7 @@ const WaitingRoom = () => {
             {allTeamsFull && (
               <Button
                 onClick={handleStartGame}
-                 disabled={isStarting}
+                disabled={isStarting}
                 className="bg-green-600 hover:bg-green-700 px-6 py-3 text-white text-lg rounded-xl"
               >
                 {isStarting ? "Starting..." : "Start Match"}
