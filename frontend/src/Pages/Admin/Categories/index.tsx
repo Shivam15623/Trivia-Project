@@ -103,10 +103,6 @@ const Categories = () => {
               <h3 className="text-xl font-bold text-[#e34b4b] mb-2">
                 Loading Categories
               </h3>
-
-              <div className="w-full max-w-xs mt-6 bg-[#fff0e5] rounded-full h-2 overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-[#e34b4b] to-[#ffc070] shimmer"></div>
-              </div>
             </div>
           </div>
         )}
