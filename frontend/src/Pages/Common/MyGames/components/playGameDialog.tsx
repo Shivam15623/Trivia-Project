@@ -1,14 +1,12 @@
 import { DialogWrapper } from "@/components/DialogWrapper";
 import { RenderField } from "@/components/FormRender/renderFields";
-import Loader from "@/components/Loader";
 import { Button } from "@/components/ui/button";
-
 import { Form } from "@/components/ui/form";
 import { useSocket } from "@/hooks/useSocket";
 import { Game } from "@/interfaces/GameInterface";
 import { useStartSessionMutation } from "@/services";
-
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -79,7 +77,9 @@ export default function PlayGameDialog({ game }: { game: Game }) {
       <Form {...form}>
         <div>
           {isLoading ? (
-            <Loader />
+            <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
+              <Loader2 className="loader w-6 h-6 border-4 border-orange-600 border-t-transparent rounded-full animate-spin" />
+            </div>
           ) : (
             <form onSubmit={form.handleSubmit(onSubmit)} className="px-4">
               <div className="grid gap-4 md:gap-8 lg:gap-10 2xl:gap-x-16 sm:grid-cols-2 mt-2 md:mt-14 xl:mt-6 2xl:mt-8 max-w-4xl 4xl:max-w-6xl mx-auto">
