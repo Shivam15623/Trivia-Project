@@ -170,7 +170,7 @@ export default function PlayGameDialog({ game }: { game: Game }) {
         </div>
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
-            <Loader2 className="loader w-6 h-6 border-4 border-orange-600 border-t-transparent rounded-full animate-spin" />
+            <Loader2 className="loader w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin" />
           </div>
         )}
       </Form>
