@@ -1,20 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { useEndSoloGameMutation, useStartSoloGameMutation } from "@/services";
 import { useGetGameByIdQuery } from "@/services/GameApi";
-
 import { handleApiError } from "@/utills/handleApiError";
-
 import { useNavigate, useParams } from "react-router-dom";
-
 import { showSuccess } from "../../../../components/toastUtills";
 import { useSelector } from "react-redux";
-
 import { PlayCircle, X } from "lucide-react";
 import { selectAuth } from "@/redux/AuthSlice/authSlice";
-
-import StartSoloGameLoader from "./StartSoloGameLoader";
-
-import InitialSoloGameLoader from "./InitialSoloGameLoader";
+import Loader from "@/components/Loader";
 
 const StartSoloGame = ({ gameId }: { gameId: string }) => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -47,8 +40,8 @@ const StartSoloGame = ({ gameId }: { gameId: string }) => {
       handleApiError(error);
     }
   };
-  if (isLoading) return <InitialSoloGameLoader />;
-  if (StartGameLoading) return <StartSoloGameLoader />;
+  if (isLoading ||StartGameLoading) return <Loader />;
+ 
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 py-12 bg-gradient-to-br from-orange-50 to-orange-100 ">
