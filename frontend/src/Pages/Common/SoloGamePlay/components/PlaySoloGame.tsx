@@ -78,7 +78,7 @@ const PlaySoloGame = () => {
                   <div className="absolute inset-1 rounded-full border-2 border-orange-300 opacity-50 animate-ping" />
                 </div>
                 <p className="text-orange-600 font-semibold text-sm sm:text-base animate-pulse">
-                  Loading next question...
+                  Loading question...
                 </p>
               </div>
             )}
