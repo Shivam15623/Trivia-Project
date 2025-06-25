@@ -1,13 +1,10 @@
 import { DialogWrapper } from "@/components/DialogWrapper";
 import { RenderField } from "@/components/FormRender/renderFields";
-import Loader from "@/components/Loader";
 import { Button } from "@/components/ui/button";
-
 import { Form } from "@/components/ui/form";
 import { useSocket } from "@/hooks/useSocket";
 import { Game } from "@/interfaces/GameInterface";
 import { useStartSessionMutation } from "@/services";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
