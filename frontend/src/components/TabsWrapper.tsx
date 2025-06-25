@@ -60,7 +60,7 @@ const TabsWrapper = ({
     <Tabs
       defaultValue={defaultValue}
       onValueChange={setActiveTab}
-      className="bg-white rounded-lg  shadow-none overflow-hidden gap-0 space-y-0"
+      className="bg-white rounded-lg  shadow-none  gap-0 space-y-0"
     >
       <TabsList className={cn("rounded-t-md rounded-b-none",styles.list)}>
         {tabs.map((tab) => (

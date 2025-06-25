@@ -14,6 +14,7 @@ import {
 } from "@/SchemaValidations/UserSchema";
 import { showSuccess } from "@/components/toastUtills";
 import { Loader2 } from "lucide-react";
+import { format } from "date-fns";
 
 const AccountUpdate = () => {
   const { data: userdata, isLoading } = useGetUserProfileQuery(undefined);
@@ -58,7 +59,7 @@ const AccountUpdate = () => {
       formData.append("lastname", values.lastname);
       formData.append("email", values.email);
       formData.append("phoneNo", values.phoneNo);
-      formData.append("DOB", values.DOB.toISOString().split("T")[0]);
+      formData.append("DOB", format(values.DOB, "yyyy-MM-dd"));
 
       const response = await updateDetails(formData).unwrap();
 
