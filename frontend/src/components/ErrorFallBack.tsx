@@ -1,4 +1,5 @@
 import { FallbackProps } from "react-error-boundary";
+import { Button } from "./ui/button";
 
 export function Fallback({ error, resetErrorBoundary }: FallbackProps) {
   const isDev = import.meta.env.DEV;
@@ -18,12 +19,12 @@ export function Fallback({ error, resetErrorBoundary }: FallbackProps) {
         </details>
       )}
 
-      <button
+      <Button
         onClick={resetErrorBoundary}
-        className="mt-4 px-4 py-2 bg-red-600 text-white rounded"
+        className="mt-4 px-4 py-2 bg-red-600  hover:bg-red-700 text-white rounded"
       >
         Try Again
-      </button>
+      </Button>
     </div>
   );
 }
