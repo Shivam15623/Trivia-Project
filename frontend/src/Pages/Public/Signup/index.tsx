@@ -16,6 +16,7 @@ import { showSuccess } from "@/components/toastUtills";
 import { SignupSchema, SignupValues } from "@/SchemaValidations/AuthSchema";
 import { RenderField } from "@/components/FormRender/renderFields";
 import PasswordStrength from "@/components/PasswordStrength";
+import { Loader2 } from "lucide-react";
 
 const Signup = () => {
   const form = useForm<SignupValues>({
@@ -30,7 +31,7 @@ const Signup = () => {
     },
   });
 
-  const [signup] = useRegisterCustomerMutation();
+  const [signup, { isLoading }] = useRegisterCustomerMutation();
   const navigate = useNavigate();
   const password = form.watch("password");
 
@@ -50,11 +51,16 @@ const Signup = () => {
 
   return (
     <div className="h-full flex min-h-screen patt  items-center justify-center px-4">
-      <Card className="w-full max-w-xl shadow-lg p-0 overflow-hidden rounded-2xl ">
+      <Card className="w-full max-w-xl shadow-lg p-0 overflow-hidden rounded-2xl relative ">
         <CardHeader className="text-center py-6 border-b border-gray-100">
           <h2 className="text-2xl font-semibold text-[#e34b4b]">Sign Up</h2>
           <p className="text-sm text-gray-500">Create your account</p>
         </CardHeader>
+        {isLoading && (
+          <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-sm flex items-center justify-center rounded-2xl">
+            <Loader2 className="animate-spin h-6 w-6 text-[#e34b4b]" />
+          </div>
+        )}
 
         <CardContent>
           <Form {...form}>
@@ -70,8 +76,7 @@ const Signup = () => {
                     control={form.control}
                     label="First Name"
                     name="firstname"
-                    type="text" 
-                   
+                    type="text"
                     labelClass="block text-sm font-medium text-gray-700 mb-1"
                     inputProps={{
                       placeholder: "john",
@@ -144,22 +149,26 @@ const Signup = () => {
               </div>
 
               {/* Phone Number */}
-               <RenderField
-                  control={form.control}
-                  label="Phone No"
-                  name="phoneNo"
-                  type="phone"
-                  className="w-full"
-                  inputProps={{
-                    required: true,
-                  }}
-                />
+              <RenderField
+                control={form.control}
+                label="Phone No"
+                name="phoneNo"
+                type="phone"
+                className="w-full"
+                inputProps={{
+                  required: true,
+                }}
+              />
               <div className="pt-4 flex flex-col gap-2">
                 <Button
                   type="submit"
-                  className="w-full py-2.5 px-4 bg-gradient-to-r from-[#fcbf49] to-[#f29e4e] text-white font-medium rounded-md hover:opacity-90 transition-opacity"
+                  disabled={isLoading}
+                  className="w-full py-2.5 px-4 bg-gradient-to-r from-[#fcbf49] to-[#f29e4e] text-white font-medium rounded-md hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
                 >
-                  Submit
+                  {isLoading && (
+                    <Loader2 className="animate-spin h-4 w-4 text-white" />
+                  )}
+                  {isLoading ? "Signing Up..." : "Submit"}
                 </Button>
               </div>
               <p className="text-sm text-center text-gray-600">
