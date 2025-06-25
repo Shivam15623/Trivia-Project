@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { PlayCircle, X } from "lucide-react";
 import { selectAuth } from "@/redux/AuthSlice/authSlice";
 import Loader from "@/components/Loader";
+import { useState } from "react";
 
 const StartSoloGame = ({ gameId }: { gameId: string }) => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -18,14 +19,17 @@ const StartSoloGame = ({ gameId }: { gameId: string }) => {
   const navigate = useNavigate();
   const { user } = useSelector(selectAuth);
   const role = user?.role;
+  const [localStarted, setLocalStarted] = useState(false); // ✅ Local state
 
   const HandleStartGame = async () => {
     try {
+      setLocalStarted(true);
       const response = await startGame(sessionId!).unwrap();
       if (response.success === true) {
         showSuccess(response.message);
       }
     } catch (error) {
+      setLocalStarted(false);
       handleApiError(error);
     }
   };
@@ -40,8 +44,7 @@ const StartSoloGame = ({ gameId }: { gameId: string }) => {
       handleApiError(error);
     }
   };
-  if (isLoading ||StartGameLoading) return <Loader />;
- 
+  if (isLoading || StartGameLoading || localStarted) return <Loader />;
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 py-12 bg-gradient-to-br from-orange-50 to-orange-100 ">
