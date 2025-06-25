@@ -5,7 +5,6 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { useController, Control, FieldValues, Path } from "react-hook-form";
 import { useEffect, useRef, useState } from "react";
 
@@ -52,7 +51,7 @@ export function FileField<TForm extends FieldValues>({
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <div>
-              <Input
+              <input
                 type="file"
                 accept="image/*"
                 hidden

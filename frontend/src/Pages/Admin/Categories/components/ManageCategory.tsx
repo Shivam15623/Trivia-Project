@@ -31,8 +31,10 @@ export function CategoryDialog({ slug, trigger }: Props) {
   const { data, isLoading } = useFetchCategorybyslugQuery(slug!, {
     skip: !slug,
   });
-  const [createCategory] = useCreateCategoryMutation();
-  const [updateCategory] = useUpdateCategoryMutation();
+  const [createCategory, { isLoading: addLoading }] =
+    useCreateCategoryMutation();
+  const [updateCategory, { isLoading: editLoading }] =
+    useUpdateCategoryMutation();
 
   const form = useForm<CategoryValue>({
     resolver: zodResolver(CategorySchema),
@@ -76,7 +78,7 @@ export function CategoryDialog({ slug, trigger }: Props) {
       handleApiError(err);
     }
   };
-
+  const isSubmitting = addLoading || editLoading;
   if (isEdit && isLoading) {
     return (
       <DialogWrapper
@@ -103,7 +105,12 @@ export function CategoryDialog({ slug, trigger }: Props) {
       resetForm={() => form.reset()}
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className={`space-y-6 p-4 ${
+            isSubmitting ? "pointer-events-none opacity-50" : ""
+          }`}
+        >
           <RenderField
             Inputvariant="solidred"
             name="name"
@@ -133,13 +140,9 @@ export function CategoryDialog({ slug, trigger }: Props) {
               type="submit"
               className="w-full"
               variant="gradient"
-              disabled={form.formState.isSubmitting}
+              disabled={isSubmitting}
             >
-              {form.formState.isSubmitting
-                ? "Saving..."
-                : isEdit
-                ? "Update"
-                : "Add"}
+              {isSubmitting ? "Saving..." : isEdit ? "Update" : "Add"}
             </Button>
 
             {/* Cancel button */}
