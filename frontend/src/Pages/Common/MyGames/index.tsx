@@ -44,7 +44,7 @@ const MyGames = () => {
             {Array.from({ length: 4 }).map((_, i) => (
               <Skeleton
                 key={i}
-                className="aspect-[6/7] bg-orange-100 w-full rounded-xl"
+                className="aspect-[6/7] w-full h-56 bg-orange-200 rounded-xl animate-pulse "
               />
             ))}
           </div>
