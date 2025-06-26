@@ -2,20 +2,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Camera } from "lucide-react";
 import { useEffect, useState } from "react";
+
 interface ProfileUploadProps {
-  value: FileList | string;
-  onChange: (value: FileList) => void;
+  value: File | string;
+  onChange: (value: File) => void;
 }
+
 export const ProfileUpload = ({ value, onChange }: ProfileUploadProps) => {
   const [preview, setPreview] = useState<string | null>(null);
+
   useEffect(() => {
-    if (value instanceof FileList && value.length > 0) {
-      const file = value[0];
+    if (value instanceof File) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(value);
     } else if (typeof value === "string" && value !== "") {
       setPreview(value);
     } else {
@@ -24,7 +26,7 @@ export const ProfileUpload = ({ value, onChange }: ProfileUploadProps) => {
   }, [value]);
 
   return (
-    <div className="relative w-32 h-32 ">
+    <div className="relative w-32 h-32">
       <Avatar className="w-full h-full border-2 border-orange-300">
         {preview && <AvatarImage src={preview} alt="Profile" />}
         <AvatarFallback className="text-2xl font-bold">TRIVIA</AvatarFallback>
@@ -41,8 +43,9 @@ export const ProfileUpload = ({ value, onChange }: ProfileUploadProps) => {
         accept="image/*"
         className="hidden"
         onChange={(e) => {
-          if (e.target.files) {
-            onChange(e.target.files);
+          if (e.target.files && e.target.files.length > 0) {
+            onChange(e.target.files[0]); // ✅ Only File, not FileList
+           
           }
         }}
       />
