@@ -126,7 +126,7 @@ const QuestionTable = ({ questions, enableSearch }: Props) => {
           totalPages={totalPages}
           onPageChange={setPage}
         />
-      </div>
+      </div> 
     </div>
   );
 };
