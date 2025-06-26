@@ -92,7 +92,7 @@ const QuestionTable = ({ questions, enableSearch }: Props) => {
   useEffect(() => {
     setPage(1);
   }, [searchTerm, filtered?.length]);
-
+ 
   if (filtered.length === 0) {
     return (
       <p className="text-muted-foreground">
