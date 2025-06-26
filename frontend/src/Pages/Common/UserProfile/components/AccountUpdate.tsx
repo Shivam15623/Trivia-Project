@@ -50,11 +50,8 @@ const AccountUpdate = () => {
       const formData = new FormData();
       formData.append("firstname", values.firstname);
 
-      if (
-        values.profilePic instanceof FileList &&
-        values.profilePic.length > 0
-      ) {
-        formData.append("profilePic", values.profilePic[0]);
+      if (values.profilePic instanceof File) {
+        formData.append("profilePic", values.profilePic);
       }
       formData.append("lastname", values.lastname);
       formData.append("email", values.email);
