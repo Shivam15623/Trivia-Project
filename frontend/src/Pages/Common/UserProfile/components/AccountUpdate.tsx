@@ -15,10 +15,13 @@ import {
 import { showSuccess } from "@/components/toastUtills";
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import { useDispatch } from "react-redux";
+import { UpdateUserDetails } from "@/redux/AuthSlice/authSlice";
 
 const AccountUpdate = () => {
   const { data: userdata, isLoading } = useGetUserProfileQuery(undefined);
   const [updateDetails, { isLoading: isUpdating }] = useUpdateProfileMutation();
+  const dispatch = useDispatch();
   const form = useForm<UserDetailsValues>({
     resolver: zodResolver(UserDetailsSchema),
     defaultValues: {
@@ -59,10 +62,17 @@ const AccountUpdate = () => {
       formData.append("DOB", format(values.DOB, "yyyy-MM-dd"));
 
       const response = await updateDetails(formData).unwrap();
-
-      // Check for success
       if (response?.success === true) {
-        // Show success toast
+        
+        const payload = {
+          firstname: response.data.firstname,
+          lastname: response.data.lastname,
+          email: response.data.email,
+          phoneNo: response.data.phoneNo,
+          DOB: response.data.DOB,
+          profilePic: response.data.profilePic,
+        };
+        dispatch(UpdateUserDetails({ UserData: payload }));
         showSuccess(response?.message);
       }
     } catch (error) {
