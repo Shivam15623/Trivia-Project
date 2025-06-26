@@ -8,7 +8,6 @@ import {
 import { ApiGeneralResponse } from "../interfaces/GenericResponse";
 import { setLoggedIn, setLoggedOut } from "../redux/AuthSlice/authSlice";
 import { api } from "../redux/ApiSlice/apiSlice";
-
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
     RegisterAdmin: builder.mutation<ApiGeneralResponse, SignupCredentials>({

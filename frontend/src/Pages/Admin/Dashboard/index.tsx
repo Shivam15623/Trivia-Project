@@ -2,18 +2,18 @@ import WelcomeSection from "@/components/WelcomeSection";
 
 import { useFetchDashboardCategoryDataQuery } from "@/services";
 import DashboardCards from "./components/DashboardCategory";
+import Loader from "@/components/Loader";
 
 const AdminHome = () => {
-  // Fetch dashboard data using the custom hook
   const {
     data: dashboardCategory,
     isLoading,
     isError,
   } = useFetchDashboardCategoryDataQuery();
 
-  // Loading and Error handling
+
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   if (isError) {
@@ -23,7 +23,7 @@ const AdminHome = () => {
   // Edge case: Check if dashboard data exists and has the necessary properties
   const data = dashboardCategory?.data;
   if (!data) {
-    return <>No data</>;
+    return <div className="text-center text-2xl">No data</div>;
   }
 
   return (
