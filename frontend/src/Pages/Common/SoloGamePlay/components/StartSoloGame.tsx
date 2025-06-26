@@ -1,19 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { useEndSoloGameMutation, useStartSoloGameMutation } from "@/services";
 import { useGetGameByIdQuery } from "@/services/GameApi";
-
 import { handleApiError } from "@/utills/handleApiError";
-
 import { useNavigate, useParams } from "react-router-dom";
-
 import { showSuccess } from "../../../../components/toastUtills";
 import { useSelector } from "react-redux";
-
 import { PlayCircle, X } from "lucide-react";
 import { selectAuth } from "@/redux/AuthSlice/authSlice";
-
-import StartSoloGameLoader from "./StartSoloGameLoader";
 import Loader from "@/components/Loader";
+import { useState } from "react";
 
 const StartSoloGame = ({ gameId }: { gameId: string }) => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -24,14 +19,17 @@ const StartSoloGame = ({ gameId }: { gameId: string }) => {
   const navigate = useNavigate();
   const { user } = useSelector(selectAuth);
   const role = user?.role;
+  const [localStarted, setLocalStarted] = useState(false); // ✅ Local state
 
   const HandleStartGame = async () => {
     try {
+      setLocalStarted(true);
       const response = await startGame(sessionId!).unwrap();
       if (response.success === true) {
         showSuccess(response.message);
       }
     } catch (error) {
+      setLocalStarted(false);
       handleApiError(error);
     }
   };
@@ -46,8 +44,7 @@ const StartSoloGame = ({ gameId }: { gameId: string }) => {
       handleApiError(error);
     }
   };
-  if (isLoading) return <Loader />;
-  if (StartGameLoading) return <StartSoloGameLoader />;
+  if (isLoading || StartGameLoading || localStarted) return <Loader />;
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 py-12 bg-gradient-to-br from-orange-50 to-orange-100 ">
@@ -93,7 +90,8 @@ const StartSoloGame = ({ gameId }: { gameId: string }) => {
         </div>
         <div className="mb-10">
           <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
-            <svg
+            
+            {/* <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5 mr-2 text-orange-600"
               fill="none"
@@ -106,7 +104,7 @@ const StartSoloGame = ({ gameId }: { gameId: string }) => {
                 stroke-width="2"
                 d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
               ></path>
-            </svg>
+            </svg> */}
             Categories
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mx-auto">

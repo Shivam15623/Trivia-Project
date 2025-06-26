@@ -32,7 +32,7 @@ export function CustomerNavHeader() {
   return (
     <>
       <header className="sticky top-0 z-50 w-full">
-        <div className="bg-[#EFEFEF] py-2.5 sm:py-4 relative shadow-sm">
+        <div className="bg-[#EFEFEF] py-2.5 sm:py-4 relative overflow-visible shadow-sm">
           <div className="container mx-auto px-4 sm:px-5 2xl:px-10">
             <div className="flex justify-between items-center w-full">
               <div className="flex items-center gap-3.5 md:gap-7">

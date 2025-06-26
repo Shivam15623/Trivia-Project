@@ -14,7 +14,7 @@ import {
   useGameSessionEndMutation,
 } from "@/services";
 import { handleApiError } from "@/utills/handleApiError";
-import { Divide, MinusCircle, Zap } from "lucide-react";
+import { Divide, MinusCircle, XCircle, Zap } from "lucide-react";
 
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
@@ -49,6 +49,7 @@ const PlayGamePage = () => {
   const [useAid, setUseAid] = useState<"Deduct" | "None" | "twicePoint">(
     "None"
   );
+  const [isFiftyLoading, setIsFiftyLoading] = useState(false);
 
   useEffect(() => {
     if (sessionSuccess && sessionInfoFromAPI?.data) {
@@ -87,8 +88,8 @@ const PlayGamePage = () => {
       setQuestionData(undefined);
     }
   }, [currentQuestionDataFromAPI, questionSuccess]);
-  const {user} = useSelector(selectAuth);
-  const userId=user?._id
+  const { user } = useSelector(selectAuth);
+  const userId = user?._id;
   const isHost = sessionInfo?.host === userId;
   const isFifty = useMemo(() => {
     if (!sessionInfo || !userId) return false;
@@ -179,12 +180,21 @@ const PlayGamePage = () => {
       socket?.emit("end-game", sessionCode);
     }
   };
-
+  const handleAid = async (aid: "Deduct" | "None" | "twicePoint") => {
+    if (["Deduct", "twicePoint"].includes(aid)) {
+      if (useAid === aid) {
+        setUseAid("None");
+      } else {
+        setUseAid(aid);
+      }
+    }
+  };
   const handlefiftyfifty = async () => {
     if (!sessionInfo?._id || !questionData?.questionId) {
       return;
     }
     try {
+      setIsFiftyLoading(true);
       const response = await fiftyfifty({
         gameSessionId: sessionInfo._id,
         questionId: questionData.questionId,
@@ -205,22 +215,74 @@ const PlayGamePage = () => {
       }
     } catch (error) {
       handleApiError(error);
+    } finally {
+      setIsFiftyLoading(false);
     }
   };
-
-  if (isLoading)
-    return <div className="text-center py-10">Loading session info...</div>;
-  if (error)
+  if (isLoading) {
     return (
-      <div className="text-center py-10 text-red-500">
-        Error loading session
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm text-gray-600 animate-pulse">
+            Preparing game environment...
+          </p>
+        </div>
       </div>
     );
+  }
+
+  if (error) {
+    return (
+      <section className="px-2 sm:px-10 mt-9 text-center">
+        <div className="inline-block px-6 py-4 border border-red-300 bg-red-50 text-red-700 rounded-xl font-medium">
+          Failed to fetch games. Please try again later.
+        </div>
+      </section>
+    );
+  }
+
   if (sessionInfo?.status === "completed") {
-    return <div>game ended</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center text-gray-700 text-sm font-medium">
+          This game has already ended.
+        </div>
+      </div>
+    );
   }
   return (
     <div className="flex flex-col w-screen max-w-screen overflow-y-scroll h-screen max-h-screen gap-6  ">
+      <header className="bg-white border-b border-gray-200 py-2 px-4 md:px-6 sticky top-0 z-20 shadow-sm">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="w-10 sm:w-11 sm:h-11 2xl:w-18 h-10 2xl:h-18 orange-gradient p-1 rounded-full border-2 border-[#a90000] flex items-center justify-center">
+              <img
+                src="/Trivial logo.png"
+                alt="Logo"
+                className="w-full h-full object-contain"
+              />
+            </div>
+
+            <h1 className="text-xl font-bold text-gray-800">Trivia Master</h1>
+          </div>
+          {isHost ? (
+            <div className="flex items-center gap-3">
+              <div className="host-controls">
+                <Button
+                  onClick={handleEndGame}
+                  className="bg-red-500 hover:bg-red-600 text-white text-sm py-1 px-3 rounded-full transition-colors flex items-center gap-1"
+                >
+                  <XCircle className="h-4 w-4" />
+                  End Game
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <></>
+          )}
+        </div>
+      </header>
       {sessionInfo && (
         <ScoreboardAndHost
           teams={sessionInfo.teams}
@@ -237,10 +299,10 @@ const PlayGamePage = () => {
         setUseAid={setUseAid}
       />
 
-      <section className="px-4 py-6 sm:px-6 pb-30 sm:pb-0 w-full h-full mx-auto md:w-11/12 lg:w-3/4  bg-gray-50 ">
+      <section className="px-4 py-6 sm:px-6 pb-30 sm:pb-0 w-full h-full mx-auto md:w-11/12 lg:w-3/4 bg-gray-50 ">
         <div className="flex flex-col sm:flex-row gap-6">
           {/* Question Area */}
-          <div className="w-full sm:w-full  md:w-9/12 lg:w-9/12 mx-auto  ">
+          <div className="w-full sm:w-full md:w-9/12 lg:w-9/12 mx-auto  ">
             <div className="bg-white rounded-2xl shadow-lg p-1  sm:p-6 flex flex-col gap-6 relative border-[5px] border-[#e34b4b]">
               {questionLoading ? (
                 <div className="text-gray-500 text-lg text-center animate-pulse">
@@ -252,6 +314,7 @@ const PlayGamePage = () => {
                   currentQuestionData={questionData}
                   socket={socket!}
                   aid={useAid}
+                  isFiftyLoading={isFiftyLoading}
                 />
               ) : null}
             </div>
@@ -267,68 +330,54 @@ const PlayGamePage = () => {
               <h3 className="text-base font-semibold text-gray-700">
                 Lifelines
               </h3>
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="flex flex-col flex-wrap sm:flex-row  justify-between items-center gap-4">
                 <Button
                   disabled={!isFifty}
                   onClick={handlefiftyfifty}
                   className={`w-full sm:w-auto flex-1 p-3 rounded-lg transition-all duration-300 flex justify-center items-center gap-2 text-sm font-medium
-        ${
-          isFifty
-            ? "bg-purple-600 text-white hover:bg-purple-700"
-            : "bg-gray-200 text-gray-400 cursor-not-allowed"
-        }`}
+    ${
+      isFifty
+        ? "bg-indigo-600 text-white hover:bg-indigo-700"
+        : "bg-gray-200 text-gray-400 cursor-not-allowed"
+    }`}
                 >
                   <Divide size={18} />
                   50-50
                 </Button>
 
                 <Button
-                  disabled={!DeductUsed || useAid !== "None"}
-                  onClick={() => setUseAid("Deduct")}
+                  disabled={!DeductUsed}
+                  onClick={() => handleAid("Deduct")}
                   className={`w-full sm:w-auto flex-1 p-3 rounded-lg transition-all duration-300 flex justify-center items-center gap-2 text-sm font-medium
-        ${
-          useAid === "Deduct"
-            ? "bg-blue-600 text-white hover:bg-blue-700"
-            : !DeductUsed || useAid !== "None"
-            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-            : "bg-gray-100 text-gray-800 hover:bg-blue-100"
-        }`}
+    ${
+      useAid === "Deduct"
+        ? "bg-rose-600 text-white hover:bg-rose-700"
+        : !DeductUsed
+        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+        : "bg-gray-100 text-gray-800 hover:bg-rose-100"
+    }`}
                 >
                   <MinusCircle size={18} />
                   Deduct
                 </Button>
 
                 <Button
-                  disabled={!twiceUsed || useAid !== "None"}
-                  onClick={() => setUseAid("twicePoint")}
+                  disabled={!twiceUsed}
+                  onClick={() => handleAid("twicePoint")}
                   className={`w-full sm:w-auto flex-1 p-3 rounded-lg transition-all duration-300 flex justify-center items-center gap-2 text-sm font-medium
-        ${
-          useAid === "twicePoint"
-            ? "bg-green-600 text-white hover:bg-green-700"
-            : !twiceUsed || useAid !== "None"
-            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-            : "bg-gray-100 text-gray-800 hover:bg-green-100"
-        }`}
+    ${
+      useAid === "twicePoint"
+        ? "bg-emerald-600 text-white hover:bg-emerald-700"
+        : !twiceUsed
+        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+        : "bg-gray-100 text-gray-800 hover:bg-emerald-100"
+    }`}
                 >
                   <Zap size={18} />
                   2x Points
                 </Button>
               </div>
             </div>
-
-            {isHost && (
-              <div className="bg-white rounded-2xl shadow-xl p-4 border border-gray-200 flex flex-col items-center">
-                <h3 className="text-base font-medium text-gray-700 mb-3">
-                  Host Controls
-                </h3>
-                <Button
-                  onClick={handleEndGame}
-                  className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 shadow-md active:scale-95"
-                >
-                  End Game
-                </Button>
-              </div>
-            )}
           </div>
         </div>
       </section>

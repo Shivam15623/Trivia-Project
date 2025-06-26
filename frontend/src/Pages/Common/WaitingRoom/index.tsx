@@ -6,12 +6,9 @@ import {
 } from "@/services";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-
 import { Button } from "@/components/ui/button";
-import { useEffect, useMemo } from "react";
-
+import { useEffect, useMemo, useState } from "react";
 import { useSocket } from "@/hooks/useSocket";
-
 import { motion } from "framer-motion";
 import { useGetGameByIdQuery } from "@/services/GameApi";
 import { handleApiError } from "@/utills/handleApiError";
@@ -20,51 +17,53 @@ import { selectAuth } from "@/redux/AuthSlice/authSlice";
 
 const WaitingRoom = () => {
   const { sessionCode } = useParams<{ sessionCode: string }>();
-  const [joinGame] = useJoinGameSessionMutation();
-  const [startMatch] = useStartGameMutation();
-  const [endGameSession, { isLoading: isEnding }] = useGameSessionEndMutation();
-
   const navigate = useNavigate();
   const socket = useSocket();
- 
-  const {user} = useSelector(selectAuth);
-  const userId=user?._id
+  const { user } = useSelector(selectAuth);
+  const userId = user?._id;
+
+  const [joinGame, { isLoading: isJoining }] = useJoinGameSessionMutation();
+  const [startMatch, { isLoading: isStarting }] = useStartGameMutation();
+  const [endGameSession, { isLoading: isEnding }] = useGameSessionEndMutation();
 
   const {
     data: sessionInfo,
-    isLoading,
-    error,
+    isLoading: isSessionLoading,
+    error: sessionError,
     refetch,
   } = useFetchWaitingroominfoQuery(sessionCode!, { skip: !sessionCode });
-  const gameId = sessionInfo?.data.gameId;
 
-  const { data: GameInfo } = useGetGameByIdQuery(gameId ?? "", {
-    skip: !gameId,
-  });
+  const sessionData = sessionInfo?.data;
+  const gameId = sessionData?.gameId;
+  const [joiningTeam, setJoiningTeam] = useState<string | null>(null);
+  const { data: gameInfoData, isLoading: isGameLoading } = useGetGameByIdQuery(
+    gameId ?? "",
+    { skip: !gameId }
+  );
 
-  const data = sessionInfo?.data;
+  const game = gameInfoData?.data;
+  const teams = sessionData?.teams ?? [];
 
   const allTeamsFull = useMemo(() => {
-    if (!data?.teams) return false;
-    return data.teams.every(
-      (team) => team.currentMembers >= team.expectedMembers
+    return teams.every((team) => team.currentMembers >= team.expectedMembers);
+  }, [teams]);
+
+  const userAlreadyInTeam = useMemo(() => {
+    return teams.some((team) =>
+      team.members?.some((member) => member.userId === userId)
     );
-  }, [data]);
+  }, [teams, userId]);
 
   useEffect(() => {
     if (!socket || !sessionCode) return;
 
     socket.emit("join-session-room", sessionCode);
 
-    socket.on("update-session", async () => {
-      await refetch();
-    });
-
+    socket.on("update-session", refetch);
     socket.on("game-started", ({ message }: { message: string }) => {
       showSuccess(message);
       navigate(`/game/PlayGameSession/${sessionCode}`);
     });
-
     socket.on("game-ended", () => {
       showSuccess("Game has ended.");
       navigate(`/${user?.role}/mygames`);
@@ -73,24 +72,23 @@ const WaitingRoom = () => {
     return () => {
       socket.emit("leave-session-room", sessionCode);
       socket.off("update-session");
-      socket.off("game-ended");
       socket.off("game-started");
+      socket.off("game-ended");
     };
-  }, [socket, sessionCode, navigate, refetch, user?.role]);
+  }, [socket, sessionCode, refetch, navigate, user?.role]);
 
   const handleJoinTeam = async (teamName: string) => {
-    if (!socket?.id) {
-      return;
-    }
+    if (!socket?.id || !sessionData?.sessionCode) return;
+    setJoiningTeam(teamName);
     try {
       await joinGame({
-        sessionCode: data!.sessionCode,
+        sessionCode: sessionData.sessionCode,
         teamName,
         socketId: socket.id,
       }).unwrap();
 
-      socket?.emit("player-joined", {
-        sessionCode: data!.sessionCode,
+      socket.emit("player-joined", {
+        sessionCode: sessionData.sessionCode,
         teamName,
         userId,
       });
@@ -98,15 +96,15 @@ const WaitingRoom = () => {
       showSuccess(`Joined team "${teamName}"`);
     } catch (error) {
       handleApiError(error);
+    } finally {
+      setJoiningTeam(null); 
     }
   };
 
   const handleEndSession = async () => {
+    if (!sessionData?.sessionId) return;
     try {
-      if (!data?.sessionId) {
-        return;
-      }
-      const res = await endGameSession(data.sessionId).unwrap();
+      const res = await endGameSession(sessionData.sessionId).unwrap();
       if (res.statuscode === 200) {
         socket?.emit("end-game", sessionCode);
         showSuccess("Game ended.");
@@ -118,14 +116,11 @@ const WaitingRoom = () => {
   };
 
   const handleStartGame = async () => {
-    if (!data?.sessionId) {
-      return;
-    }
+    if (!sessionData?.sessionId) return;
     try {
-      const res = await startMatch(data.sessionId).unwrap();
+      const res = await startMatch(sessionData.sessionId).unwrap();
 
-      if (res.success === true) {
-        showSuccess("Game started!");
+      if (res.success) {
         navigate(`/game/PlayGameSession/${sessionCode}`);
       } else {
         showError(res.message || "Failed to start game");
@@ -135,34 +130,39 @@ const WaitingRoom = () => {
     }
   };
 
-  if (isLoading) return <div className="p-6 text-center">Loading...</div>;
-  if (error || !data)
+  // -------------------- UI STATES --------------------
+
+  if (isSessionLoading || isGameLoading)
     return (
-      <div className="p-6 text-center text-red-600">
+      <div className="p-10 text-center text-orange-600 font-semibold text-xl">
+        Loading game info...
+      </div>
+    );
+
+  if (sessionError || !sessionData)
+    return (
+      <div className="p-10 text-center text-red-600 font-semibold">
         Error loading session info
       </div>
     );
 
-  if (data.status !== "waiting") {
-    const statusMessages: Record<string, string> = {
+  if (sessionData.status !== "waiting") {
+    const statusText: Record<string, string> = {
       active: "The match has already started.",
       completed: "This session has ended.",
     };
-
     return (
-      <div className="p-6 text-center text-lg text-red-500 font-semibold">
-        {statusMessages[data.status]}
+      <div className="p-10 text-center text-red-500 font-semibold text-lg">
+        {statusText[sessionData.status] ?? "Session unavailable"}
       </div>
     );
   }
 
-  const userAlreadyInTeam = data.teams.some((team) =>
-    team.members?.some((member) => member.userId === userId)
-  );
+  // -------------------- MAIN RENDER --------------------
 
   return (
     <motion.div
-      className="p-6 max-w-6xl mx-auto "
+      className="p-6 max-w-6xl mx-auto"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
@@ -170,13 +170,16 @@ const WaitingRoom = () => {
       <div className="w-full bg-orange-50 border-2 border-orange-900 rounded-3xl shadow-xl p-10 space-y-12">
         {/* Game Title */}
         <h1 className="text-4xl font-extrabold text-orange-900 text-center">
-          {GameInfo?.data.title}
+          {game?.title}
         </h1>
 
         {/* Categories */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
-          {GameInfo?.data.categories.map((cat) => (
-            <div className="relative aspect-[1/1.2] rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300">
+          {game?.categories.map((cat) => (
+            <div
+              key={cat.name}
+              className="relative aspect-[1/1.2] rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300"
+            >
               <img
                 src={cat.thumbnail}
                 alt="Thumbnail"
@@ -189,25 +192,19 @@ const WaitingRoom = () => {
           ))}
         </div>
 
-        {/* Info Message */}
         <p className="text-lg text-center text-orange-800 font-medium">
           Waiting for teams to fill...
         </p>
 
-        {/* Teams vs Section */}
+        {/* Teams */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 relative">
-          <motion.div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-white px-6 py-3 text-2xl font-black shadow-md rounded-full border border-orange-900"
-            whileHover={{ scale: 1.05 }}
-          >
+          <motion.div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-white text-red-800 px-6 py-3 text-2xl font-black shadow-md rounded-full border border-orange-900">
             VS
           </motion.div>
 
-          {data.teams.map((team) => {
+          {teams.map((team) => {
             const isFull = team.currentMembers >= team.expectedMembers;
-            const isUserInThisTeam = team.members?.some(
-              (m) => m.userId === userId
-            );
+            const isUserInTeam = team.members?.some((m) => m.userId === userId);
 
             return (
               <motion.div
@@ -221,13 +218,22 @@ const WaitingRoom = () => {
                   </h3>
                   {!userAlreadyInTeam ? (
                     <Button
-                      disabled={isFull}
+                      disabled={isFull || isJoining}
                       onClick={() => handleJoinTeam(team.name)}
-                      className="bg-orange-700 hover:bg-orange-800 text-white px-4 py-2 text-sm rounded-md"
+                      className="bg-orange-800 hover:bg-orange-900 text-white flex items-center justify-center gap-2"
                     >
-                      {isFull ? "Team Full" : "Join"}
+                      {isJoining && joiningTeam === team.name ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Joining...
+                        </>
+                      ) : isFull ? (
+                        "Team Full"
+                      ) : (
+                        "Join"
+                      )}
                     </Button>
-                  ) : isUserInThisTeam ? (
+                  ) : isUserInTeam ? (
                     <span className="text-green-600 font-medium text-sm">
                       You're in this team
                     </span>
@@ -267,13 +273,13 @@ const WaitingRoom = () => {
           })}
         </div>
 
-        {/* Session Info Section */}
+        {/* Session Code */}
         <div className="mt-10 bg-white border border-orange-300 rounded-xl p-6 shadow-md text-center space-y-3">
           <div className="text-orange-900 text-lg font-semibold">
             Session Code:
           </div>
           <div className="text-2xl font-bold text-orange-700 tracking-widest">
-            {data.sessionCode}
+            {sessionData.sessionCode}
           </div>
           <div className="text-gray-500 text-sm mt-1 italic">
             Share this code with players to join
@@ -281,14 +287,15 @@ const WaitingRoom = () => {
         </div>
 
         {/* Host Actions */}
-        {userId === data.host && (
+        {userId === sessionData.host && (
           <div className="mt-10 flex flex-row justify-center items-center gap-6">
             {allTeamsFull && (
               <Button
                 onClick={handleStartGame}
+                disabled={isStarting}
                 className="bg-green-600 hover:bg-green-700 px-6 py-3 text-white text-lg rounded-xl"
               >
-                Start Match
+                {isStarting ? "Starting..." : "Start Match"}
               </Button>
             )}
             <Button

@@ -19,7 +19,7 @@ import { showSuccess } from "@/components/toastUtills";
 
 import { FileField } from "@/components/FormRender/renderFileField";
 import { RenderField } from "@/components/FormRender/renderFields";
-
+import Loader from "@/components/Loader";
 
 type Props = {
   slug?: string;
@@ -31,8 +31,10 @@ export function CategoryDialog({ slug, trigger }: Props) {
   const { data, isLoading } = useFetchCategorybyslugQuery(slug!, {
     skip: !slug,
   });
-  const [createCategory] = useCreateCategoryMutation();
-  const [updateCategory] = useUpdateCategoryMutation();
+  const [createCategory, { isLoading: addLoading }] =
+    useCreateCategoryMutation();
+  const [updateCategory, { isLoading: editLoading }] =
+    useUpdateCategoryMutation();
 
   const form = useForm<CategoryValue>({
     resolver: zodResolver(CategorySchema),
@@ -76,9 +78,22 @@ export function CategoryDialog({ slug, trigger }: Props) {
       handleApiError(err);
     }
   };
-
-  if (isEdit && isLoading) return <div className="p-4">Loading...</div>;
-
+  const isSubmitting = addLoading || editLoading;
+  if (isEdit && isLoading) {
+    return (
+      <DialogWrapper
+        type="edit"
+        title="Update Category"
+        description="Edit your category details."
+        trigger={trigger}
+        resetForm={() => form.reset()}
+      >
+        <div className="flex items-center justify-center min-h-[200px]">
+          <Loader />
+        </div>
+      </DialogWrapper>
+    );
+  }
   return (
     <DialogWrapper
       type={isEdit ? "edit" : "add"}
@@ -90,7 +105,12 @@ export function CategoryDialog({ slug, trigger }: Props) {
       resetForm={() => form.reset()}
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className={`space-y-6 p-4 ${
+            isSubmitting ? "pointer-events-none opacity-50" : ""
+          }`}
+        >
           <RenderField
             Inputvariant="solidred"
             name="name"
@@ -119,10 +139,10 @@ export function CategoryDialog({ slug, trigger }: Props) {
             <Button
               type="submit"
               className="w-full"
-              variant={"gradient"}
-              disabled={form.formState.isSubmitting}
+              variant="gradient"
+              disabled={isSubmitting}
             >
-              {isEdit ? "Update" : "Add"}
+              {isSubmitting ? "Saving..." : isEdit ? "Update" : "Add"}
             </Button>
 
             {/* Cancel button */}

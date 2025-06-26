@@ -39,9 +39,14 @@ export const SoloGameApi = api.injectEndpoints({
         method: "PATCH",
         body: credentials,
       }),
-      invalidatesTags: ["SoloGame"],
+      invalidatesTags: (result) => {
+        if (result?.success && result.data?.gameEnded) {
+          return [{ type: "SoloGame" }];
+        }
+        return [];
+      },
     }),
-    EndSoloGame: builder.mutation({
+    EndSoloGame: builder.mutation<ApiGeneralResponse, string>({
       query: (sessionId) => ({
         url: `/api/v1/soloGame/endGameSolo/${encodeURIComponent(sessionId)}`,
         method: "PATCH",
@@ -50,14 +55,18 @@ export const SoloGameApi = api.injectEndpoints({
     }),
     CurrentQuestionSolo: builder.query<CurrentQuestionResponse, string>({
       query: (sessionId) => ({
-        url: `/api/v1/soloGame/fetchCurrentQuestion/${encodeURIComponent(sessionId)}`,
+        url: `/api/v1/soloGame/fetchCurrentQuestion/${encodeURIComponent(
+          sessionId
+        )}`,
         method: "GET",
       }),
       providesTags: ["SoloGame"],
     }),
     FetchSessionInfoSolo: builder.query<SoloGameResponse, string>({
       query: (sessionId) => ({
-        url: `/api/v1/soloGame/FetchSessionInfo/${encodeURIComponent(sessionId)}`,
+        url: `/api/v1/soloGame/FetchSessionInfo/${encodeURIComponent(
+          sessionId
+        )}`,
         method: "GET",
       }),
       providesTags: ["SoloGame"],

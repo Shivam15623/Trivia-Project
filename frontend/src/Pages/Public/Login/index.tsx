@@ -9,7 +9,7 @@ import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
 import { RenderField } from "@/components/FormRender/renderFields";
 import { LoginSchema, LoginValues } from "@/SchemaValidations/AuthSchema";
-import { User } from "lucide-react";
+import { Loader2, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthCardWrapper from "@/components/AuthCardWrapper";
 // 🔁 Replace with actual hook if different
@@ -26,7 +26,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [login] = useLoginUserMutation(); // ⛳️ Change if needed
+  const [login, { isLoading }] = useLoginUserMutation(); // ⛳️ Change if needed
 
   const handleLogin = async (data: LoginValues) => {
     try {
@@ -54,7 +54,12 @@ const Login = () => {
   return (
     <div className=" flex items-center patt min-h-screen justify-center px-4">
       <AuthCardWrapper icon={<User className="w-10 h-10 text-[#e34b4b]" />}>
-        <div className="p-6 w-full sm:w-[450px] ">
+        <div className="p-6 w-full sm:w-[450px] relative">
+          {isLoading && (
+            <div className="absolute inset-0 z-10 bg-white/70 pointer-events-none backdrop-blur-sm flex items-center justify-center rounded-2xl">
+              <Loader2 className="animate-spin h-6 w-6 text-[#e34b4b]" />
+            </div>
+          )}
           <h2 className="text-2xl font-semibold text-center mb-2 text-[#e34b4b]">
             Welcome Back
           </h2>
@@ -62,6 +67,7 @@ const Login = () => {
             Sign in to your account to continue
           </p>
           <Form {...form}>
+            {" "}
             <form
               onSubmit={form.handleSubmit(handleLogin)}
               className="space-y-6"
@@ -102,7 +108,9 @@ const Login = () => {
               </div>
               <Button
                 type="submit"
-                className="w-full py-2.5 px-4 bg-gradient-to-r from-[#fcbf49] to-[#f29e4e] text-white font-medium rounded-md hover:opacity-90 transition-opacity"
+                variant={"gradient"}
+                disabled={isLoading}
+                className="w-full"
               >
                 Log In
               </Button>

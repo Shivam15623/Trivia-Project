@@ -30,17 +30,18 @@ const WelcomeSection = () => {
           </div>
           <div className="mt-4 md:mt-0 flex space-x-3">
             <Link
-              to={`${userRole}/CreateGame`}
+              to={`/${userRole}/CreateGame`}
               className="cta-button bg-[#a90000] hover:bg-red-800 text-white font-bold px-6 py-3 rounded-full shadow-lg"
             >
               Create New Game
             </Link>
             <Link
-              to={`${userRole}/mygames`}
+              to={`/${userRole}/mygames`}
               className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-6 py-3 rounded-full shadow-lg transition-colors"
             >
               Join Game
             </Link>
+           
           </div>
         </div>
       </div>
