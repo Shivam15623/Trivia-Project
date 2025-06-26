@@ -11,7 +11,7 @@ export interface User {
   role: "admin" | "customer"; // add more roles as needed
   slug: string;
   isVerified: boolean;
-  gameCredits:number
+  gameCredits: number;
   GamesCreated: string[]; // this could be just string[] if only IDs are populated
 }
 export interface UserProfileUpdateCredentials {
@@ -33,7 +33,7 @@ export interface UserProfileInfo {
   GamesCreated: string[]; // Array of ObjectIds
   gameCredits: number;
   role: string;
-  slug:string;
+  slug: string;
   createdAt: string;
   updatedAt: string;
   __v?: number;
@@ -43,4 +43,5 @@ export interface passwordChangecredentials {
   newpassword: string;
   confirmpassword: string;
 }
+export type ProfileupdateResponse = ApiResponse<UserProfileInfo>;
 export type UserDetailsResponse = ApiResponse<UserProfileInfo>;

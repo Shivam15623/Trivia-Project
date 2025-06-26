@@ -1,5 +1,6 @@
 import {
   passwordChangecredentials,
+  ProfileupdateResponse,
   UserDetailsResponse,
 } from "@/interfaces/Userinterface";
 import { api } from "../redux/ApiSlice/apiSlice";
@@ -15,7 +16,7 @@ export const userApi = api.injectEndpoints({
       }),
       providesTags: ["Users"],
     }),
-    UpdateProfile: builder.mutation<ApiGeneralResponse, FormData>({
+    UpdateProfile: builder.mutation<ProfileupdateResponse, FormData>({
       query: (formData) => ({
         url: "/api/v1/users/UpdateuserProfile",
         method: "PATCH",
