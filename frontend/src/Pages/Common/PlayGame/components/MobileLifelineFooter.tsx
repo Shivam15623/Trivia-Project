@@ -17,7 +17,7 @@ export const MobileLifelineFooter = ({
   setUseAid: (aid: "Deduct" | "None" | "twicePoint") => void;
 }) => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-orange-200 p-3 ">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-orange-200 p-3 md:hidden">
       <div className="flex justify-between gap-2">
         <Button
           disabled={!isFifty}
