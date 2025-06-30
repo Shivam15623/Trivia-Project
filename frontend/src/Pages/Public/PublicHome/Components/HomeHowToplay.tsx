@@ -1,20 +1,6 @@
-import { selectAuth } from "@/redux/AuthSlice/authSlice";
-import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 const HomeHowToplay = () => {
-  const { user } = useSelector(selectAuth);
-  const isUserReady = !!user?.role;
-
-  if (!isUserReady) {
-    // Option 1: Simple loader
-    return (
-      <div className="min-h-[200px] flex items-center justify-center text-gray-500">
-        Loading your game options...
-      </div>
-    );
-  }
-
   return (
     <section id="how-to-play" className="py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -140,7 +126,7 @@ const HomeHowToplay = () => {
               </ul>
 
               <Link
-                to={`/${user?.role}/mygames`}
+                to={`/customer/mygames`}
                 className="block text-center bg-[#a90000] hover:bg-red-800 text-white font-bold py-3 px-6 rounded-lg transition-colors"
               >
                 Play Solo
@@ -259,7 +245,7 @@ const HomeHowToplay = () => {
               </ul>
 
               <Link
-                to={`/${user?.role}/Creategame`}
+                to={`/customer/Creategame`}
                 className="block text-center bg-[#a90000] hover:bg-red-800 text-white font-bold py-3 px-6 rounded-lg transition-colors"
               >
                 Create Team Game
