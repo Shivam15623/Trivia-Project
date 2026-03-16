@@ -63,7 +63,6 @@ const AccountUpdate = () => {
 
       const response = await updateDetails(formData).unwrap();
       if (response?.success === true) {
-        
         const payload = {
           firstname: response.data.firstname,
           lastname: response.data.lastname,
@@ -84,20 +83,19 @@ const AccountUpdate = () => {
     <Form {...form}>
       <div className="relative">
         {isUpdating && (
-          <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-sm flex items-center justify-center rounded-md">
-            <Loader2 className="animate-spin h-6 w-6 text-[#e34b4b]" />
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-white/60 backdrop-blur-sm">
+            <Loader2 className="h-6 w-6 animate-spin text-[#e34b4b]" />
           </div>
         )}
 
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="max-w-4xl w-full mx-auto p-4 sm:p-6 bg-white space-y-6 rounded-md shadow-md"
+          className="mx-auto w-full max-w-4xl space-y-6 rounded-md bg-white p-4 shadow-md sm:p-6"
         >
-          <div className="flex flex-col md:flex-row gap-6 md:gap-10">
+          <div className="flex flex-col gap-6 md:flex-row md:gap-10">
             {/* Left Column */}
-            <div className="flex flex-col items-center md:w-1/3 text-center">
+            <div className="flex flex-col items-center text-center md:w-1/3">
               <RenderField
-                Inputvariant="solidred"
                 control={form.control}
                 label="Profile Picture"
                 name="profilePic"
@@ -106,17 +104,16 @@ const AccountUpdate = () => {
               <h2 className="my-3 text-lg font-semibold">
                 {userdata.data.firstname} {userdata.data.lastname}
               </h2>
-              <p className="text-sm text-gray-500 break-words">
+              <p className="break-words text-sm text-gray-500">
                 {userdata.data.email}
               </p>
             </div>
 
             {/* Right Column */}
-            <div className="md:w-2/3 w-full">
+            <div className="w-full md:w-2/3">
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <RenderField
-                    Inputvariant="solidred"
                     control={form.control}
                     label="First Name"
                     name="firstname"
@@ -127,7 +124,6 @@ const AccountUpdate = () => {
                     }}
                   />
                   <RenderField
-                    Inputvariant="solidred"
                     control={form.control}
                     label="Last Name"
                     name="lastname"
@@ -140,7 +136,6 @@ const AccountUpdate = () => {
                 </div>
 
                 <RenderField
-                  Inputvariant="solidred"
                   control={form.control}
                   label="Email"
                   name="email"
@@ -151,9 +146,8 @@ const AccountUpdate = () => {
                   }}
                 />
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                   <RenderField
-                    Inputvariant="solidred"
                     control={form.control}
                     label="Date of Birth"
                     name="DOB"
@@ -175,15 +169,14 @@ const AccountUpdate = () => {
                 </div>
               </div>
 
-              <div className="flex mt-5">
+              <div className="mt-5 flex">
                 <Button
                   type="submit"
-                  variant="gradient"
                   disabled={isUpdating}
                   className="flex items-center gap-2"
                 >
                   {isUpdating && (
-                    <Loader2 className="animate-spin h-4 w-4 text-white" />
+                    <Loader2 className="h-4 w-4 animate-spin text-white" />
                   )}
                   {isUpdating ? "Saving..." : "Save Changes"}
                 </Button>

@@ -7,18 +7,19 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
+import { cn } from "@/lib/utils";
 
 // Tailwind class presets per variant
 const TableVariant = {
   Question: {
-    table: "min-w-full divide-y divide-[#fff0e5]",
-    header: "bg-gray-50 border-b border-gray-200",
-    headerrow: "bg-[#fff8f0]",
+    table: "min-w-full",
+    header: "bg-transparent ",
+    headerrow: "bg-transparent ",
     headercell:
-      "py-3 px-4 text-left text-xs font-bold text-[#ff8c42] uppercase tracking-wider",
-    tableBody: "bg-white divide-y divide-[#fff0e5]",
-    row: "hover:bg-[#fff8f0]/50 transition-colors",
-    cell: "px-4 py-3 text-sm text-gray-900 font-medium",
+      "py-3 px-4 text-left text-xs font-bold text-white uppercase tracking-wider",
+    tableBody: "bg-transparent ",
+    row: "",
+    cell: "px-4 py-3 text-lg font-outfit text-white leading-[100%] font-medium",
   },
   TeamA: {
     table: "min-w-full text-sm text-left text-red-700",
@@ -42,7 +43,8 @@ const TableVariant = {
     table: "w-full text-sm",
     header: "",
     headerrow: "",
-    headercell: "px-4 py-3 text-center text-orange-500 font-semibold bg-gradient-to-r from-amber-100 to-orange-100",
+    headercell:
+      "px-4 py-3 text-center text-orange-500 font-semibold bg-gradient-to-r from-amber-100 to-orange-100",
     tableBody: "",
     row: "text-gray-700 font-medium",
     cell: "px-4 py-3 text-center border-t border-orange-100",
@@ -65,7 +67,7 @@ const CustomTable = <T,>({ columns, data, variant = "Question" }: Props<T>) => {
   return (
     <Table className={styles.table}>
       <TableHeader className={styles.header}>
-        <TableRow className={styles.headerrow}>
+        <TableRow className={cn(styles.headerrow, "gradientRow")}>
           {columns.map((column, idx) => (
             <TableHead key={idx} className={styles.headercell}>
               {column.name}
@@ -76,17 +78,17 @@ const CustomTable = <T,>({ columns, data, variant = "Question" }: Props<T>) => {
 
       <TableBody className={styles.tableBody}>
         {data.length === 0 ? (
-          <TableRow>
+          <TableRow className="gradientRow">
             <TableCell
               colSpan={columns.length}
-              className="text-center text-sm text-muted-foreground py-4"
+              className="text-muted-foreground py-4 text-center text-sm"
             >
               No data available.
             </TableCell>
           </TableRow>
         ) : (
           data.map((row, rowIndex) => (
-            <TableRow key={rowIndex} className={styles.row}>
+            <TableRow key={rowIndex} className={cn(styles.row, "gradientRow")}>
               {columns.map((col, colIndex) => (
                 <TableCell key={colIndex} className={styles.cell}>
                   {col.cell(row, rowIndex, data)}

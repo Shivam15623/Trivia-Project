@@ -1,21 +1,19 @@
+import { GradientCard } from "@/Pages/Customer/CustomerHome/components/GradientBorderCard";
 import { ReactNode } from "react";
 
-const AuthCardWrapper = ({
-  icon,
-  children,
-}: {
-  icon: ReactNode;
-  children: ReactNode;
-}) => {
+const AuthCardWrapper = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="bg-white rounded-xl w-full sm:w-auto shadow-lg border border-orange-200 overflow-hidden">
-      <div className="bg-gradient-to-r from-[#ff100f] to-[#ffc070] p-6 text-center">
-        <div className="bg-white/90 rounded-full w-20 h-20 mx-auto flex items-center justify-center hlogo-animation">
-          {icon}
+    <GradientCard className="relative z-10">
+      <div className="relative z-10 w-full overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-8 shadow-lg sm:w-auto">
+        <div className="text-center">
+          <img
+            src="/TrivvyLogo.png"
+            className="hlogo-animation mx-auto h-20 w-20 rounded-full"
+          />
         </div>
+        {children}
       </div>
-      {children}
-    </div>
+    </GradientCard>
   );
 };
 

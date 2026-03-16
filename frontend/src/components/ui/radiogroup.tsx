@@ -29,28 +29,38 @@ export const RadioGroup = ({
       className={cn(
         "flex gap-4",
         orientation === "vertical" ? "flex-col" : "flex-row",
-        className
+        className,
       )}
       value={value}
       onValueChange={onChange}
       name={name}
     >
       {options.map((opt) => (
-        <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
+        <label
+          key={opt.value}
+          className="flex cursor-pointer items-center gap-2"
+        >
           <RadioGroupPrimitive.Item
             id={opt.value}
             value={opt.value}
             disabled={opt.disabled}
             className={cn(
-              "w-4 h-4 rounded-full border border-gray-400",
-              "data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600",
+              "group h-5 w-5 rounded-full border border-white",
               "flex items-center justify-center",
-              "disabled:opacity-50"
+              "disabled:opacity-50",
             )}
           >
-            <div className="w-2 h-2 rounded-full bg-white" />
+            <div
+              className={cn(
+                "h-3 w-3 rounded-full transition-all",
+                "bg-transparent",
+                "group-data-[state=checked]:bg-white",
+              )}
+            />
           </RadioGroupPrimitive.Item>
-          <span>{opt.label}</span>
+          <span className="font-poppins text-sm sm:text-xl  leading-[100%] text-white">
+            {opt.label}
+          </span>
         </label>
       ))}
     </RadioGroupPrimitive.Root>

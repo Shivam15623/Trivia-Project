@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { showSuccess } from "@/components/toastUtills";
 import { useForGotPassWordMutation } from "@/services";
@@ -9,33 +8,27 @@ import {
 import { RenderField } from "@/components/FormRender/renderFields";
 import { handleApiError } from "@/utills/handleApiError";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import { LoaderCircle, Lock, Shield, Verified } from "lucide-react";
-import PasswordStrength from "@/components/PasswordStrength";
-import PasswordRequirementSection from "@/components/PasswordRequirementSection";
+import { Loader2, Lock, Shield, Verified } from "lucide-react";
+
 import StepBullet from "@/components/StepBullet";
 import AuthCardWrapper from "@/components/AuthCardWrapper";
 import SuccessErrorMessage from "@/components/SuccessErrorMessage";
+import { GradientButton } from "@/components/GradientButton";
 
 const ForgotPassword: React.FC = () => {
   const [searchParams] = useSearchParams();
   const token: string | null = searchParams.get("token");
-
   const navigate = useNavigate();
 
   const [forgotPassword, { error, isLoading }] = useForGotPassWordMutation();
+
   const form = useForm<ForgotPasswordValues>({
     resolver: zodResolver(ForgotPasswordChangeSchema),
-    defaultValues: {
-      newpassword: "",
-      confirmpassword: "",
-    },
+    defaultValues: { newpassword: "", confirmpassword: "" },
   });
-
-  const password = form.watch("newpassword");
 
   const resetPassword = async (values: ForgotPasswordValues) => {
     try {
@@ -55,136 +48,127 @@ const ForgotPassword: React.FC = () => {
   };
 
   return (
-    <>
-      <div className="bg-[#fff6f0] p-4 flex items-center justify-center min-h-screen">
-        <div className="w-full max-w-md">
-          <AuthCardWrapper icon={<Lock className="w-10 h-10 text-[#e34b4b]" />}>
-            <div className="p-6">
-              <h2 className="text-2xl font-semibold text-center mb-2 text-[#e34b4b]">
-                Reset Password
-              </h2>
-              <p className="text-sm text-gray-600 text-center mb-6">
-                Create a new password for your account
-              </p>
-              {error && (
-                <SuccessErrorMessage
-                  type="error"
-                  message={"Something Went Wrong"}
-                />
-              )}
+    <div className="relative flex min-h-screen items-center justify-center bg-black px-4 py-10">
+      <div className="w-full max-w-md space-y-4">
+        {/* Main card */}
+        <AuthCardWrapper>
+          <div className="relative w-full p-6">
+            {/* Loader overlay */}
+            {isLoading && (
+              <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
+                <Loader2 className="h-6 w-6 animate-spin text-amber-400" />
+              </div>
+            )}
 
-              <Form {...form}>
-                <form
-                  id="reset-form"
-                  className="space-y-5"
-                  onSubmit={form.handleSubmit(resetPassword)}
+            <h2 className="mb-2 text-center text-2xl font-bold text-white">
+              Reset Password
+            </h2>
+            <p className="mb-6 text-center text-sm text-white/50">
+              Create a new password for your account
+            </p>
+
+            {error && (
+              <SuccessErrorMessage
+                type="error"
+                message="Something went wrong"
+              />
+            )}
+
+            <Form {...form}>
+              <form
+                className="space-y-5"
+                onSubmit={form.handleSubmit(resetPassword)}
+              >
+                {/* New Password */}
+                <div className="space-y-1.5">
+                  <RenderField
+                    control={form.control}
+                    label="New Password"
+                    name="newpassword"
+                    type="password"
+                    labelClass="text-[#ffffffb3]"
+                    className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
+                    inputProps={{ placeholder: "••••••••", required: true }}
+                  />
+
+                  <p className="pl-2 text-xs text-white/30">
+                    At least 8 characters with uppercase, lowercase, number and
+                    special character.
+                  </p>
+                </div>
+
+                {/* Confirm Password */}
+                <div className="space-y-1.5">
+                  <RenderField
+                    control={form.control}
+                    label="Confirm Password"
+                    name="confirmpassword"
+                    type="password"
+                    labelClass="text-[#ffffffb3]"
+                    className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
+                    inputProps={{ placeholder: "••••••••", required: true }}
+                  />
+                </div>
+
+                {/* <PasswordRequirementSection password={password} /> */}
+
+                <GradientButton
+                  type="submit"
+                  disabled={isLoading}
+                  icon={false}
+                  className="w-full max-w-none font-outfit"
                 >
-                  <div className="space-y-2">
-                    <RenderField
-                      Inputvariant="solidred"
-                      control={form.control}
-                      label="New Password"
-                      name="newpassword"
-                      labelClass="block text-sm font-medium text-gray-700"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e34b4b] focus:border-transparent transition-all pr-10"
-                      type="password"
-                      inputProps={{
-                        placeholder: "••••••••",
-                        required: true,
-                      }}
-                    />
+                  {isLoading ? "Resetting..." : "Reset Password"}
+                </GradientButton>
+              </form>
+            </Form>
+          </div>
 
-                    <PasswordStrength password={password} />
+          {/* Footer */}
+          <div className="border-t border-white/10 p-4 text-center">
+            <p className="text-sm text-white/50">
+              Remember your password?{" "}
+              <Link
+                to="/login"
+                className="font-medium text-amber-400 hover:text-amber-300"
+              >
+                Login here
+              </Link>
+            </p>
+          </div>
+        </AuthCardWrapper>
 
-                    <p className="text-xs text-gray-500 mt-1">
-                      Password must be at least 8 characters and include
-                      uppercase, lowercase, number and special character.
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <RenderField
-                      Inputvariant="solidred"
-                      control={form.control}
-                      label="Confirm Password"
-                      name="confirmpassword"
-                      labelClass="block text-sm font-medium text-gray-700"
-                      className="w-full"
-                      type="password"
-                      inputProps={{
-                        placeholder: "••••••••",
-                        required: true,
-                      }}
-                    />
-
-                    <p
-                      id="match-message"
-                      className="text-xs text-gray-500 hidden"
-                    >
-                      Passwords must match
-                    </p>
-                  </div>
-
-                  <PasswordRequirementSection password={password} />
-
-                  <Button
-                    id="reset-button"
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full py-2.5 px-4 bg-gradient-to-r from-[#fcbf49] to-[#f29e4e] text-white font-medium rounded-md hover:opacity-90 transition-opacity flex items-center justify-center"
-                  >
-                    {isLoading ? (
-                      <>
-                        <LoaderCircle className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
-                        <span>Resetting...</span>
-                      </>
-                    ) : (
-                      <span>Reset Password</span>
-                    )}
-                  </Button>
-                </form>
-              </Form>
-            </div>
-
-            <div className="bg-[#fff8f0] p-4 text-center border-t border-orange-100">
-              <p className="text-sm text-gray-500">
-                Remember your password?{" "}
-                <Link
-                  to="/login"
-                  className="text-[#e34b4b] font-medium hover:underline"
-                >
-                  Login here
-                </Link>
-              </p>
-            </div>
-          </AuthCardWrapper>
-
-          <div className="mt-6 bg-white rounded-xl shadow-sm border border-orange-200 p-5">
-            <h3 className="text-lg font-semibold text-[#e34b4b] mb-4">
-              Password Security Tips
-            </h3>
-
-            <div className="space-y-3">
-              <StepBullet
-                bullet={Shield}
-                title="Use unique passwords"
-                description="Don't reuse passwords across different websites"
-              />
-              <StepBullet
-                bullet={Lock}
-                title="Consider a password manager"
-                description="Use a tool to generate and store strong passwords"
-              />
-              <StepBullet
-                bullet={Verified}
-                title="Enable two-factor authentication"
-                description="Add an extra layer of security to your account"
-              />
-            </div>
+        {/* Security tips — styled as a dark glass panel */}
+        <div className="rounded-2xl relative z-10 border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+          <h3 className="mb-4 text-base font-semibold text-white/80">
+            Password Security Tips
+          </h3>
+          <div className="space-y-3">
+            <StepBullet
+              bullet={Shield}
+              title="Use unique passwords"
+              description="Don't reuse passwords across different websites"
+            />
+            <StepBullet
+              bullet={Lock}
+              title="Consider a password manager"
+              description="Use a tool to generate and store strong passwords"
+            />
+            <StepBullet
+              bullet={Verified}
+              title="Enable two-factor authentication"
+              description="Add an extra layer of security to your account"
+            />
           </div>
         </div>
-      </div>{" "}
-    </>
+      </div>
+
+      {/* Background Glow — same as Signup */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute top-[48%] z-0 h-[74vw] w-[448px] rotate-[107.68deg] rounded-[20px] bg-orange-sun opacity-50 blur-[51.6px] sm:w-[748px] md:right-[3.5%] md:z-[2] md:h-[604.663px] md:rotate-[17.68deg] md:rounded-[40px] lg:top-[21%] lg:w-[48.39%]" />
+        <div className="absolute left-[10px] top-[150px] z-[2] h-[336px] w-[96.18%] -rotate-[120deg] rounded-[20px] bg-aqua-abyss opacity-50 blur-[51.6px] md:z-0 md:h-[696.774px] md:rotate-[150.39deg] md:rounded-[132px] lg:left-[11%] lg:top-[18%] lg:w-[40.81%]" />
+      </div>
+    </div>
   );
 };
 

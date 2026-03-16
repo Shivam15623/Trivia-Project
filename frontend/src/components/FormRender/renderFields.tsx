@@ -38,10 +38,10 @@ type InputType =
 
 type RenderFieldProps<
   TForm extends FieldValues,
-  TOption = string | { [key: string]: unknown }
+  TOption = string | { [key: string]: unknown },
 > = {
   name: Path<TForm>;
-  label: string;
+  label?: string;
   control: Control<TForm>;
   labelClass?: string;
   type?: InputType;
@@ -50,7 +50,7 @@ type RenderFieldProps<
     React.SelectHTMLAttributes<HTMLSelectElement>;
   options?: TOption[];
   className?: string;
-  Inputvariant?: "default" | "underline" | "ghost" | "solid" | "solidred";
+
   getOptionLabel?: (option: TOption) => string;
   getOptionValue?: (option: TOption) => string | number;
 };
@@ -63,7 +63,6 @@ export function RenderField<TForm extends FieldValues, TOption = unknown>({
   inputProps = {},
   labelClass = "",
   options = [],
-  Inputvariant = "default",
   getOptionLabel = (opt: TOption) => String(opt),
   getOptionValue = (opt: TOption) => String(opt),
   className = "",
@@ -74,7 +73,7 @@ export function RenderField<TForm extends FieldValues, TOption = unknown>({
       name={name}
       render={({ field, fieldState }) => (
         <FormItem>
-          {type !== "radio" && type !== "profile-upload" && (
+          {type !== "radio" && type !== "profile-upload" && label && (
             <FormLabel className={labelClass}>
               {label}
               {inputProps.required && <span className="text-red-500"> *</span>}
@@ -95,10 +94,13 @@ export function RenderField<TForm extends FieldValues, TOption = unknown>({
                 onValueChange={field.onChange}
                 value={(field.value ?? "").toString()}
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select an option" />
+                <SelectTrigger className={className}>
+                  <SelectValue
+                    className="text-white"
+                    placeholder="Select an option"
+                  />
                 </SelectTrigger>
-                <SelectContent className={className}>
+                <SelectContent>
                   {options.map((option) => {
                     const value = getOptionValue(option);
                     const label = getOptionLabel(option);
@@ -119,9 +121,10 @@ export function RenderField<TForm extends FieldValues, TOption = unknown>({
                 options={options as Option[]}
                 value={field.value}
                 onChange={field.onChange}
+                className={className}
               />
             ) : type === "phone" ? (
-              <div className="relative ">
+              <div className="relative">
                 <PhoneInput
                   country="in"
                   value={field.value}
@@ -129,11 +132,11 @@ export function RenderField<TForm extends FieldValues, TOption = unknown>({
                   inputStyle={{ width: "100%" }}
                   containerClass="!relative"
                   inputClass={cn(
-                    "w-full h-[38px] pl-[50px] pr-3 rounded-md border text-sm transition ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e34b4b]",
+                    "h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] focus:outline-none",
                     fieldState.error
                       ? "border-red-500 focus-visible:ring-red-500"
                       : "border-gray-300",
-                    className
+                    className,
                   )}
                   buttonStyle={{
                     borderTopLeftRadius: "0.375rem",
@@ -141,8 +144,10 @@ export function RenderField<TForm extends FieldValues, TOption = unknown>({
                     border: "1px solid #d1d5db",
                   }}
                   dropdownStyle={{
+                    position: "fixed", // ← was "absolute", change to "fixed"
                     zIndex: 9999,
-                    position: "absolute",
+                    top: "auto",
+                    left: "auto",
                   }}
                 />
               </div>
@@ -152,12 +157,11 @@ export function RenderField<TForm extends FieldValues, TOption = unknown>({
                 type={type}
                 className={className}
                 value={field.value ?? ""}
-                variant={Inputvariant}
                 onChange={
                   type === "number"
                     ? (e) =>
                         field.onChange(
-                          e.target.value === "" ? "" : Number(e.target.value)
+                          e.target.value === "" ? "" : Number(e.target.value),
                         )
                     : field.onChange
                 }

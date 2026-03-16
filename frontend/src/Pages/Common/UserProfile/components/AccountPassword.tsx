@@ -41,7 +41,7 @@ const AccountPassword = () => {
         className="max-w-4xl w-full sm:w-3/4 md:w-2/3 lg:w-1/2 p-4  mx-auto  bg-white space-y-6"
       >
         <RenderField
-          Inputvariant="solidred"
+          
           control={form.control}
           label="Current Password"
           name="currentpassword"
@@ -52,7 +52,7 @@ const AccountPassword = () => {
           }}
         />
         <RenderField
-          Inputvariant="solidred"
+          
           control={form.control}
           label="New Password"
           name="newpassword"
@@ -65,7 +65,7 @@ const AccountPassword = () => {
         <PasswordStrength password={password} />
         <PasswordRequirementSection password={password} />
         <RenderField
-          Inputvariant="solidred"
+          
           control={form.control}
           label="Confirm Password"
           name="confirmpassword"
@@ -76,7 +76,7 @@ const AccountPassword = () => {
           }}
         />
         <div className="pt-4">
-          <Button type="submit" variant={"gradient"} className="w-full">
+          <Button type="submit"  className="w-full">
             Update Password
           </Button>
         </div>

@@ -1,25 +1,20 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useResetPasswordRequestMutation } from "@/services";
 import { handleApiError } from "@/utills/handleApiError";
-import { Mail } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 import AuthCardWrapper from "@/components/AuthCardWrapper";
+import { GradientButton } from "@/components/GradientButton";
 import { Link } from "react-router-dom";
 
 const RequestResetPassword: React.FC = () => {
   const [email, setEmail] = useState("");
   const [resetPassword, { isLoading }] = useResetPasswordRequestMutation();
   const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const handleRequestReset = async () => {
-    setError(null);
     setMessage(null);
-
     try {
       const response = await resetPassword(email).unwrap();
-
       if (response?.statuscode === 200) {
         setMessage("Reset link sent! Check your email.");
       }
@@ -29,76 +24,81 @@ const RequestResetPassword: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center patt justify-center min-h-screen ">
-      <AuthCardWrapper icon={<Mail className="w-10 h-10 text-[#e34b4b]" />}>
-        <div className="p-6">
-          <h2 className="text-2xl font-semibold text-center mb-2 text-[#e34b4b]">
+    <div className="relative flex min-h-screen items-center justify-center bg-black px-4">
+      <AuthCardWrapper>
+        <div className="relative w-full p-6 sm:w-[450px]">
+          {/* Loader overlay */}
+          {isLoading && (
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-sm">
+              <Loader2 className="h-6 w-6 animate-spin text-[#e34b4b]" />
+            </div>
+          )}
+
+          <h2 className="mb-2 text-center text-2xl font-bold text-white">
             Forgot Password?
           </h2>
-          <p className="text-sm text-gray-500 text-center mb-6">
-            Enter your email, and we'll send you a password reset link.
+          <p className="mb-6 text-center text-sm text-white/50">
+            Enter your email and we'll send you a reset link.
           </p>
 
-          {error && (
-            <p
-              className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-md text-sm text-center mb-4
-          "
-            >
-              {error}
-            </p>
-          )}
+          {/* Success message */}
           {message && (
-            <p className=" success-message bg-green-50 border border-green-200 text-green-600 p-3 rounded-md text-sm text-center mb-4">
+            <p className="mb-4 rounded-2xl border border-green-500/20 bg-green-500/10 p-3 text-center text-sm text-green-400">
               {message}
             </p>
           )}
-          <div className="space-y-5">
-            <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email Address
+
+          <div className="space-y-6">
+            {/* Email field */}
+            <div className="space-y-1.5">
+              <label className="text-sm text-[#ffffffb3]">
+                Email Address <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="w-4 h-4 " />
-                </div>
-                <Input
+                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                <input
                   type="email"
-                  id="email"
-                  name="email" variant="solidred"
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e34b4b] focus:border-transparent transition-all"
+                  className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] pl-10 pr-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
                 />
               </div>
-              <p className="text-xs text-gray-500">
-                We'll send a link to reset your password to this email address.
+              <p className="pl-2 text-xs text-white/30">
+                We'll send a reset link to this email address.
               </p>
             </div>
 
-            <Button
-              className="w-full py-2.5 px-4 bg-gradient-to-r from-[#fcbf49] to-[#f29e4e] text-white font-medium rounded-md hover:opacity-90 transition-opacity"
-              onClick={handleRequestReset}
+            <GradientButton
+              icon={false}
               disabled={isLoading}
+              className="w-full max-w-none font-outfit"
+              onClick={handleRequestReset}
             >
               {isLoading ? "Sending..." : "Send Reset Link"}
-            </Button>
+            </GradientButton>
           </div>
         </div>
-        <div className="bg-[#fff8f0] p-4 text-center border-t border-orange-100">
-          <p className="text-sm text-gray-600">
+
+        {/* Footer */}
+        <div className="border-t border-white/10 p-4 text-center">
+          <p className="text-sm text-white/50">
             Remember your password?{" "}
             <Link
               to="/login"
-              className="text-[#e34b4b] hover:underline font-medium"
+              className="font-medium text-amber-400 hover:text-amber-300"
             >
               Back to Login
             </Link>
           </p>
         </div>
       </AuthCardWrapper>
+
+      {/* Background Glow — same as Signup */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute top-[48%] z-0 h-[74vw] w-[448px] rotate-[107.68deg] rounded-[20px] bg-orange-sun opacity-50 blur-[51.6px] sm:w-[748px] md:right-[3.5%] md:z-[2] md:h-[604.663px] md:rotate-[17.68deg] md:rounded-[40px] lg:top-[21%] lg:w-[48.39%]" />
+        <div className="absolute left-[10px] top-[150px] z-[2] h-[336px] w-[96.18%] -rotate-[120deg] rounded-[20px] bg-aqua-abyss opacity-50 blur-[51.6px] md:z-0 md:h-[696.774px] md:rotate-[150.39deg] md:rounded-[132px] lg:left-[11%] lg:top-[18%] lg:w-[40.81%]" />
+      </div>
     </div>
   );
 };

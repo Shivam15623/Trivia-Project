@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { useDeleteCategoryMutation } from "@/services";
 import { handleApiError } from "@/utills/handleApiError";
-import { Trash2 } from "lucide-react";
+import {  Trash2} from "lucide-react";
 
 type Props = {
   categoryId: string;
@@ -25,18 +25,24 @@ const DeleteCategory = ({ categoryId, categoryName }: Props) => {
   return (
     <DialogWrapper
       title={`Remove Category ${categoryName}?`}
-      description="Are you sure you want to remove the Category?"
+      
       trigger={
-        <Button variant="destructive">
-          <Trash2 className="w-4 h-4" />
-        </Button>
+        <button className="group relative flex h-[40px] w-[40px]  px-[10px] cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-[#2985C8]  font-outfit text-[18px] text-white transition-all duration-300 ease-out hover:-translate-y-[2px] hover:shadow-[0_10px_25px_rgba(41,133,200,0.45)]">
+          <div className="pointer-events-none absolute inset-0 rounded-[10px] bg-[linear-gradient(93.58deg,#67C3FF_8.55%,#010A2A_47.56%,#67C3FF_94.76%)] p-[1px]">
+            <div className="h-full w-full rounded-[10px] bg-[#2985C8]" />
+          </div>
+          {/* Content */}
+          <span className="relative z-10">
+            <Trash2 className="h-5 w-5" />
+          </span>
+        </button>
       }
       size="xl"
       type="delete"
     >
-      <div className="p-4 bg-[#e34b4b]/5">
-        <div className="flex  items-center justify-center mb-6">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+      <div className="">
+        <div className="mb-6 flex items-center justify-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="32"
@@ -56,12 +62,12 @@ const DeleteCategory = ({ categoryId, categoryName }: Props) => {
           </div>
         </div>
 
-        <p className="text-gray-600 mb-4">
+        <p className="mb-4 text-white">
           Are you sure you want to remove this category? This action cannot be
           undone and will:
         </p>
 
-        <ul className="space-y-2 mb-6 text-gray-600">
+        <ul className="mb-6 space-y-2 text-white">
           <li className="flex items-start">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -73,7 +79,7 @@ const DeleteCategory = ({ categoryId, categoryName }: Props) => {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              className="text-red-500 mr-2 mt-0.5"
+              className="mr-2 mt-0.5 text-red-500"
             >
               <path d="m5 13 4 4L19 7"></path>
             </svg>
@@ -90,7 +96,7 @@ const DeleteCategory = ({ categoryId, categoryName }: Props) => {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              className="text-red-500 mr-2 mt-0.5"
+              className="mr-2 mt-0.5 text-red-500"
             >
               <path d="m5 13 4 4L19 7"></path>
             </svg>
@@ -107,7 +113,7 @@ const DeleteCategory = ({ categoryId, categoryName }: Props) => {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              className="text-red-500 mr-2 mt-0.5"
+              className="mr-2 mt-0.5 text-red-500"
             >
               <path d="m5 13 4 4L19 7"></path>
             </svg>
@@ -116,13 +122,13 @@ const DeleteCategory = ({ categoryId, categoryName }: Props) => {
         </ul>
       </div>
 
-      <DialogFooter className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+      <DialogFooter className="grid grid-cols-1 gap-3 pt-2 md:grid-cols-2">
         <Button
           type="button"
           variant="destructive"
           onClick={handleRemove}
           disabled={isLoading}
-          className=" wrap-break-word"
+          className="wrap-break-word"
         >
           {isLoading ? "Removing..." : `Yes, Delete "${categoryName}"`}
         </Button>

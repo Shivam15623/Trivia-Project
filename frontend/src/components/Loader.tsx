@@ -1,13 +1,13 @@
 export default function Loader() {
   return (
-    <div className="flex flex-col items-center justify-center h-screen space-y-6 bg-gray-100 dark:bg-gray-900">
+    <div className="flex h-screen flex-col items-center justify-center space-y-6 bg-gray-900">
       {/* Spinning Loader */}
-      <div className="relative flex items-center justify-center w-16 h-16">
-        <div className="absolute w-full h-full border-4 border-t-transparent border-orange-500 rounded-full animate-spin"></div>
+      <div className="relative flex h-16 w-16 items-center justify-center">
+        <div className="absolute h-full w-full animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
       </div>
 
       {/* Loading Text */}
-      <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 animate-pulse">
+      <p className="animate-pulse text-lg font-semibold text-gray-300">
         Loading...
       </p>
     </div>

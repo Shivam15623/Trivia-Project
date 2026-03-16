@@ -5,6 +5,7 @@ import { useDeleteQuestionMutation } from "@/services";
 import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
 import { DialogWrapper } from "@/components/DialogWrapper";
+import { GradientButton } from "@/components/GradientButton";
 
 interface RemoveQuestionDialogProps {
   questionId: string;
@@ -29,37 +30,33 @@ const RemoveQuestionDialog = ({
   return (
     <DialogWrapper
       title="Remove Question?"
-      description="Are you sure you want to remove the question"
+      size="lg"
       trigger={
-        <Button
-          variant={"ghost"}
-          className="p-1.5 rounded-md text-[#e34b4b] hover:bg-[#e34b4b]/10 transition-colors"
-        >
-          <Trash2 className="w-4 h-4" />
+        <Button className="text-white" variant={"link"}>
+          <Trash2 className="h-6 w-6" />
         </Button>
       }
       type="delete"
     >
-      {" "}
-      <div className="bg-[#e34b4b]/5">
-        <span className="font-semibold text-gray-800">{questionName}</span>?{" "}
-        <br />
-        This action{" "}
-        <span className="text-red-500 font-semibold">cannot be undone</span>.
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4 pt-2">
-        <Button
-          type="button"
-          variant="destructive"
-          onClick={handleRemove}
-          className="w-full "
-          disabled={isLoading}
-        >
-          {isLoading ? "Removing..." : "Remove"}
-        </Button>
+      <div className="flex flex-col gap-[14px] font-outfit text-[24px] font-normal leading-[100%] text-white">
+        <p>{questionName}</p>
+        <p className="text-lg font-normal">
+          This action
+          <span className="text-red-500">cannot be undone</span>.
+        </p>
+        <div className="flex flex-row gap-[18px]">
+          <GradientButton
+            type="button"
+            onClick={handleRemove}
+            className="h-10 bg-[#DD0000] px-10 font-outfit hover:bg-[#B80000]"
+            disabled={isLoading}
+          >
+            {isLoading ? "Removing..." : "Remove"}
+          </GradientButton>
 
-        {/* Cancel button */}
-        <DialogWrapper.CancelButton />
+          {/* Cancel button */}
+          <DialogWrapper.CancelButton />
+        </div>
       </div>
     </DialogWrapper>
   );
