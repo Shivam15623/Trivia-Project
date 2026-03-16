@@ -94,7 +94,7 @@ const AdminHome = () => {
       </div>
       <div className="relative z-10 flex flex-row gap-2.5">
         {" "}
-        <HeatMap />
+        <HeatMap usersByCountry={data.usersByCountry} />
         <ModeBarCard modeUsage={data.modeUsage} />
       </div>
       <div className="relative z-10 flex w-full flex-row gap-2.5">

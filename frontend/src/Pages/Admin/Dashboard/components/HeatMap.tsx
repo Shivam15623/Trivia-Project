@@ -1,71 +1,29 @@
 import { GradientCard } from "@/Pages/Customer/CustomerHome/components/GradientBorderCard";
-import { useState, memo, useRef } from "react";
+import { useState, memo, useRef, useEffect, useMemo } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { Feature, Geometry } from "geojson";
+
 type CountryProperties = {
+  ISO_A2?: string;
   ISO_A3?: string;
   name?: string;
 };
+
 type GeoFeature = Feature<Geometry, CountryProperties> & {
   rsmKey: string;
 };
+
+type UsersByCountry = {
+  country: string; // ISO2 e.g. "IN", "US"
+  users: number;
+}[];
+
+type Props = {
+  usersByCountry: UsersByCountry;
+};
+
 const GEO_URL =
   "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson";
-const countryUsers: Record<string, { name: string; users: number }> = {
-  USA: { name: "United States", users: 52300 },
-  IND: { name: "India", users: 45600 },
-  BRA: { name: "Brazil", users: 32100 },
-  AUS: { name: "Australia", users: 28700 },
-  CHN: { name: "China", users: 24500 },
-  DEU: { name: "Germany", users: 21800 },
-  GBR: { name: "United Kingdom", users: 19200 },
-  FRA: { name: "France", users: 17600 },
-  ARG: { name: "Argentina", users: 15400 },
-  NGA: { name: "Nigeria", users: 14200 },
-  ZAF: { name: "South Africa", users: 12800 },
-  KAZ: { name: "Kazakhstan", users: 11500 },
-  UKR: { name: "Ukraine", users: 10900 },
-  POL: { name: "Poland", users: 9800 },
-  KEN: { name: "Kenya", users: 8700 },
-  CHL: { name: "Chile", users: 7600 },
-  COL: { name: "Colombia", users: 6900 },
-  PAK: { name: "Pakistan", users: 6200 },
-  EGY: { name: "Egypt", users: 5800 },
-  TZA: { name: "Tanzania", users: 5100 },
-  IRN: { name: "Iran", users: 4800 },
-  TUR: { name: "Turkey", users: 4500 },
-  IDN: { name: "Indonesia", users: 4200 },
-  MEX: { name: "Mexico", users: 3800 },
-  SAU: { name: "Saudi Arabia", users: 3500 },
-  ISL: { name: "Iceland", users: 2100 },
-  ROU: { name: "Romania", users: 3200 },
-  SOM: { name: "Somalia", users: 2800 },
-  AGO: { name: "Angola", users: 2400 },
-  MOZ: { name: "Mozambique", users: 1900 },
-  PRY: { name: "Paraguay", users: 1500 },
-  BOL: { name: "Bolivia", users: 1200 },
-  PER: { name: "Peru", users: 3100 },
-  VEN: { name: "Venezuela", users: 2700 },
-  ECU: { name: "Ecuador", users: 1800 },
-  CUB: { name: "Cuba", users: 900 },
-  ESP: { name: "Spain", users: 8200 },
-  ITA: { name: "Italy", users: 7400 },
-  SWE: { name: "Sweden", users: 4100 },
-  NOR: { name: "Norway", users: 3600 },
-  CZE: { name: "Czech Republic", users: 2900 },
-  HUN: { name: "Hungary", users: 2200 },
-  SRB: { name: "Serbia", users: 1700 },
-  BGR: { name: "Bulgaria", users: 1400 },
-};
-
-const maxUsers = Math.max(...Object.values(countryUsers).map((c) => c.users));
-
-const colorScale = (value: number): string => {
-  const ratio = value / maxUsers;
-  if (ratio > 0.7) return "hsl(var(--map-high))";
-  if (ratio > 0.3) return "hsl(var(--map-mid))";
-  return "hsl(var(--map-low))";
-};
 
 interface TooltipData {
   name: string;
@@ -74,9 +32,53 @@ interface TooltipData {
   y: number;
 }
 
-const HeatMap = () => {
+const HeatMap = ({ usersByCountry }: Props) => {
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null); // ← add this
+  const [iso2To3, setIso2To3] = useState<Record<string, string>>({});
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // ── Build ISO2 → ISO3 map from the same GeoJSON (browser cache hits) ───────
+  useEffect(() => {
+    fetch(GEO_URL)
+      .then((r) => r.json())
+      .then((geoData) => {
+        const map: Record<string, string> = {};
+        geoData.features.forEach((f: GeoFeature) => {
+          const a2 = f.properties?.ISO_A2;
+          const a3 = f.properties?.ISO_A3;
+          if (a2 && a3 && a2 !== "-99") map[a2.toUpperCase()] = a3;
+        });
+        setIso2To3(map);
+      });
+  }, []);
+
+  // ── Convert API array → ISO_A3 keyed map ─────────────────────────────────
+  const countryUsers = useMemo<
+    Record<string, { name: string; users: number }>
+  >(() => {
+    if (!usersByCountry?.length || !Object.keys(iso2To3).length) return {};
+    return Object.fromEntries(
+      usersByCountry
+        .map(({ country, users }) => {
+          const iso3 = iso2To3[country.toUpperCase()];
+          if (!iso3) return null;
+          return [iso3, { name: country, users }];
+        })
+        .filter(Boolean) as [string, { name: string; users: number }][],
+    );
+  }, [usersByCountry, iso2To3]);
+
+  const maxUsers = useMemo(
+    () => Math.max(...Object.values(countryUsers).map((c) => c.users), 1),
+    [countryUsers],
+  );
+
+  const colorScale = (value: number): string => {
+    const ratio = value / maxUsers;
+    if (ratio > 0.7) return "hsl(var(--map-high))";
+    if (ratio > 0.3) return "hsl(var(--map-mid))";
+    return "hsl(var(--map-low))";
+  };
 
   const getCoords = (e: React.MouseEvent) => {
     const bounds = containerRef.current?.getBoundingClientRect();
@@ -94,7 +96,6 @@ const HeatMap = () => {
       padding={2.46}
       radius={9.84}
     >
-      {" "}
       <div
         ref={containerRef}
         className="relative flex h-full w-full flex-col gap-5 p-5"
@@ -102,13 +103,10 @@ const HeatMap = () => {
         <p className="text-sm font-semibold leading-[100%] text-white">
           Heat Map
         </p>
+
         <ComposableMap
           projection="geoMercator"
-          projectionConfig={{
-            scale: 130,
-
-            center: [10, 45], // ← was [30, 55]
-          }}
+          projectionConfig={{ scale: 130, center: [10, 45] }}
           className="h-full w-full"
         >
           <Geographies geography={GEO_URL}>
@@ -117,6 +115,7 @@ const HeatMap = () => {
                 const countryData =
                   countryUsers[geo.properties?.ISO_A3 ?? ""] ??
                   countryUsers[geo.id as string];
+
                 const fillColor = countryData
                   ? colorScale(countryData.users)
                   : "hsl(var(--map-default))";
@@ -180,7 +179,7 @@ const HeatMap = () => {
               backdropFilter: "blur(8px)",
             }}
           >
-            <p className="text-xs text-gray-500">Total User</p>
+            <p className="text-xs text-gray-500">Total Users</p>
             <p className="text-xl font-bold text-gray-900">
               {tooltip.users >= 1000
                 ? `${(tooltip.users / 1000).toFixed(1)}K`
