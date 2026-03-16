@@ -12,7 +12,7 @@ const EmailVerificationSentPage = () => {
       <div className="w-full max-w-md space-y-4">
         {/* Main card */}
         <AuthCardWrapper>
-          <div className="w-full p-6 text-center sm:w-[450px]">
+          <div className="w-full p-6 text-center">
             {/* Icon */}
             <div className="mb-4 flex justify-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm">
@@ -61,11 +61,13 @@ const EmailVerificationSentPage = () => {
               </p>
               <GradientButton
                 icon={false}
-                className="mx-auto max-w-[220px] font-outfit"
+                className="mx-auto min-w-fit max-w-fit font-outfit"
                 onClick={() => navigate("/resent-email")}
               >
-                <Repeat2 className="mr-2 h-4 w-4" />
-                Resend Email
+                <div className="flex flex-row items-center gap-3">
+                  <Repeat2 className="h-4 w-4" />
+                  Resend Email
+                </div>
               </GradientButton>
             </div>
           </div>

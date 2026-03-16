@@ -1,98 +1,77 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React from "react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
 import { cn } from "@/lib/utils";
-import { ReactNode, useState } from "react";
+import { GradientCard } from "@/Pages/Customer/CustomerHome/components/GradientBorderCard";
 
-type TabItem = {
-  label: string;
+interface Tab {
   value: string;
-  content: ReactNode;
-};
+  label: string;
+  content: React.ReactNode;
+}
 
-type Variant = "default" | "userprofile" | "pill";
-type Size = "sm" | "md" | "lg";
-
-const variantClasses = {
-  default: {
-    list: "flex bg-white space-x-2 sm:space-x-4 mb-2 w-full sm:w-fit overflow-x-auto",
-    trigger:
-      "text-gray-500 py-2 px-2 sm:px-4 font-medium text-base rounded-none shadow-none focus:outline-none whitespace-nowrap",
-    active:
-      "py-2 px-2 sm:px-4 font-medium text-base focus:outline-none data-[state=active]:shadow-none border-0 border-b-2 border-[#e34b4b] text-[#e34b4b] whitespace-nowrap",
-  },
-  userprofile: {
-    list: "flex p-1 bg-[#fff0e5] w-full h-auto gap-1 ",
-    trigger:
-      "flex-1 py-3 px-4 rounded-md h-auto font-medium text-center text-[#e34b4b]",
-    active:
-      "flex-1 py-3 px-4 rounded-md h-auto font-medium focus:outline-none data-[state=active]:shadow-none text-center tab-gradient text-white",
-  },
-  pill: {
-    list: "flex gap-2",
-    trigger: "bg-gray-100 text-gray-700 rounded-full",
-    active: "bg-gradient-to-r from-red-500 to-orange-400 text-white",
-  },
-};
-
-const sizeClasses = {
-  sm: "px-2 py-1 text-sm",
-  md: "px-3 py-2 text-base",
-  lg: "px-4 py-3 text-lg",
-};
-
-type TabsWrapperProps = {
+interface TabsWrapperProps {
+  tabs: Tab[];
   defaultValue: string;
-  tabs: TabItem[];
-  variant?: Variant;
-  size?: Size;
-};
 
-const TabsWrapper = ({
-  defaultValue,
+}
+
+const TabsWrapper: React.FC<TabsWrapperProps> = ({
   tabs,
-  variant = "default",
-  size = "md",
-}: TabsWrapperProps) => {
-  const [activeTab, setActiveTab] = useState(defaultValue);
-  const styles = variantClasses[variant];
-  const sizeStyle = sizeClasses[size];
+  defaultValue,
+
+}) => {
+
+
 
   return (
-    <Tabs
-      defaultValue={defaultValue}
-      onValueChange={setActiveTab}
-      className="bg-white rounded-lg  shadow-none  gap-0 space-y-0"
-    >
-      <div className="w-full overflow-x-auto">
-        <TabsList
-          className={cn(
-            "rounded-t-md rounded-b-none inline-flex min-w-max",
-            styles.list
-          )}
-        >
-          {tabs.map((tab) => (
+    <Tabs defaultValue={defaultValue} className="w-full">
+      <TabsList
+        className={cn(
+          "flex w-full justify-start gap-8 rounded-none border-none bg-transparent p-0",
+        )}
+      >
+        {tabs.map((tab) => (
+          <div
+            key={tab.value}
+            className="gradient-border flex-1 transition-all duration-200"
+            style={
+              {
+                "--border-gradient":
+                  "linear-gradient(93.58deg, #67C3FF 8.55%, #010A2A 47.56%, #67C3FF 94.76%)",
+                "--radius": "20px",
+                "--padding": "1px",
+              } as React.CSSProperties
+            }
+          >
             <TabsTrigger
-              key={tab.value}
               value={tab.value}
               className={cn(
-                styles.trigger,
-                sizeStyle,
-                "min-w-max",
-                activeTab === tab.value && styles.active
+                "relative z-10 flex flex-1 h-[40px] items-center justify-center w-full rounded-[20px] px-6 font-outfit text-[16px] transition-all duration-200 sm:text-[18px]",
+
+                "text-white hover:bg-[#2985C866]",
+
+                "data-[state=active]:scale-105",
+                "data-[state=active]:bg-[#2985C8]",
+                "data-[state=active]:text-white",
+                "data-[state=active]:shadow-lg",
               )}
             >
               {tab.label}
             </TabsTrigger>
-          ))}
-        </TabsList>
-      </div>
+          </div>
+        ))}
+      </TabsList>
 
       {tabs.map((tab) => (
         <TabsContent
           key={tab.value}
           value={tab.value}
-          className={cn("animate-fadeIn", activeTab === tab.value && "block")}
+          className="animate-tab-in mt-6"
         >
-          {tab.content}
+          <GradientCard>
+            <div className="p-6">{tab.content}</div>
+          </GradientCard>
         </TabsContent>
       ))}
     </Tabs>

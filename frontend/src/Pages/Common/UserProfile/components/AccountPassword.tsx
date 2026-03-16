@@ -1,5 +1,5 @@
 import { Form } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
+
 import { useUpdatePasswordMutation } from "@/services";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -11,8 +11,8 @@ import {
 } from "@/SchemaValidations/UserSchema";
 import { showSuccess } from "@/components/toastUtills";
 import PasswordStrength from "@/components/PasswordStrength";
-import PasswordRequirementSection from "@/components/PasswordRequirementSection";
 
+import { GradientButton } from "@/components/GradientButton";
 const AccountPassword = () => {
   const [passwordChange] = useUpdatePasswordMutation();
   const form = useForm<passwordChangeValue>({
@@ -38,47 +38,54 @@ const AccountPassword = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="max-w-4xl w-full sm:w-3/4 md:w-2/3 lg:w-1/2 p-4  mx-auto  bg-white space-y-6"
+        className="flex flex-col gap-5 px-6 py-8 sm:px-10 sm:py-10 md:px-14"
       >
         <RenderField
-          
           control={form.control}
           label="Current Password"
           name="currentpassword"
+          labelClass="text-[#ffffffb3] "
           type="password"
+          className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none sm:text-base"
           inputProps={{
             placeholder: "••••••••",
-            required: true,
           }}
         />
+
         <RenderField
-          
           control={form.control}
           label="New Password"
           name="newpassword"
+          labelClass="text-[#ffffffb3] "
+          className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none sm:text-base"
           type="password"
           inputProps={{
             placeholder: "••••••••",
-            required: true,
           }}
         />
+
         <PasswordStrength password={password} />
-        <PasswordRequirementSection password={password} />
+
         <RenderField
-          
           control={form.control}
           label="Confirm Password"
           name="confirmpassword"
+          className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none sm:text-base"
+          labelClass="text-[#ffffffb3] "
           type="password"
           inputProps={{
             placeholder: "••••••••",
-            required: true,
           }}
         />
-        <div className="pt-4">
-          <Button type="submit"  className="w-full">
+
+        <div className="pt-2">
+          <GradientButton
+            type="submit"
+            icon={false}
+            className="mx-auto w-full max-w-fit sm:w-auto"
+          >
             Update Password
-          </Button>
+          </GradientButton>
         </div>
       </form>
     </Form>
