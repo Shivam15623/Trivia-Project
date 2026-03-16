@@ -1,6 +1,9 @@
 import { ApiResponse } from "@/interfaces/GenericResponse";
 import { api } from "@/redux/ApiSlice/apiSlice";
-
+type UsersByCountry = {
+  country: string; // ISO 2-letter code e.g. "IN", "US", "BR"
+  users: number; // count of unique users
+}[];
 interface AnalyticsResponseData {
   totalGames: number;
   gamesToday: number;
@@ -25,6 +28,7 @@ interface AnalyticsResponseData {
   };
   liveUsers: number;
   activeUsersToday: number;
+  usersByCountry: UsersByCountry;
 }
 type Analyticsresponse = ApiResponse<AnalyticsResponseData>;
 export const dashboardApi = api.injectEndpoints({
