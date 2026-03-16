@@ -6,7 +6,7 @@ import {
   SubmitAnswerSolo,
 } from "../controller/SoloGame.controller.js";
 import passport from "passport";
-import { gameRestriction } from "../middleware/GameRestriction.js";
+import { gameRestriction } from "../middleware/gameRestriction.js";
 const router = Router();
 router.use(passport.authenticate("jwt", { session: false }));
 router.route("/startgame/:sessionId").patch(gameRestriction, startSologame);
