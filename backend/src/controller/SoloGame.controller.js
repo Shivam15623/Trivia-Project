@@ -12,6 +12,7 @@ import { GameSession } from "../model/GameSession.model.js";
 import { GameAnalytics } from "../model/gameAnalytics.model.js";
 import { customAlphabet } from "nanoid";
 import { PlayerStats } from "../model/userStats.model.js";
+import { cancelTimer } from "./Socket.controller.js";
 const generateCode = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 6);
 export const initializeGame = asyncHandler(async (req, res) => {
   const { mode, categoryIds, socketId, timer, title } = req.body;
@@ -270,8 +271,10 @@ export const SubmitAnswerSolo = asyncHandler(async (req, res) => {
   session.markModified("questionPool");
   session.markModified("soloPlayer");
 
-  // ✅ Clear timer after answer accepted
+  // 🔴 Stop the running server timer first
+  cancelTimer(session.sessionCode);
 
+  // ✅ Clear timer in DB state
   session.progress.questionTimer.startedAt = null;
   session.progress.questionTimer.expiresAt = null;
 
