@@ -18,6 +18,7 @@ export const analyticsDashboard = asyncHandler(async (req, res) => {
     liveRunningGames,
     avgDurationResult,
     ActiveUsersToday,
+    usersByCountry,
   ] = await Promise.all([
     // 1️⃣ Total games played
     GameAnalytics.countDocuments(),
@@ -103,6 +104,38 @@ export const analyticsDashboard = asyncHandler(async (req, res) => {
       {
         $count: "activeUsers",
       },
+    ]),
+    // 10️⃣ Users per country (from User model via GameAnalytics players)
+    GameAnalytics.aggregate([
+      { $unwind: "$players" },
+      {
+        $lookup: {
+          from: "users",
+          localField: "players",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $match: {
+          "user.country": { $exists: true, $ne: "unknown", $ne: null, $ne: "" },
+        },
+      },
+      {
+        $group: {
+          _id: "$user.country", // "IN", "US", "BR" etc.
+          users: { $addToSet: "$players" }, // unique users per country
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          country: "$_id",
+          users: { $size: "$users" }, // count of unique users
+        },
+      },
+      { $sort: { users: -1 } },
     ]),
   ]);
 
