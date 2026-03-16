@@ -72,7 +72,7 @@ function formatQuestion(question) {
  * already-queued callback is a no-op when it fires.
  * Safe to call when no timer is armed.
  */
-function cancelTimer(sessionCode) {
+export function cancelTimer(sessionCode) {
   const entry = activeTimers.get(sessionCode);
   if (!entry) return;
 
