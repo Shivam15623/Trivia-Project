@@ -1,95 +1,138 @@
 import { applyScoreIfCorrectSolo } from "../helper/applyScoreIfCorrect.js";
 import { getNextQuestionSolo } from "../helper/getNextQuestion.js";
 import { getQuestionFromPool } from "../helper/getQuestionFromPool.js";
-import { GenerateQuestionpoolSolo } from "../helper/questionpool.js";
-import Game from "../model/Game.model.js";
+import { generateQuestionPool } from "../helper/questionpool.js";
 import { evaluateAnswer } from "../helper/evaluateAnswer.js";
 import Question from "../model/questionAnswer.model.js";
 import { SoloGameSession } from "../model/SoloGameSession.model.js";
 import { ApiError } from "../utills/ApiError.js";
 import { ApiResponse } from "../utills/ApiResponse.js";
 import { asyncHandler } from "../utills/Asynchandler.js";
+import { GameSession } from "../model/GameSession.model.js";
+import { GameAnalytics } from "../model/gameAnalytics.model.js";
+import { customAlphabet } from "nanoid";
+import { PlayerStats } from "../model/userStats.model.js";
+const generateCode = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 6);
 export const initializeGame = asyncHandler(async (req, res) => {
-  const { gameId } = req.body;
+  const { mode, categoryIds, socketId, timer, title } = req.body;
+  console.log(mode, categoryIds, socketId, timer, title);
   const userId = req.user._id;
   const username = req.user.firstname;
 
-  if (!gameId) {
-    throw new ApiError(400, "All fields are required");
-  }
-  const GameFind = await Game.findById(gameId);
-  if (!GameFind) {
-    throw new ApiError(404, "No Such Game Exist");
-  }
-  if (GameFind.createdBy.toString() !== userId.toString()) {
-    throw new ApiError(400, "UnAuthorized User");
-  }
-  const SoloSession = await SoloGameSession.create({
-    gameId: gameId,
-    userId: userId,
-    username: username,
-    status: "waiting",
-    score: 0,
-  });
-  if (!SoloSession) {
-    throw new ApiError(500, "Server side error");
+  // =======================
+  // ✅ Basic validation
+  // =======================
+  if (!mode || !categoryIds || !title) {
+    throw new ApiError(400, "Mode, categories, and title are required");
   }
 
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(200, "Session Created Successfully", SoloSession._id)
-    );
+  if (categoryIds.length !== 6) {
+    throw new ApiError(400, "Exactly 6 categories are required");
+  }
+  if (!socketId) {
+    throw new ApiError(400, "Socket ID is required for solo mode");
+  }
+  if (mode === "timed_solo") {
+    if (!timer) {
+      throw new ApiError(400, "Timer is required is Timed Solo");
+    }
+  }
+  let soloPlayer = {
+    userId: userId,
+    username: username,
+    socketId,
+    score: 0,
+    hasAnswered: false,
+    attemptHistory: [],
+  };
+
+  // =======================
+  // 🔢 Generate session code
+  // =======================
+  const sessionCode = "SESSION-" + generateCode();
+
+  // =======================
+  // 📝 Create GameSession
+  // =======================
+  const newSession = new GameSession({
+    sessionCode,
+    host: userId,
+    categories: categoryIds,
+    title,
+    status: "waiting",
+    mode,
+    teams: undefined,
+    soloPlayer: soloPlayer,
+  });
+  if (mode === "timed_solo") {
+    newSession.progress.questionTimer.duration = timer;
+  }
+
+  await newSession.save();
+
+  return res.status(200).json(
+    new ApiResponse(200, "Game session created successfully", {
+      sessionCode,
+      sessionId: newSession._id,
+    }),
+  );
 });
+
 export const startSologame = asyncHandler(async (req, res) => {
   const { sessionId } = req.params;
   if (!sessionId) {
     throw new ApiError(400, "sessionId is not provided");
   }
-  const session = await SoloGameSession.findById(sessionId).populate("gameId");
+  const session = await GameSession.findById(sessionId);
   if (!session) {
     throw new ApiError(404, "No Such session Exist");
   }
   if (session.status === "active") {
     throw new ApiError(400, "Game Started Already");
   }
-  const categories = session.gameId.categories;
-  const pool = await GenerateQuestionpoolSolo(categories);
+
+  const pool = await generateQuestionPool({
+    categories: session.categories,
+    mode: "solo",
+  });
   session.questionPool = pool;
   session.progress.currentCategory = null;
   session.progress.currentPointLevel = 200;
   const currentQuestionEntry = session.questionPool.find(
-    (q) => !q.used && q.points === session.progress.currentPointLevel
+    (q) => !q.used && q.points === session.progress.currentPointLevel,
   );
   if (!currentQuestionEntry) {
     throw new ApiError(400, "No available questions for this team");
   }
   const currentQuestion = await Question.findById(
-    currentQuestionEntry.questionId
-  ); // Assuming 'Question' is your question model
+    currentQuestionEntry.questionId,
+  );
   if (!currentQuestion) {
     throw new ApiError(404, "Question not found");
   }
+  session.questionPool = pool;
   session.progress.currentCategory = currentQuestion.categoryId;
   session.progress.currentPointLevel = currentQuestionEntry.points;
   session.progress.currentQuestionId = currentQuestion._id;
   session.usedCategories = [];
-  await session.save();
+
   session.status = "active";
-  session.startedAt = new Date(); // Set the start time
+  session.startedAt = new Date();
+
   await session.save();
   return res.status(200).json(
     new ApiResponse(200, "Game started successfully", {
       sessionId: session._id,
       status: session.status,
-    })
+    }),
   );
 });
+
 export const endSoloGame = asyncHandler(async (req, res) => {
   const { sessionId } = req.params;
   const userId = req.user._id;
 
-  const session = await SoloGameSession.findById(sessionId);
+  const session = await GameSession.findById(sessionId);
 
   if (!session) {
     throw new ApiError(404, "Session does not exist");
@@ -107,6 +150,61 @@ export const endSoloGame = asyncHandler(async (req, res) => {
   if (session.status === "active") {
     session.status = "completed";
     await session.save();
+    const playerId = session.soloPlayer.userId;
+    const score = session.soloPlayer.score;
+    const mode = session.mode;
+
+    const WIN_THRESHOLD = 4680;
+    const isWin = score >= WIN_THRESHOLD;
+
+    let stats = await PlayerStats.findOneAndUpdate(
+      { user: playerId },
+      {
+        $inc: {
+          totalGamesPlayed: 1,
+          totalScore: score,
+
+          [`modes.${mode}.gamesPlayed`]: 1,
+          [`modes.${mode}.totalScore`]: score,
+
+          ...(isWin
+            ? {
+                totalWins: 1,
+                [`modes.${mode}.wins`]: 1,
+                currentWinStreak: 1,
+              }
+            : {
+                currentLoseStreak: 1,
+              }),
+        },
+
+        $max: {
+          highestScoreEver: score,
+          [`modes.${mode}.highestScore`]: score,
+        },
+
+        $set: {
+          lastPlayedAt: new Date(),
+        },
+      },
+      { new: true, upsert: true },
+    );
+
+    /* =========================
+   STREAK FIX
+========================= */
+
+    if (isWin) {
+      stats.currentLoseStreak = 0;
+
+      if (stats.currentWinStreak > stats.bestWinStreak) {
+        stats.bestWinStreak = stats.currentWinStreak;
+      }
+    } else {
+      stats.currentWinStreak = 0;
+    }
+
+    await stats.save();
     return res
       .status(200)
       .json(new ApiResponse(200, "Game ended successfully"));
@@ -117,123 +215,251 @@ export const endSoloGame = asyncHandler(async (req, res) => {
     return res
       .status(200)
       .json(
-        new ApiResponse(200, "Session was waiting, now marked as completed")
+        new ApiResponse(200, "Session was waiting, now marked as completed"),
       );
   }
   throw new ApiError(400, "Invalid session status");
 });
 export const SubmitAnswerSolo = asyncHandler(async (req, res) => {
   const { sessionId, questionId, answer } = req.body;
-  
-  const session = await SoloGameSession.findById(sessionId);
+
+  const session = await GameSession.findById(sessionId);
   if (!session) throw new ApiError(404, "Session does not exist");
-  if (session.status !== "active") {
+  if (session.status !== "active")
     throw new ApiError(400, "Session is not active");
+  if (!session.soloPlayer)
+    throw new ApiError(400, "No solo player found in this session");
+
+  let timedOut = false;
+
+  if (session.mode === "timed_solo") {
+    const timer = session.progress.questionTimer;
+    console.log("⏱ Timer check:", timer);
+
+    if (timer?.startedAt) {
+      const elapsed = Date.now() - new Date(timer.startedAt).getTime();
+      const allowed = timer.duration * 1000 + 500;
+
+      console.log("elapsed:", elapsed, "allowed:", allowed);
+
+      if (elapsed > allowed) {
+        console.log("⏰ Timer expired on server");
+        timedOut = true;
+      }
+    } else {
+      console.log("⏰ Timer already cleared");
+      timedOut = true;
+    }
   }
+
   const questionEntry = getQuestionFromPool(session, questionId);
-  if(questionEntry.used===true){
-    throw new ApiError(400,"Question Already Answered")
-  }
+  if (questionEntry.used === true)
+    throw new ApiError(400, "Question Already Answered");
+
   const originalQuestion = await Question.findById(questionId);
   if (!originalQuestion) throw new ApiError(404, "Original question not found");
-  // 3. Check answer
-  const isCorrect = evaluateAnswer(originalQuestion.answer, answer);
-  session.attemptHistory.push({
-    questionId: questionId,
-    isCorrect: isCorrect,
-  });
-  session.markModified("attemptHistory");
-  await session.save();
-  applyScoreIfCorrectSolo(
-    session,
-    isCorrect,
-    session.progress.currentPointLevel
-  );
+
+  const isCorrect = timedOut
+    ? false
+    : evaluateAnswer(originalQuestion.answer, answer);
+
+  session.soloPlayer.attemptHistory.push({ questionId, isCorrect });
+  if (isCorrect) session.soloPlayer.score += session.progress.currentPointLevel;
+
   questionEntry.used = true;
+  session.markModified("questionPool");
+  session.markModified("soloPlayer");
+
+  // ✅ Clear timer after answer accepted
+
+  session.progress.questionTimer.startedAt = null;
+  session.progress.questionTimer.expiresAt = null;
+
   const { status, nextQuestionEntry } = getNextQuestionSolo(session);
+
+  // ─── Game Ended ───────────────────────────────────────────────
   if (status === "ended") {
     session.status = "completed";
+    session.completedAt = new Date();
     await session.save();
 
+    // ✅ Analytics — all data available here
+    const totalQuestionsPlayed = session.soloPlayer.attemptHistory.length;
+    const totalScore = session.soloPlayer.score;
+
+    await GameAnalytics.create({
+      sessionId: session._id,
+      host: session.host,
+      mode: session.mode,
+      categories: session.categories,
+      players: session.soloPlayer.userId ? [session.soloPlayer.userId] : [],
+      playersCount: 1,
+      totalQuestionsPlayed,
+      averageScore: totalScore, // solo = just their score
+      startedAt: session.startedAt,
+      completedAt: session.completedAt,
+      // durationSeconds auto-computed by pre-save hook
+    });
+
+    const playerId = session.soloPlayer.userId;
+    const score = session.soloPlayer.score;
+    const mode = session.mode;
+
+    const WIN_THRESHOLD = 4680;
+    const isWin = score >= WIN_THRESHOLD;
+
+    let stats = await PlayerStats.findOneAndUpdate(
+      { user: playerId },
+      {
+        $inc: {
+          totalGamesPlayed: 1,
+          totalScore: score,
+
+          [`modes.${mode}.gamesPlayed`]: 1,
+          [`modes.${mode}.totalScore`]: score,
+
+          ...(isWin
+            ? {
+                totalWins: 1,
+                [`modes.${mode}.wins`]: 1,
+                currentWinStreak: 1,
+              }
+            : {
+                currentLoseStreak: 1,
+              }),
+        },
+
+        $max: {
+          highestScoreEver: score,
+          [`modes.${mode}.highestScore`]: score,
+        },
+
+        $set: {
+          lastPlayedAt: new Date(),
+        },
+      },
+      { new: true, upsert: true },
+    );
+
+    /* =========================
+   STREAK FIX
+========================= */
+
+    if (isWin) {
+      stats.currentLoseStreak = 0;
+
+      if (stats.currentWinStreak > stats.bestWinStreak) {
+        stats.bestWinStreak = stats.currentWinStreak;
+      }
+    } else {
+      stats.currentWinStreak = 0;
+    }
+
+    await stats.save();
     return res.status(200).json(
       new ApiResponse(
         200,
         isCorrect
           ? "Correct answer! Game Ended"
-          : "Incorrect answer  Game Ended",
-
+          : "Incorrect answer! Game Ended",
         {
+          isCorrect,
+          correctAnswer: originalQuestion.answer,
+          pointsAwarded: isCorrect ? session.progress.currentPointLevel : 0,
           gameEnded: true,
-          score: session.score,
-          username: session.username,
-        }
-      )
+          score: session.soloPlayer.score,
+          username: session.soloPlayer.username,
+        },
+      ),
     );
   }
-  const nextQuestion = await Question.findById(nextQuestionEntry.questionId);
+
+  // ─── Next Question ────────────────────────────────────────────
+  const nextQuestion = await Question.findById(
+    nextQuestionEntry.questionId,
+  ).populate("categoryId", "_id name thumbnail");
   if (!nextQuestion) throw new ApiError(404, "Next question not found");
 
-  // 8. Finalize session progress
   session.progress.currentCategory = nextQuestion.categoryId;
   session.progress.currentPointLevel = nextQuestionEntry.points;
   session.progress.currentQuestionId = nextQuestion._id;
-  await session.save()
+
+  await session.save();
+
+  const nextQuestionResponse = {
+    questionId: nextQuestion._id,
+    points: nextQuestion.points,
+    QuestionImage: nextQuestion.questionImage,
+    questionText: nextQuestion.questionText,
+    AnswerImage: nextQuestion.answerImage,
+    options: nextQuestion.options,
+    Answer: nextQuestion.answer,
+    category: {
+      id: nextQuestion.categoryId._id,
+      name: nextQuestion.categoryId.name,
+      thumbnail: nextQuestion.categoryId.thumbnail,
+    },
+  };
+
   return res.status(200).json(
     new ApiResponse(200, "Answer submitted successfully", {
       isCorrect,
-      correctAnswer: originalQuestion.correctAnswer,
-      pointsAwarded: isCorrect ? originalQuestion.points : 0,
-    })
+      correctAnswer: originalQuestion.answer,
+      pointsAwarded: isCorrect ? session.progress.currentPointLevel : 0,
+      gameEnded: false,
+      nextQuestion: nextQuestionResponse,
+    }),
   );
 });
-export const CurrentQuestionSolo = asyncHandler(async (req, res) => {
-  const { sessionId } = req.params;
+// export const CurrentQuestionSolo = asyncHandler(async (req, res) => {
+//   const { sessionId } = req.params;
 
-  const session = await SoloGameSession.findById(sessionId);
-  if (!session) {
-    throw new ApiError(404, "Session not found");
-  }
-  if (session.status !== "active") {
-    throw new ApiError(400, "Game session is not active");
-  }
-  const currentQuestion = await Question.findById(
-    session.progress.currentQuestionId
-  ).populate("categoryId", "_id name thumbnail");
-  if (!currentQuestion) {
-    throw new ApiError(404, "Question not Found");
-  }
-  const currentQuestionresponse = {
-    questionId: currentQuestion._id,
-    points: currentQuestion.points,
-    QuestionImage: currentQuestion.questionImage,
-    questionText: currentQuestion.questionText,
-    AnswerImage: currentQuestion.answerImage,
-    options: currentQuestion.options,
-    Answer: currentQuestion.answer,
-    category: {
-      id: currentQuestion.categoryId._id,
-      name: currentQuestion.categoryId.name,
-      thumbnail: currentQuestion.categoryId.thumbnail,
-    },
-  };
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        "current Question fetched Successfully",
-        currentQuestionresponse
-      )
-    );
-});
-export const SoloSessionInfo = asyncHandler(async (req, res) => {
-  const { sessionId } = req.params;
- 
+//   const session = await GameSession.findById(sessionId);
+//   if (!session) {
+//     throw new ApiError(404, "Session not found");
+//   }
+//   if (session.status !== "active") {
+//     throw new ApiError(400, "Game session is not active");
+//   }
+//   const currentQuestion = await Question.findById(
+//     session.progress.currentQuestionId,
+//   ).populate("categoryId", "_id name thumbnail");
+//   if (!currentQuestion) {
+//     throw new ApiError(404, "Question not Found");
+//   }
+//   const currentQuestionresponse = {
+//     questionId: currentQuestion._id,
+//     points: currentQuestion.points,
+//     questionImage: currentQuestion.questionImage,
+//     questionText: currentQuestion.questionText,
+//     AnswerImage: currentQuestion.answerImage,
+//     options: currentQuestion.options,
+//     Answer: currentQuestion.answer,
+//     category: {
+//       id: currentQuestion.categoryId._id,
+//       name: currentQuestion.categoryId.name,
+//       thumbnail: currentQuestion.categoryId.thumbnail,
+//     },
+//   };
+//   return res
+//     .status(200)
+//     .json(
+//       new ApiResponse(
+//         200,
+//         "current Question fetched Successfully",
+//         currentQuestionresponse,
+//       ),
+//     );
+// });
+// export const SoloSessionInfo = asyncHandler(async (req, res) => {
+//   const { sessionId } = req.params;
 
-  const session = await SoloGameSession.findById(sessionId);
-  if (!session) throw new ApiError(404, "Session not found");
+//   const session = await GameSession.findOne({
+//     sessionCode: sessionId,
+//   }).populate("categories");
+//   if (!session) throw new ApiError(404, "Session not found");
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, "Session fetched successfully", session));
-});
+//   return res
+//     .status(200)
+//     .json(new ApiResponse(200, "Session fetched successfully", session));
+// });

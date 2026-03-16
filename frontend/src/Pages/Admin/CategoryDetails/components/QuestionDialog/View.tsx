@@ -1,6 +1,6 @@
 import { DialogWrapper } from "@/components/DialogWrapper";
 import Loader from "@/components/Loader";
-import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
 import { useFetchQuestionByIdQuery } from "@/services";
 import { Eye } from "lucide-react";
@@ -17,67 +17,91 @@ const ViewQuestion = ({ questionId }: { questionId: string }) => {
   return (
     <DialogWrapper
       title="View Question"
-      description="Here you can view the details of the question."
       trigger={
-        <Button
-          variant="ghost"
-          className="p-1.5 rounded-md text-[#ff8c42] hover:bg-[#ff8c42]/10 transition-colors"
-        >
-          <Eye />
+        <Button className="text-white" variant={"link"}>
+          {" "}
+          <Eye className="h-6 w-6" />
         </Button>
       }
       type="info"
-      size="xl"
+      size="3xl"
     >
       {isLoading ? (
-        <div className="flex items-center justify-center min-h-[200px]">
+        <div className="flex min-h-[200px] items-center justify-center">
           <Loader />
         </div>
       ) : isError ? (
-        <div className="text-red-500 text-center py-8">
+        <div className="py-8 text-center text-red-500">
           Failed to load question. Please try again.
         </div>
       ) : question ? (
         <>
-          <div className="space-y-2">
-            <div className="font-semibold text-lg">
+          <div className="space-y-3.5 font-outfit font-normal leading-[100%] text-white">
+            <div className="font-outfit text-2xl font-normal leading-[100%] text-white">
               {question.questionText || "No question text"}
             </div>
 
             {question.options?.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {question.options.map((option, idx) => (
-                  <Badge
+                  <div
                     key={idx}
-                    variant="outline"
-                    className="px-3 py-1 bg-gray-100 text-gray-800"
+                    className="relative overflow-hidden rounded-full px-[18px] py-3 font-medium text-white"
                   >
-                    {option}
-                  </Badge>
+                    <span className="relative z-10 text-sm"> {option}</span>
+
+                    <div className="absolute inset-0 rounded-full border border-white/30 bg-white/20 shadow-[inset_0_1px_2px_rgba(255,255,255,0.5),0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur-xl" />
+                  </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-400 italic">
+              <p className="text-sm italic text-gray-400">
                 No options provided.
               </p>
             )}
 
-            <div className="mt-2 font-medium text-gray-800">
-              <span className="text-gray-500">Answer: </span>
-              <span className="text-[#e34b4b] font-bold">
-                {question.answer || "N/A"}
+            <div className="flex flex-row items-center gap-3.5">
+              <span className="text-lg">Answer: </span>
+              <span className="font-bold text-[#e34b4b]">
+                <div className="relative overflow-hidden rounded-full px-[18px] py-3 font-medium text-white">
+                  <span className="relative z-10 text-sm">
+                    {" "}
+                    {question.answer || "N/A"}
+                  </span>
+
+                  <div className="absolute inset-0 rounded-full border border-white/30 bg-white/20 shadow-[inset_0_1px_2px_rgba(255,255,255,0.5),0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur-xl" />
+                </div>
               </span>
             </div>
 
-            <div className="mt-2 font-medium text-gray-800">
-              <span className="text-gray-500">Points: </span>
-              <span className="text-blue-600">{question.points ?? "0"}</span>
+            <div className="flex flex-row gap-3.5">
+              <span className="text-lg">Points: </span>
+              <span className="text-lg">{question.points ?? "0"}</span>
+            </div>
+            <div className="grid w-full grid-cols-1 gap-6 font-outfit font-normal leading-[100%] text-white sm:max-w-[60%] sm:grid-cols-2">
+              <div className="flex flex-col gap-3.5">
+                <p className="text-lg">Question Image</p>
+                <img
+                  src={question.questionImage}
+                  alt="Question Image"
+                  className="h-full max-h-[120px] max-w-full object-contain"
+                />
+              </div>
+              <div className="flex flex-col gap-3.5">
+                <p className="text-lg">Answer Image</p>
+                <img
+                  src={question.answerImage}
+                  alt="Answer Image"
+                  className="max-h-[120px] max-w-full object-contain"
+                />
+              </div>
             </div>
           </div>
 
           {/* Images */}
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="w-full h-[300px] flex items-center justify-center bg-white rounded-lg shadow-sm">
+
+          {/* <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="flex h-[300px] w-full items-center justify-center rounded-lg bg-white shadow-sm">
               {question.questionImage ? (
                 <img
                   src={question.questionImage}
@@ -85,13 +109,13 @@ const ViewQuestion = ({ questionId }: { questionId: string }) => {
                   className="max-h-full max-w-full object-contain"
                 />
               ) : (
-                <p className="text-sm text-gray-400 italic">
+                <p className="text-sm italic text-gray-400">
                   No question image
                 </p>
               )}
             </div>
 
-            <div className="w-full h-[300px] flex items-center justify-center bg-white rounded-lg shadow-sm">
+            <div className="flex h-[300px] w-full items-center justify-center rounded-lg bg-white shadow-sm">
               {question.answerImage ? (
                 <img
                   src={question.answerImage}
@@ -99,13 +123,13 @@ const ViewQuestion = ({ questionId }: { questionId: string }) => {
                   className="max-h-full max-w-full object-contain"
                 />
               ) : (
-                <p className="text-sm text-gray-400 italic">No answer image</p>
+                <p className="text-sm italic text-gray-400">No answer image</p>
               )}
             </div>
-          </div>
+          </div> */}
         </>
       ) : (
-        <div className="text-gray-500 text-center py-8">No data found.</div>
+        <div className="py-8 text-center text-gray-500">No data found.</div>
       )}
     </DialogWrapper>
   );

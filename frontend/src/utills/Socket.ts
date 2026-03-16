@@ -1,12 +1,17 @@
+
 import { io, Socket } from "socket.io-client";
 
 let socket: Socket;
 
-export const initializeSocket = (): Socket => {
+export const initializeSocket = (token: string): Socket => {
+
   if (!socket) {
     socket = io(import.meta.env.VITE_API_BASE_URL, {
       withCredentials: true,
       transports: ["websocket"], 
+    auth:{
+      token:token
+    }
     });
 
     socket.on("connect", () => {

@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
 
 // 🟨 Aids Subschema
-const aidsSchema = new mongoose.Schema(
-  {
-    deductUsed: { type: Boolean, default: false },
-    fiftyFiftyUsed: { type: Boolean, default: false },
-    twicePointUsed: { type: Boolean, default: false },
-  },
-  { _id: false }
-);
+// const aidsSchema = new mongoose.Schema(
+//   {
+//     deductUsed: { type: Boolean, default: false },
+//     fiftyFiftyUsed: { type: Boolean, default: false },
+//     twicePointUsed: { type: Boolean, default: false },
+//   },
+//   { _id: false },
+// );
 
 // 🟩 Player Subschema
 const playerSchema = new mongoose.Schema(
@@ -18,7 +18,6 @@ const playerSchema = new mongoose.Schema(
     username: { type: String, required: true },
     score: { type: Number, default: 0, min: 0 },
     hasAnswered: { type: Boolean, default: false },
-    aids: { type: aidsSchema, default: () => ({}) },
     attemptHistory: [
       {
         questionId: { type: mongoose.Schema.Types.ObjectId, ref: "Question" },
@@ -26,7 +25,7 @@ const playerSchema = new mongoose.Schema(
       },
     ],
   },
-  { _id: false }
+  { _id: false },
 );
 
 // 🟦 Team Subschema
@@ -48,7 +47,7 @@ const teamSchema = new mongoose.Schema(
     currentMemberIndex: { type: Number, default: 0 },
     score: { type: Number, default: 0, min: 0 },
   },
-  { _id: false }
+  { _id: false },
 );
 
 // 🟥 Question Pool Item
@@ -56,11 +55,11 @@ const questionEntrySchema = new mongoose.Schema(
   {
     category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
     points: { type: Number, enum: [200, 400, 600] },
-    teamIndex: { type: Number, enum: [0, 1] }, // 0 = A, 1 = B
+    teamIndex: { type: Number, enum: [0, 1], default: null },
     questionId: { type: mongoose.Schema.Types.ObjectId, ref: "Question" },
     used: { type: Boolean, default: false },
   },
-  { _id: false }
+  { _id: false },
 );
 
 // 🧠 Game Progress Subschema
@@ -74,15 +73,29 @@ const progressSchema = new mongoose.Schema(
     currentPointLevel: { type: Number, enum: [200, 400, 600], default: 200 },
     currentStep: { type: Number, enum: [0, 1], default: 0 }, // A then B per point
     currentTeamIndex: { type: Number, default: 0 },
+    // ✅ per-question timer
+    questionTimer: {
+      duration: { type: Number }, // seconds
+      startedAt: { type: Date },
+      expiresAt: { type: Date },
+    },
   },
-  { _id: false }
+  { _id: false },
 );
 
-// 🟥 Main GameSession Schema
 const gameSessionSchema = new mongoose.Schema(
   {
     sessionCode: { type: String, required: true, unique: true },
+
     host: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+
+    title: { type: String, required: true },
+
+    mode: {
+      type: String,
+      enum: ["solo", "team", "timed_solo"],
+      required: true,
+    },
 
     status: {
       type: String,
@@ -90,11 +103,27 @@ const gameSessionSchema = new mongoose.Schema(
       default: "waiting",
     },
 
+    /* ===============================
+       SOLO PLAYER (only solo modes)
+    =============================== */
+
+    soloPlayer: {
+      type: playerSchema,
+      required: function () {
+        return this.mode === "solo" || this.mode === "timed_solo";
+      },
+    },
+
+    /* ===============================
+       TEAMS (only team mode)
+    =============================== */
+
     teams: {
       type: [teamSchema],
-      required: true,
       validate: {
         validator: function (teams) {
+          if (this.mode !== "team") return true;
+
           const names = teams.map((t) => t.name.toLowerCase());
           return new Set(names).size === names.length;
         },
@@ -102,21 +131,51 @@ const gameSessionSchema = new mongoose.Schema(
       },
     },
 
-    gameId: { type: mongoose.Schema.Types.ObjectId, ref: "Game" },
+    /* ===============================
+       CATEGORIES
+    =============================== */
 
-    // 🔁 Game Flow Tracking
+    categories: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
+      validate: {
+        validator: (cats) => cats.length === 6,
+        message: "Session must have exactly 6 categories.",
+      },
+    },
+
+    /* ===============================
+       GAME FLOW
+    =============================== */
+
     questionPool: { type: [questionEntrySchema], default: [] },
-    usedCategories: { type: [mongoose.Schema.Types.ObjectId], default: [] },
+    usedCategories: {
+      type: [mongoose.Schema.Types.ObjectId],
+      default: [],
+    },
     progress: { type: progressSchema, default: () => ({}) },
+
+    /* ===============================
+       TIMER
+    =============================== */
 
     startedAt: { type: Date },
     completedAt: { type: Date },
+
     expiresAt: { type: Date, index: { expires: 0 } },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
+
+/* ===============================
+   🧠 Middleware
+=============================== */
 gameSessionSchema.pre("save", function (next) {
   this.expiresAt = new Date(Date.now() + 30 * 60 * 1000);
   next();
 });
+
+/* ===============================
+   EXPORT
+=============================== */
+
 export const GameSession = mongoose.model("GameSession", gameSessionSchema);

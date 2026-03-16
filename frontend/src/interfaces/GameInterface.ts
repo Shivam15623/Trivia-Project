@@ -1,7 +1,6 @@
 import { Category } from "./categoriesInterface";
 import { ApiResponse } from "./GenericResponse";
 
-
 export interface CreateGameByUserPayload {
   title: string;
   categories: string[]; // category IDs
@@ -17,12 +16,14 @@ export interface Game {
   __v: number;
 }
 export interface StartSessionPayload {
-  teamAName: string;
-  teamBName: string;
-  teamAmembers: number;
-  teamBmembers: number;
-  hostTeam: "A"|"B";
-  gameId: string;
+  mode:"solo" | "team" | "timed_solo"
+  teamAName?: string;
+  teamBName?: string;
+  teamAmembers?: number;
+  teamBmembers?: number;
+  hostTeam?: "A" | "B";
+  categoryIds: string[];
+  title:string;
   socketId: string;
 }
 interface sessionCode {
@@ -30,4 +31,4 @@ interface sessionCode {
 }
 export type SessionStartResponse = ApiResponse<sessionCode>;
 export type userMyGameResponse = ApiResponse<Game[]>;
-export type MyGameResponse=ApiResponse<Game>
+export type MyGameResponse = ApiResponse<Game>;

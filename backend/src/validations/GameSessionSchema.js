@@ -18,26 +18,39 @@ export const SubmitAnswerSchema = yup.object({
   sessionId: yup.string().required("Session ID is required"),
   questionId: yup.string().required("Question ID is required"),
   answer: yup.string().required("Answer is required"),
-  aid: yup
-    .string()
-    .oneOf(["Deduct", "twicePoint", "None"], "Invalid aid type")
-    .required("Aid type is required"),
 });
 export const StartGameSessionSchema = yup.object({
-  gameId: yup.string().required("Game ID is required"),
-  teamAName: yup.string().required("Team A name is required"),
-  teamBName: yup.string().required("Team B name is required"),
+  mode: yup
+    .string()
+    .required("Mode is required")
+    .oneOf(
+      ["solo", "team", "timed_solo"],
+      "Mode must be either solo , team , timed_solo",
+    ),
+  categoryIds: yup
+    .array()
+    .of(
+      yup
+        .string()
+        .matches(
+          /^[0-9a-fA-F]{24}$/,
+          "Each category must be a valid MongoDB ObjectId",
+        ),
+    )
+    .required("Categories are required")
+    .min(6, "You must provide exactly 6 categories")
+    .max(6, "You must provide exactly 6 categories"),
+  title: yup.string().required("Title is required"),
+  teamAName: yup.string(),
+  teamBName: yup.string(),
   teamAmembers: yup
     .number()
-    .required("Team A members count is required")
-    .min(1, "Team A must have at least one member"),
+,
   teamBmembers: yup
     .number()
-    .required("Team B members count is required")
-    .min(1, "Team B must have at least one member"),
+  ,
   socketId: yup.string().required("Socket ID is required"),
   hostTeam: yup
     .string()
-    .required("Host team is required")
-    .oneOf(["A", "B"], "Host team must be either teamA or teamB"),
+
 });

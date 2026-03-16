@@ -1,25 +1,24 @@
 import AuthCardWrapper from "@/components/AuthCardWrapper";
 import StepBullet from "@/components/StepBullet";
-import { Button } from "@/components/ui/button";
 import { useVerifyEmailMutation } from "@/services";
 import { handleApiError } from "@/utills/handleApiError";
+import { GradientButton } from "@/components/GradientButton";
 import confetti from "canvas-confetti";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
 const LazyVerifyEmail: React.FC = () => {
   const [searchParams] = useSearchParams();
   const token: string | null = searchParams.get("token");
-  const [isVerified, setIsVerified] = useState<boolean | null>(null); // null = loading, true = success, false = failed
+  const [isVerified, setIsVerified] = useState<boolean | null>(null);
 
   const navigate = useNavigate();
   const [verifyEmail, { isLoading }] = useVerifyEmailMutation();
 
   useEffect(() => {
-    if (token) {
-      verifyUserEmail();
-    }
-  }, [token, verifyEmail]);
+    if (token) verifyUserEmail();
+  }, [token,]);
 
   const verifyUserEmail = async (): Promise<void> => {
     try {
@@ -37,146 +36,108 @@ const LazyVerifyEmail: React.FC = () => {
   };
 
   return (
-    <>
-      <div className="bg-[#fff6f0] p-4 flex items-center justify-center min-h-screen">
-        <div className="w-full max-w-md relative">
-          <AuthCardWrapper
-            icon={
-              isLoading ? (
-                <svg
-                  className="loading-spinner text-[#e34b4b] animate-spin"
-                  width="40"
-                  height="40"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+    <div className="relative flex min-h-screen items-center justify-center bg-black px-4 py-10">
+      <div className="w-full max-w-md space-y-4">
+        {/* Main card */}
+        <AuthCardWrapper>
+          <div className="w-full p-6 text-center sm:w-[450px]">
+            {isLoading ? (
+              <>
+                <div className="mb-4 flex justify-center">
+                  <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
+                </div>
+                <h2 className="mb-2 text-2xl font-bold text-white">
+                  Verifying Your Email
+                </h2>
+                <p className="mb-6 text-sm text-white/50">
+                  Please wait while we verify your email address...
+                </p>
+                {/* Progress bar */}
+                <div className="h-1 w-full overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full w-3/4 animate-pulse rounded-full bg-gradient-to-r from-amber-400 to-orange-400" />
+                </div>
+              </>
+            ) : isVerified === true ? (
+              <>
+                <div className="mb-4 text-5xl">🎉</div>
+                <h2 className="mb-2 text-2xl font-bold text-white">
+                  Email Verified!
+                </h2>
+                <p className="mb-6 text-sm text-white/50">
+                  Your email has been verified. You now have full access to all
+                  features.
+                </p>
+                <GradientButton
+                  icon={false}
+                  className="mx-auto max-w-[200px] font-outfit"
+                  onClick={() => navigate("/login")}
                 >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              ) : isVerified === true ? (
-                <svg
-                  className="checkmark text-green-500"
-                  width="40"
-                  height="40"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  Go to Login
+                </GradientButton>
+              </>
+            ) : (
+              <>
+                <div className="mb-4 text-5xl">❌</div>
+                <h2 className="mb-2 text-2xl font-bold text-white">
+                  Verification Failed
+                </h2>
+                <p className="mb-6 text-sm text-white/50">
+                  We couldn't verify your email. The link may have expired or is
+                  invalid.
+                </p>
+                <GradientButton
+                  icon={false}
+                  className="mx-auto max-w-[200px] font-outfit"
+                  onClick={verifyUserEmail}
                 >
-                  <path d="M20 6L9 17l-5-5"></path>
-                </svg>
-              ) : (
-                <svg
-                  className="text-[#e34b4b]"
-                  width="40"
-                  height="40"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="15" y1="9" x2="9" y2="15"></line>
-                  <line x1="9" y1="9" x2="15" y2="15"></line>
-                </svg>
-              )
-            }
-          >
-            {" "}
-            <div className="p-6 text-center">
-              {isLoading ? (
-                <>
-                  <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-                    Verifying Your Email
-                  </h2>
-                  <p className="text-gray-600 mb-6">
-                    Please wait while we verify your email address...
-                  </p>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5 mb-6">
-                    <div className="bg-gradient-to-r from-[#fcbf49] to-[#f29e4e] h-2.5 rounded-full w-3/4 animate-pulse"></div>
-                  </div>
-                </>
-              ) : isVerified === true ? (
-                <>
-                  <h2 className="text-2xl font-semibold text-green-600 mb-4">
-                    Email Verified Successfully! 🎉
-                  </h2>
-                  <p className="text-gray-600 mb-6">
-                    Your email has been verified. You now have full access to
-                    all features.
-                  </p>
-                  <Button
-                    id="login-button"
-                    onClick={() => navigate("/login")}
-                    variant="gradient"
-                    className="px-6 py-2.5 "
-                  >
-                    Go to Login
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <h2 className="text-2xl font-semibold text-[#e34b4b] mb-4">
-                    Verification Failed
-                  </h2>
-                  <p className="text-gray-600 mb-6">
-                    We couldn't verify your email. The verification link may
-                    have expired or is invalid.
-                  </p>
-                  <Button
-                    id="retry-button"
-                    onClick={verifyUserEmail}
-                    className="px-6 py-2.5 bg-[#e34b4b] text-white font-medium rounded-md hover:opacity-90 transition-opacity"
-                  >
-                    Retry Verification
-                  </Button>
-                </>
-              )}
-            </div>
-          </AuthCardWrapper>
+                  Retry Verification
+                </GradientButton>
+              </>
+            )}
+          </div>
 
-          <div className="mt-6 bg-white rounded-xl shadow-sm border border-orange-200 p-5">
-            <h3 className="text-lg font-semibold text-[#e34b4b] mb-4">
-              What's Next?
-            </h3>
+          {/* Footer */}
+          <div className="border-t border-white/10 p-4 text-center">
+            <p className="text-xs text-white/30">
+              Having trouble?{" "}
+              <span className="cursor-pointer font-medium text-amber-400 hover:text-amber-300">
+                Contact support
+              </span>
+            </p>
+          </div>
+        </AuthCardWrapper>
 
-            <div className="space-y-4">
-              <StepBullet
-                bullet={1}
-                title="Complete your profile"
-                description="Add your personal information and preferences"
-              />
-              <StepBullet
-                bullet={2}
-                title="Explore categories"
-                description="Browse through our collection of trivia categories"
-              />
-              <StepBullet
-                bullet={3}
-                title="Create your first quiz"
-                description="Start creating your own trivia questions"
-              />
-            </div>
+        {/* What's Next panel */}
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+          <h3 className="mb-4 text-base font-semibold text-white/80">
+            What's Next?
+          </h3>
+          <div className="space-y-3">
+            <StepBullet
+              bullet={1}
+              title="Complete your profile"
+              description="Add your personal information and preferences"
+            />
+            <StepBullet
+              bullet={2}
+              title="Explore categories"
+              description="Browse through our collection of trivia categories"
+            />
+            <StepBullet
+              bullet={3}
+              title="Create your first quiz"
+              description="Start creating your own trivia questions"
+            />
           </div>
         </div>
       </div>
-    </>
+
+      {/* Background Glow — same as Signup */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute top-[48%] z-0 h-[74vw] w-[448px] rotate-[107.68deg] rounded-[20px] bg-orange-sun opacity-50 blur-[51.6px] sm:w-[748px] md:right-[3.5%] md:z-[2] md:h-[604.663px] md:rotate-[17.68deg] md:rounded-[40px] lg:top-[21%] lg:w-[48.39%]" />
+        <div className="absolute left-[10px] top-[150px] z-[2] h-[336px] w-[96.18%] -rotate-[120deg] rounded-[20px] bg-aqua-abyss opacity-50 blur-[51.6px] md:z-0 md:h-[696.774px] md:rotate-[150.39deg] md:rounded-[132px] lg:left-[11%] lg:top-[18%] lg:w-[40.81%]" />
+      </div>
+    </div>
   );
 };
 

@@ -3,15 +3,24 @@ import { CheckCircle, AlertTriangle, XCircle, Info } from "lucide-react";
 
 const defaultPosition = "top-right";
 
+const baseStyle = {
+  padding: "12px 16px",
+  borderRadius: "999px", // pill shape — matches your button/input style
+  backdropFilter: "blur(12px)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  color: "#ffffff",
+  fontSize: "14px",
+  fontWeight: "600",
+};
+
 export const showSuccess = (message: string) => {
   toast.success(message, {
     position: defaultPosition,
-    icon: <CheckCircle />,  
+    icon: <CheckCircle className="h-4 w-4 text-green-400" />,
     style: {
-      backgroundColor: "oklch(0.7 0.177 142.5)",
-      color: "oklch(0.985 0 0)",
-      padding: "12px 16px",
-      borderRadius: "8px",
+      ...baseStyle,
+      backgroundColor: "rgba(74, 222, 128, 0.12)",
+      border: "1px solid rgba(74, 222, 128, 0.25)",
     },
   });
 };
@@ -19,12 +28,11 @@ export const showSuccess = (message: string) => {
 export const showWarning = (message: string) => {
   toast(message, {
     position: defaultPosition,
-    icon: <AlertTriangle />,  
+    icon: <AlertTriangle className="h-4 w-4 text-amber-400" />,
     style: {
-      backgroundColor: "oklch(0.85 0.144 80.1)",
-      color: "oklch(0.141 0.005 285.823)",
-      padding: "12px 16px",
-      borderRadius: "8px",
+      ...baseStyle,
+      backgroundColor: "rgba(251, 191, 36, 0.12)",
+      border: "1px solid rgba(251, 191, 36, 0.25)",
     },
   });
 };
@@ -32,12 +40,11 @@ export const showWarning = (message: string) => {
 export const showError = (message: string) => {
   toast.error(message, {
     position: defaultPosition,
-    icon: <XCircle />, 
+    icon: <XCircle className="h-4 w-4 text-red-400" />,
     style: {
-      backgroundColor: "oklch(0.65 0.22 25.5)",
-      color: "oklch(0.985 0 0)",
-      padding: "12px 16px",
-      borderRadius: "8px",
+      ...baseStyle,
+      backgroundColor: "rgba(248, 113, 113, 0.12)",
+      border: "1px solid rgba(248, 113, 113, 0.25)",
     },
   });
 };
@@ -45,12 +52,11 @@ export const showError = (message: string) => {
 export const showInfo = (message: string) => {
   toast(message, {
     position: defaultPosition,
-    icon: <Info />,  
+    icon: <Info className="h-4 w-4 text-cyan-400" />,
     style: {
-      backgroundColor: "oklch(0.65 0.156 196.5)",
-      color: "oklch(0.985 0 0)",
-      padding: "12px 16px",
-      borderRadius: "8px",
+      ...baseStyle,
+      backgroundColor: "rgba(34, 211, 238, 0.12)",
+      border: "1px solid rgba(34, 211, 238, 0.25)",
     },
   });
 };

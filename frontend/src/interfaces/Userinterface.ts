@@ -3,6 +3,9 @@ import { ApiResponse } from "./GenericResponse";
 export interface User {
   _id: string;
   firstname: string;
+  accountStatus: "active" | "suspended" | "banned" | "deleted";
+  suspensionReason: string;
+  suspensionExpiry: Date;
   lastname: string;
   email: string;
   phoneNo: string;
@@ -45,3 +48,20 @@ export interface passwordChangecredentials {
 }
 export type ProfileupdateResponse = ApiResponse<UserProfileInfo>;
 export type UserDetailsResponse = ApiResponse<UserProfileInfo>;
+export interface UserTableInfo {
+  _id: string;
+  firstname: string;
+  lastname: string;
+  profilePic: string;
+  email: string;
+  accountStatus: "active" | "suspended" | "banned" | "deleted";
+  totalGamesPlayed: number;
+  overallWinRatio: number;
+  slug: string;
+}
+export type AllUserResponse = ApiResponse<{
+  users: UserTableInfo[];
+  totalUsers: number;
+  currentPage: number;
+  totalPages: number;
+}>;
