@@ -23,7 +23,7 @@ const CategoryDetailsPage = () => {
     }
     const temp = Object.values(questionsData.data).reduce(
       (acc, questions) => acc + questions.length,
-      0
+      0,
     );
     return temp;
   }, [questionsData?.data]);
@@ -34,10 +34,10 @@ const CategoryDetailsPage = () => {
 
   if (!category) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center text-red-500 border border-red-200 bg-red-50 rounded-xl">
-        <AlertTriangle className="w-12 h-12 mb-4" />
+      <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 bg-red-50 py-16 text-center text-red-500">
+        <AlertTriangle className="mb-4 h-12 w-12" />
         <h2 className="text-xl font-semibold">Category Not Found</h2>
-        <p className="text-sm text-red-400 mt-1">
+        <p className="mt-1 text-sm text-red-400">
           The category you’re looking for doesn’t exist or has been removed.
         </p>
       </div>
@@ -45,26 +45,32 @@ const CategoryDetailsPage = () => {
   }
 
   return (
-    <div className="bg-[#fff6f0] flex-1 min-h-[100vh]">
-      <div className="container mx-auto p-4 space-y-10 ">
-        <CategoryDetails
-          category={category.data}
-          totalQuestions={totalQuestions}
-        />
+    <>
+      <div className="relative z-10 flex-1">
+        <div className="container mx-auto space-y-10 p-4">
+          <CategoryDetails
+            category={category.data}
+            totalQuestions={totalQuestions}
+          />
 
-        {questionsData?.data ? (
-          <TabForQuestions questionsData={questionsData.data} />
-        ) : (
-          <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
-            <LucideMessageCircleQuestion className="w-12 h-12 mb-4 text-orange-400" />
-            <p className="text-lg font-semibold">No Questions Found</p>
-            <p className="text-sm">
-              This category doesn’t have any questions yet.
-            </p>
-          </div>
-        )}
+          {questionsData?.data ? (
+            <TabForQuestions questionsData={questionsData.data} />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
+              <LucideMessageCircleQuestion className="mb-4 h-12 w-12 text-orange-400" />
+              <p className="text-lg font-semibold">No Questions Found</p>
+              <p className="text-sm">
+                This category doesn’t have any questions yet.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute left-[2%] top-[33%] h-[696px] w-[783px] rotate-[150.39deg] rounded-[132px] bg-[linear-gradient(180deg,#72FDFD99_0%,#02184299_100%)] opacity-60 blur-[100px]" />
+        <div className="absolute right-[1%] top-[33%] h-[604px] w-[930px] rotate-[17.68deg] rounded-[40px] bg-[linear-gradient(180deg,#FE852099_0%,#FED55499_100%)] opacity-60 blur-[100px]" />
+      </div>
+    </>
   );
 };
 

@@ -20,7 +20,7 @@ const gameSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // 🔄 Dynamic category count validation based on template
@@ -30,8 +30,8 @@ gameSchema.pre("validate", async function (next) {
       if (this.categories.length !== 6) {
         return next(
           new Error(
-            `This game must have exactly ${template.numberOfCategories} categories as per the template.`
-          )
+            `This game must have exactly ${template.numberOfCategories} categories as per the template.`,
+          ),
         );
       }
     } catch (err) {

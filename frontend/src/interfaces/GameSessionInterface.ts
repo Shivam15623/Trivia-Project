@@ -1,3 +1,4 @@
+import { Category } from "./categoriesInterface";
 import { ApiGeneralResponse, ApiResponse } from "./GenericResponse";
 
 export interface TeamInfo {
@@ -16,7 +17,7 @@ export interface Member {
     {
       questionId: string;
       isCorrect: boolean;
-    }
+    },
   ];
 }
 export interface GameSessionData {
@@ -25,7 +26,8 @@ export interface GameSessionData {
   sessionCode: string;
   status: "waiting" | "active" | "completed"; // Add more if other statuses exist
   teams: TeamInfo[];
-  gameId: string;
+  title: string;
+  categories: Category[];
 }
 interface MemberScore {
   userId: string;
@@ -55,7 +57,6 @@ export interface submitAnswerCredential {
   sessionId: string;
   questionId: string;
   answer: string;
-  aid: "Deduct" | "None" | "twicePoint";
 }
 export interface submitAnswerData {
   isCorrect: boolean;
@@ -69,7 +70,7 @@ export interface submitAnswerData {
 export interface currentQuestionData {
   questionId: string;
   points: number;
-  QuestionImage: string;
+  questionImage: string;
   questionText: string;
   answerImage: string;
   options: string[];
@@ -90,55 +91,89 @@ export interface startGameData {
   sessionCode: string;
   status: "waiting" | "active" | "completed";
 }
+interface QuestionTimer {
+  duration?: number; // seconds
+  startedAt?: Date;
+  expiresAt?: Date;
+}
+
+interface Progress {
+  currentCategory?: string;
+  currentQuestionId?: string;
+  currentPointLevel?: 200 | 400 | 600;
+  currentStep?: 0 | 1;
+  currentTeamIndex?: number;
+  questionTimer: QuestionTimer;
+}
+
+interface AttemptHistory {
+  questionId: string;
+  isCorrect: boolean;
+}
+
+interface Player {
+  userId?: string;
+  socketId?: string;
+  username: string;
+  score: number;
+  hasAnswered: boolean;
+  attemptHistory: AttemptHistory[];
+}
+
+interface Team {
+  name: string;
+  expectedMembers: number;
+  members: Player[];
+  currentMemberIndex: number;
+  score: number;
+}
+
+interface QuestionEntry {
+  category?: string;
+  points?: 200 | 400 | 600;
+  teamIndex?: 0 | 1 | null;
+  questionId?: string;
+  used: boolean;
+}
+
+
 export interface GameSession {
   _id: string;
   sessionCode: string;
-  host: string;
+  host?: string;
+  title: string;
+  mode: "solo" | "team" | "timed_solo";
   status: "waiting" | "active" | "completed";
+
+  // solo & timed_solo only
+  soloPlayer?: Player;
+
+  // team only
   teams: Team[];
-  gameId: string;
-  questionPool: QuestionPoolEntry[];
+
+  categories: Category[]; // ✅ populated
+
+  questionPool: QuestionEntry[];
   usedCategories: string[];
-  progress: GameProgress;
-  startedAt?: string;
-  completedAt?: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
+  progress: Progress;
+
+  startedAt?: Date;
+  completedAt?: Date;
+  expiresAt?: Date;
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 export interface GameSessionTeam {
   name: string;
   score: number;
-  members: Player[]; // Assuming members are strings (e.g., team member names)
+  members: Player[];
 }
 export interface ScoreboardData {
   isDraw: boolean;
   loser: GameSessionTeam | null; // If there's a loser, it will be an object, else null
   winner: GameSessionTeam | null; // If there's a winner, it will be an object, else null
   teams: GameSessionTeam[]; // Array of teams
-}
-export interface Team {
-  name: string;
-  expectedMembers: number;
-  members: Player[];
-
-  currentMemberIndex: number;
-  score: number;
-}
-
-export interface Player {
-  userId?: string;
-  socketId?: string;
-  username: string;
-  score: number;
-  hasAnswered: boolean;
-  aids: TeamAids;
-  attemptHistory: [
-    {
-      questionId: string;
-      isCorrect: boolean;
-    }
-  ];
 }
 
 export interface TeamAids {

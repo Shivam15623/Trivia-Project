@@ -7,17 +7,18 @@ import {
 } from "@/components/ui/form";
 import { useController, Control, FieldValues, Path } from "react-hook-form";
 import { useEffect, useRef, useState } from "react";
-
 type FileFieldProps<TForm extends FieldValues> = {
   name: Path<TForm>;
   label: string;
   control: Control<TForm>;
+  className?: string; // 👈 allow parent styling
 };
 
 export function FileField<TForm extends FieldValues>({
   name,
   label,
   control,
+  className,
 }: FileFieldProps<TForm>) {
   const { field } = useController({ name, control });
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -32,7 +33,7 @@ export function FileField<TForm extends FieldValues>({
       typeof File !== "undefined" &&
       file &&
       typeof file === "object" &&
-     (file as File).type
+      (file as File).type
     ) {
       const url = URL.createObjectURL(file);
       setPreview(url);
@@ -48,9 +49,12 @@ export function FileField<TForm extends FieldValues>({
       name={name}
       render={() => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel className="font-outfit text-lg font-normal leading-[100%] text-white">
+            {label}
+          </FormLabel>
+
           <FormControl>
-            <div>
+            <div className={className}>
               <input
                 type="file"
                 accept="image/*"
@@ -66,21 +70,22 @@ export function FileField<TForm extends FieldValues>({
               />
 
               <div
-                className="mt-2 border rounded-md p-2 cursor-pointer text-sm text-muted-foreground text-center"
+                className="text-muted-foreground flex h-full w-full cursor-pointer items-center justify-center overflow-hidden border text-center text-sm"
                 onClick={() => inputRef.current?.click()}
               >
                 {preview ? (
                   <img
                     src={preview}
                     alt="Preview"
-                    className="mx-auto h-28 rounded object-cover"
+                    className="h-full w-full object-cover"
                   />
                 ) : (
-                  "Click to upload image"
+                  "Upload Image"
                 )}
               </div>
             </div>
           </FormControl>
+
           <FormMessage />
         </FormItem>
       )}

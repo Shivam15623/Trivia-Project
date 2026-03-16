@@ -1,4 +1,4 @@
-import { GameendMessage } from "./GameSessionInterface";
+import { GameendMessage, GameSession } from "./GameSessionInterface";
 import { ApiResponse } from "./GenericResponse";
 
 export interface SoloProgress {
@@ -36,15 +36,35 @@ export interface SoloGameSession {
 }
 export interface SoloGameinitdata {
   sessionId: string;
+  sessionCode: string;
 }
 export interface submitAnswerDataSolo {
   isCorrect: boolean;
   correctAnswer: string;
   pointsAwarded: number;
   gameEnded: false;
+  nextQuestion: {
+    questionId: string;
+    points: number;
+    questionImage: string;
+    questionText: string;
+    AnswerImage: string;
+    options: string[];
+    Answer: string;
+    category: {
+      id: string;
+      name: string;
+      thumbnail: string;
+    };
+    // ✅ timer only present for timed_solo, null otherwise
+    timer: {
+      startedAt: Date;
+      duration: Date;
+    } | null;
+  };
 }
 export type SubmitAnswerSoloResponse = ApiResponse<
   submitAnswerDataSolo | GameendMessage
 >;
 export type SoloGameinitresponse = ApiResponse<SoloGameinitdata>;
-export type SoloGameResponse = ApiResponse<SoloGameSession>;
+export type SoloGameResponse = ApiResponse<GameSession>;

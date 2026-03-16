@@ -1,15 +1,7 @@
 import { useRegisterCustomerMutation } from "@/services";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
-import "react-phone-input-2/lib/style.css";
-import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
@@ -17,6 +9,8 @@ import { SignupSchema, SignupValues } from "@/SchemaValidations/AuthSchema";
 import { RenderField } from "@/components/FormRender/renderFields";
 import PasswordStrength from "@/components/PasswordStrength";
 import { Loader2 } from "lucide-react";
+import AuthCardWrapper from "@/components/AuthCardWrapper";
+import { GradientButton } from "@/components/GradientButton";
 
 const Signup = () => {
   const form = useForm<SignupValues>({
@@ -38,9 +32,10 @@ const Signup = () => {
   const handleSubmit = async (data: SignupValues) => {
     try {
       const response = await signup(data).unwrap();
+
       if (response.success === true) {
         showSuccess(
-          "Signup successful. Please check your email to verify your account."
+          "Signup successful. Please check your email to verify your account.",
         );
         navigate("/email-verification-sent");
       }
@@ -50,153 +45,148 @@ const Signup = () => {
   };
 
   return (
-    <div className="h-full flex min-h-screen patt  items-center justify-center px-4">
-      <Card className="w-full max-w-xl shadow-lg p-0 overflow-hidden rounded-2xl relative ">
-        <CardHeader className="text-center py-6 border-b border-gray-100">
-          <h2 className="text-2xl font-semibold text-[#e34b4b]">Sign Up</h2>
-          <p className="text-sm text-gray-500">Create your account</p>
-        </CardHeader>
-        {isLoading && (
-          <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-sm flex items-center justify-center rounded-2xl">
-            <Loader2 className="animate-spin h-6 w-6 text-[#e34b4b]" />
-          </div>
-        )}
+    <div className="relative flex min-h-screen items-center justify-center bg-black px-4">
+      <AuthCardWrapper>
+        <div className="relative w-full p-6 sm:w-[450px]">
+          {/* Loader */}
+          {isLoading && (
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-sm">
+              <Loader2 className="h-6 w-6 animate-spin text-[#e34b4b]" />
+            </div>
+          )}
 
-        <CardContent>
+          <h2 className="mb-2 text-center text-2xl font-bold text-white">
+            Create Account
+          </h2>
+
+          <p className="mb-6 text-center text-sm text-white/50">
+            Sign up to get started
+          </p>
+
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
               className="space-y-6"
             >
-              <div className="flex flex-col sm:flex-row w-full  gap-4">
-                {/* First Name */}
-                <div className="w-full sm:w-1/2">
-                  <RenderField
-                    Inputvariant="solidred"
-                    control={form.control}
-                    label="First Name"
-                    name="firstname"
-                    type="text"
-                    labelClass="block text-sm font-medium text-gray-700 mb-1"
-                    inputProps={{
-                      placeholder: "john",
-                      required: true,
-                    }}
-                  />
-                </div>
+              {/* First + Last Name */}
+              <div className="flex gap-3">
+                <RenderField
+                  control={form.control}
+                  label="First Name"
+                  name="firstname"
+                  type="text"
+                  labelClass="text-[#ffffffb3]"
+                  className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
+                  inputProps={{
+                    placeholder: "John",
+                    required: true,
+                  }}
+                />
 
-                {/* Last Name */}
-                <div className="w-full sm:w-1/2">
-                  {" "}
-                  <RenderField
-                    Inputvariant="solidred"
-                    control={form.control}
-                    label="Last Name"
-                    name="lastname"
-                    type="text"
-                    labelClass="block text-sm font-medium text-gray-700 mb-1"
-                    inputProps={{
-                      placeholder: "Doe",
-                      required: true,
-                    }}
-                  />
-                </div>
+                <RenderField
+                  control={form.control}
+                  label="Last Name"
+                  name="lastname"
+                  type="text"
+                  labelClass="text-[#ffffffb3]"
+                  className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
+                  inputProps={{
+                    placeholder: "Doe",
+                    required: true,
+                  }}
+                />
               </div>
 
               {/* Email */}
               <RenderField
-                Inputvariant="solidred"
                 control={form.control}
                 label="Email"
                 name="email"
                 type="email"
-                className="w-full"
-                labelClass="block text-sm font-medium text-gray-700 mb-1"
+                labelClass="text-[#ffffffb3]"
+                className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
                 inputProps={{
                   placeholder: "you@example.com",
                   required: true,
                 }}
               />
+
               {/* DOB */}
               <RenderField
-                Inputvariant="solidred"
                 control={form.control}
                 label="Date of Birth"
-                labelClass="block text-sm font-medium text-gray-700 mb-1"
                 name="DOB"
                 type="date"
-                className="w-full"
+                labelClass="text-[#ffffffb3]"
+                className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] focus:outline-none"
                 inputProps={{
                   required: true,
                 }}
               />
-              <div className="space-y-2">
-                {" "}
+
+              {/* Password */}
+              <div>
                 <RenderField
-                  Inputvariant="solidred"
                   control={form.control}
                   label="Password"
-                  labelClass="block text-sm font-medium text-gray-700 mb-1"
                   name="password"
-                  className="w-full"
                   type="password"
+                  labelClass="text-[#ffffffb3]"
+                  className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
                   inputProps={{
                     placeholder: "••••••••",
                     required: true,
                   }}
                 />
+
                 <PasswordStrength password={password} />
               </div>
 
-              {/* Phone Number */}
+              {/* Phone */}
               <RenderField
                 control={form.control}
                 label="Phone No"
                 name="phoneNo"
                 type="phone"
-                className="w-full"
+                labelClass="text-[#ffffffb3]"
+                className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] focus:outline-none"
                 inputProps={{
                   required: true,
                 }}
               />
-              <div className="pt-4 flex flex-col gap-2">
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-2.5 px-4 bg-gradient-to-r from-[#fcbf49] to-[#f29e4e] text-white font-medium rounded-md hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                >
-                  {isLoading && (
-                    <Loader2 className="animate-spin h-4 w-4 text-white" />
-                  )}
-                  {isLoading ? "Signing Up..." : "Submit"}
-                </Button>
-              </div>
-              <p className="text-sm text-center text-gray-600">
-                Already have an account?
-                <Link
-                  to="/login"
-                  className="text-[#e34b4b] hover:underline font-medium"
-                >
-                  Login
-                </Link>
-              </p>
+
+              <GradientButton
+                type="submit"
+                disabled={isLoading}
+                icon={false}
+                className="w-full max-w-none font-outfit"
+              >
+                Sign Up
+              </GradientButton>
             </form>
           </Form>
-        </CardContent>
-        <CardFooter className="bg-[#fff8f0] p-4 text-center  border-t border-orange-100">
-          <div className="flex justify-center space-x-4 mx-auto">
-            <Link to="#" className="text-sm text-gray-500 hover:text-[#e34b4b]">
-              Help
+        </div>
+
+        {/* Footer */}
+        <div className="border-t border-white/10 p-4 text-center">
+          <p className="text-sm text-white/50">
+            Already have an account?
+            <Link
+              to="/login"
+              className="font-medium text-amber-400 hover:text-amber-300"
+            >
+              Login
             </Link>
-            <Link to="#" className="text-sm text-gray-500 hover:text-[#e34b4b]">
-              Privacy
-            </Link>
-            <Link to="#" className="text-sm text-gray-500 hover:text-[#e34b4b]">
-              Terms
-            </Link>
-          </div>
-        </CardFooter>
-      </Card>
+          </p>
+        </div>
+      </AuthCardWrapper>
+
+      {/* Background Glow */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute top-[48%] z-0 h-[74vw] w-[448px] rotate-[107.68deg] rounded-[20px] bg-orange-sun opacity-50 blur-[51.6px] sm:w-[748px] md:right-[3.5%] md:z-[2] md:h-[604.663px] md:rotate-[17.68deg] md:rounded-[40px] lg:top-[21%] lg:w-[48.39%]" />
+
+        <div className="absolute left-[10px] top-[150px] z-[2] h-[336px] w-[96.18%] -rotate-[120deg] rounded-[20px] bg-aqua-abyss opacity-50 blur-[51.6px] md:z-0 md:h-[696.774px] md:rotate-[150.39deg] md:rounded-[132px] lg:left-[11%] lg:top-[18%] lg:w-[40.81%]" />
+      </div>
     </div>
   );
 };

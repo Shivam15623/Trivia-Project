@@ -12,7 +12,6 @@ import {
   FullSessionResponse,
   JoinGameSessioncredentials,
   ScoreBoardResponse,
-  sessionInfoResponse,
   startGameResponse,
   submitAnswerCredential,
   SubmitAnswerResponse,
@@ -32,6 +31,7 @@ export const GameSessionApi = api.injectEndpoints({
         url: `/api/v1/gamesession/session/${encodeURIComponent(sessionCode)}`,
         method: "GET",
       }),
+      providesTags: ["SoloGame", "GameSession"],
     }),
     JoinGameSession: builder.mutation<
       ApiGeneralResponse,
@@ -42,6 +42,7 @@ export const GameSessionApi = api.injectEndpoints({
         method: "PATCH",
         body: credentials,
       }),
+      invalidatesTags:["GameSession"]
     }),
     GameSessionEnd: builder.mutation<EndSessionResponse, string>({
       query: (sessionId) => ({
@@ -57,12 +58,7 @@ export const GameSessionApi = api.injectEndpoints({
         body: { sessionId },
       }),
     }),
-    FetchWaitingroominfo: builder.query<sessionInfoResponse, string>({
-      query: (sessionCode) => ({
-        url: `/api/v1/gamesession/Waitingroom/${encodeURIComponent(sessionCode)}`,
-        method: "GET",
-      }),
-    }),
+
     FetchCurrentQuestion: builder.query<CurrentQuestionResponse, string>({
       query: (sessionCode) => ({
         url: `/api/v1/gamesession/currentQuestion/${encodeURIComponent(sessionCode)}`,
@@ -100,7 +96,6 @@ export const {
   useJoinGameSessionMutation,
   useGameSessionEndMutation,
   useStartGameMutation,
-  useFetchWaitingroominfoQuery,
   useFetchCurrentQuestionQuery,
   useSubmitAnswerMutation,
   useFetchScoreBoardQuery,

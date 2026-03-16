@@ -1,0 +1,431 @@
+import { selectAuth } from "@/redux/AuthSlice/authSlice";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { useGameEngine } from "../../hooks/useGameEngine";
+import { cn } from "@/lib/utils";
+import { GradientButton } from "@/components/GradientButton";
+
+import { GradientCard } from "@/Pages/Customer/CustomerHome/components/GradientBorderCard";
+import { Button } from "@/components/ui/button";
+import { useGameSessionEndMutation } from "@/services";
+import GameSessionBoundary from "../../components/GameSessionBoundary";
+
+const Play = () => {
+  const { sessionCode } = useParams<{ sessionCode: string }>();
+  const { user } = useSelector(selectAuth);
+
+  const [EndGame] = useGameSessionEndMutation();
+  const {
+    sessionInfo,
+    questionData,
+    isLoading,
+    error,
+    selectedOption,
+    selectedIndex,
+    setSelectedOption,
+    setSelectedIndex,
+    handleSubmit,
+    isSubmitting,
+    hasSubmitted,
+    // timeLeft,
+    // showTimer,
+    // showTurnBanner,
+    answerResult,
+    emitGameEnd,
+  } = useGameEngine(sessionCode!);
+
+  const isHost = sessionInfo?.host === user?._id;
+  const currentTeam =
+    sessionInfo?.teams?.[sessionInfo?.progress?.currentTeamIndex ?? 0];
+  const currentMember =
+    currentTeam?.members?.[currentTeam?.currentMemberIndex ?? 0];
+  const handleEndGame = async () => {
+    if (!sessionInfo?._id) {
+      return;
+    }
+    const response = await EndGame(sessionInfo._id).unwrap();
+
+    if (response.success === true) {
+      emitGameEnd();
+    }
+  };
+  useEffect(() => {
+    console.log(questionData);
+  }, [
+    questionData?.questionId,
+    sessionInfo?.progress?.currentTeamIndex,
+    sessionInfo?.progress?.currentPointLevel,
+  ]);
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex flex-1 items-center justify-center bg-black">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-white border-t-transparent" />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-1 items-center justify-center bg-black">
+        <p className="font-inter text-lg text-red-400">
+          Failed to load game session. Please try again.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-black px-[20px] sm:px-[40px] md:px-[60px] lg:px-[80px] xl:px-[120px]">
+        <div className="relative z-10 mx-auto flex h-fit w-full max-w-[1096px] flex-col items-center justify-center gap-10 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-0">
+          <GameSessionBoundary
+            isLoading={isLoading}
+            error={error}
+            sessionInfo={sessionInfo}
+          >
+            <GradientCard
+              padding={3}
+              radius={20}
+              className="mx-auto w-fit bg-[#FFFFFF1A]"
+              gradient="linear-gradient(90.26deg, #2884C7 1.43%, #7BFDFD 36.33%, #FA9923 66.99%, #FF6E01 99.54%)"
+            >
+              {sessionInfo?.progress?.currentTeamIndex && (
+                <div className="flex flex-row items-center justify-center gap-3.5 px-[30px] py-3.5">
+                  <div className="font-inter text-[28px] font-semibold leading-[100%] text-white">
+                    Team{" "}
+                    <span className="bg-[linear-gradient(180deg,_#FCD645_54.81%,_#FCB734_79.33%,_#D37200_95.19%)] bg-clip-text text-transparent">
+                      {
+                        sessionInfo?.teams[
+                          sessionInfo?.progress?.currentTeamIndex
+                        ].name
+                      }
+                    </span>
+                  </div>
+                  <div className="font-outfit text-lg font-medium leading-[150%] text-white">
+                    {" "}
+                    Player:
+                    {
+                      sessionInfo?.teams[
+                        sessionInfo?.progress?.currentTeamIndex
+                      ]?.members[
+                        sessionInfo?.teams[
+                          sessionInfo?.progress?.currentTeamIndex
+                        ].currentMemberIndex
+                      ].username
+                    }
+                  </div>
+                </div>
+              )}
+            </GradientCard>
+
+            <div className="flex w-full max-w-[1096px] flex-col gap-[14px]">
+              <GradientCard
+                padding={3}
+                radius={20}
+                className="bg-[#FFFFFF1A]"
+                gradient="linear-gradient(90.26deg, #2884C7 1.43%, #7BFDFD 36.33%, #FA9923 66.99%, #FF6E01 99.54%)"
+              >
+                <div className="relative z-10 flex h-full flex-col gap-3.5 rounded-[20px] bg-[#FFFFFF1A] px-4 pb-3.5 pt-10 font-outfit text-[18px] font-normal text-white sm:px-6 md:px-[30px]">
+                  {answerResult && (
+                    <div
+                      className={cn(
+                        "absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 rounded-[20px] backdrop-blur-sm",
+                        answerResult.isCorrect
+                          ? "bg-green-500/20"
+                          : "bg-red-500/20",
+                      )}
+                    >
+                      {/* Icon */}
+                      <div
+                        className={cn(
+                          "flex h-16 w-16 items-center justify-center rounded-full text-4xl",
+                          answerResult.isCorrect
+                            ? "bg-green-500/30"
+                            : "bg-red-500/30",
+                        )}
+                      >
+                        {answerResult.isCorrect ? "✓" : "✗"}
+                      </div>
+
+                      {/* Correct / Wrong label */}
+                      <p
+                        className={cn(
+                          "font-inter text-2xl font-bold",
+                          answerResult.isCorrect
+                            ? "text-green-400"
+                            : "text-red-400",
+                        )}
+                      >
+                        {answerResult.isCorrect ? "Correct!" : "Wrong!"}
+                      </p>
+
+                      {/* ✅ Answer image if present */}
+                      {answerResult.answerImage && (
+                        <img
+                          src={answerResult.answerImage}
+                          alt="answer"
+                          className="max-h-[180px] w-[70%] rounded-xl object-contain"
+                        />
+                      )}
+
+                      {/* Correct answer text — always show so player knows */}
+                      <p className="font-outfit text-lg text-white">
+                        Correct answer:{" "}
+                        <span className="font-semibold text-green-400">
+                          {answerResult.correctAnswer}
+                        </span>
+                      </p>
+
+                      {/* Points — only if correct */}
+                      {answerResult.isCorrect && (
+                        <p className="font-outfit text-base text-white/70">
+                          +{answerResult.pointsAwarded} pts
+                        </p>
+                      )}
+
+                      {/* Drain bar */}
+                      <div className="mt-2 h-1 w-32 overflow-hidden rounded-full bg-white/20">
+                        <div
+                          className="h-full w-full rounded-full bg-white"
+                          style={{ animation: "shrink 2.5s linear forwards" }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex flex-row items-center justify-between font-inter text-2xl font-medium leading-[100%] text-white">
+                    <h4 className="font-inter text-2xl font-medium leading-[100%] text-white">
+                      {questionData?.category.name}
+                    </h4>
+                    {}
+                    {/* <div>time</div> */}
+                  </div>
+                  <img
+                    src={questionData?.questionImage}
+                    alt="question image"
+                    className="mx-auto aspect-video w-full max-w-none object-cover sm:max-w-2xl md:max-w-3xl lg:max-w-4xl"
+                  />
+                  <h3 className="text-center font-outfit text-[32px] font-medium leading-[100%] text-white">
+                    {questionData?.questionText}
+                  </h3>
+                </div>
+              </GradientCard>
+              {currentMember?.userId === user?._id ? (
+                <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-2">
+                  {questionData?.options.map((option, index) => {
+                    const isSelected = selectedIndex === index;
+
+                    const baseGradient = isSelected
+                      ? "rgba(255,255,255,0.1)"
+                      : index === 1 || index === 2
+                        ? "linear-gradient(180deg, #FF6D00 0%, #FA9923 100%)"
+                        : "linear-gradient(179.03deg, #2884C7 0.83%, #7BFDFD 181.09%)";
+
+                    const selectedBorderGradient =
+                      "linear-gradient(90.26deg, #2884C7 1.43%, #7BFDFD 36.33%, #FA9923 66.99%, #FF6E01 99.54%)";
+
+                    const innerCard = (
+                      <div
+                        onClick={() => {
+                          setSelectedIndex(index);
+                          setSelectedOption(option);
+                        }}
+                        className="relative flex h-[58px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-[10px] p-5 font-outfit text-[18px] text-white transition-all duration-200 ease-out hover:scale-[1.03] hover:brightness-110 active:scale-[0.97]"
+                        style={{ background: baseGradient }}
+                      >
+                        {/* noise overlay */}
+                        <div
+                          className="pointer-events-none absolute inset-0 opacity-30"
+                          style={{ backgroundImage: "url('/Noise.png')" }}
+                        />
+
+                        {/* hover glow */}
+                        <div className="pointer-events-none absolute inset-0 bg-white opacity-0 transition-opacity duration-200 hover:opacity-20" />
+
+                        <span className="relative z-10 font-medium">
+                          {option}
+                        </span>
+                      </div>
+                    );
+
+                    return isSelected ? (
+                      <div
+                        key={index}
+                        className="gradient-border overflow-hidden transition-all duration-200 ease-out hover:scale-[1.03]"
+                        style={
+                          {
+                            "--border-gradient": selectedBorderGradient,
+                            "--radius": "12px",
+                            "--padding": "3px",
+                          } as React.CSSProperties
+                        }
+                      >
+                        <div className="relative z-10 flex h-full w-full">
+                          {innerCard}
+                        </div>
+                      </div>
+                    ) : (
+                      <div key={index}>{innerCard}</div>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="flex flex-row gap-3.5">
+              {currentMember?.userId === user?._id && (
+                <GradientButton
+                  disabled={!selectedOption || isSubmitting || hasSubmitted}
+                  type="button"
+                  onClick={handleSubmit}
+                  icon={false}
+                  className="w-fit"
+                >
+                  Submit
+                </GradientButton>
+              )}
+              {isHost && (
+                <Button
+                  className={cn(
+                    "gradient-border",
+                    "flex h-[40px] items-center px-5 py-0",
+                  )}
+                  onClick={handleEndGame}
+                  style={
+                    {
+                      "--border-gradient":
+                        "linear-gradient(93.58deg, #67C3FF 8.55%, #010A2A 47.56%, #67C3FF 94.76%)",
+
+                      "--radius": `20px`,
+                      "--padding": "1px",
+                    } as React.CSSProperties
+                  }
+                >
+                  <div className="relative z-10 flex h-full flex-row items-center justify-center gap-2.5 text-lg">
+                    <span>End Game</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="25"
+                      height="25"
+                      viewBox="0 0 25 25"
+                      fill="none"
+                      className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
+                    >
+                      <path
+                        d="M15.1449 6.50586L20.9659 12.8151L14.6567 18.636"
+                        stroke="white"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M3.98081 12.1309L20.7972 12.8077"
+                        stroke="white"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </Button>
+              )}
+            </div>
+          </GameSessionBoundary>
+        </div>
+      </div>
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-x-hidden">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="2426"
+          height="823"
+          viewBox="0 0 1920 823"
+          className="absolute -bottom-[57px]"
+          fill="none"
+        >
+          <g opacity="0.5" filter="url(#filter0_f_457_1966)">
+            <path
+              d="M1946.85 878.796C1752.03 782.934 1425.03 705.218 1024.68 688.82C325.077 660.164 -22.3887 638.305 -199.526 552.201L-172.355 489.777L-157.626 281.855C96.6818 407.879 460.211 478.942 1143.25 490.743C1569.31 502.145 1908.38 563.404 2036.58 620.317L1946.85 878.796Z"
+              fill="url(#paint0_linear_457_1966)"
+            />
+          </g>
+          <g opacity="0.5" filter="url(#filter1_f_457_1966)">
+            <path
+              d="M-22.8442 167.6C152.282 269.624 332.309 342.78 810.569 388.762C1365.79 442.144 1913.36 431.679 2072.74 523.607L2061.86 752.251L1955.93 735.104C1852.8 675.129 1128.41 653.499 468.768 552.044C298.562 525.866 220.051 534.984 -119.171 399.761L-22.8442 167.6Z"
+              fill="url(#paint1_linear_457_1966)"
+            />
+          </g>
+          <defs>
+            <filter
+              id="filter0_f_457_1966"
+              x="-290.327"
+              y="191.055"
+              width="2417.71"
+              height="778.541"
+              filterUnits="userSpaceOnUse"
+              color-interpolation-filters="sRGB"
+            >
+              <feFlood flood-opacity="0" result="BackgroundImageFix" />
+              <feBlend
+                mode="normal"
+                in="SourceGraphic"
+                in2="BackgroundImageFix"
+                result="shape"
+              />
+              <feGaussianBlur
+                stdDeviation="45.4"
+                result="effect1_foregroundBlur_457_1966"
+              />
+            </filter>
+            <filter
+              id="filter1_f_457_1966"
+              x="-230.772"
+              y="55.9996"
+              width="2415.11"
+              height="807.852"
+              filterUnits="userSpaceOnUse"
+              color-interpolation-filters="sRGB"
+            >
+              <feFlood flood-opacity="0" result="BackgroundImageFix" />
+              <feBlend
+                mode="normal"
+                in="SourceGraphic"
+                in2="BackgroundImageFix"
+                result="shape"
+              />
+              <feGaussianBlur
+                stdDeviation="55.8"
+                result="effect1_foregroundBlur_457_1966"
+              />
+            </filter>
+            <linearGradient
+              id="paint0_linear_457_1966"
+              x1="1979.62"
+              y1="704.565"
+              x2="-102.253"
+              y2="295.148"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop offset="0.0187462" stop-color="#FC9924" />
+              <stop offset="1" stop-color="#FCD645" />
+            </linearGradient>
+            <linearGradient
+              id="paint1_linear_457_1966"
+              x1="2291.81"
+              y1="665.527"
+              x2="-688.946"
+              y2="256.908"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stop-color="#7BFDFD" />
+              <stop offset="0.716346" stop-color="#2884C7" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+    </>
+  );
+};
+
+export default Play;

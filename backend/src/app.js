@@ -13,8 +13,12 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: [process.env.CORS_ORIGIN, "http://192.168.1.17:5173"],
-  })
+    origin: [
+      process.env.CORS_ORIGIN,
+      "http://192.168.1.17:5173",
+      "http://localhost:5173",
+    ],
+  }),
 );
 
 app.use(express.json({ limit: "16kb" }));
@@ -29,6 +33,7 @@ import CategoryRouter from "./Routes/category.routes.js";
 import GameSessionRouter from "./Routes/GameSession.routes.js";
 import questionRouter from "./Routes/question.routes.js";
 import SoloGameRouter from "./Routes/SoloGame.routes.js";
+import DashboardRoutes from "./Routes/dashboard.routes.js";
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
@@ -39,5 +44,6 @@ app.use("/api/v1/gamesession", GameSessionRouter);
 
 app.use("/api/v1/question", questionRouter);
 app.use("/api/v1/category", CategoryRouter);
-app.use(errorHandler);
+app.use("/api/v1/dashboard-analytics", DashboardRoutes);
+// app.use(errorHandler);
 export { app };

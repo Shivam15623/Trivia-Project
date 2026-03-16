@@ -32,14 +32,14 @@ const ApplyEmailVerification: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#fff6f0] p-4 flex items-center justify-center min-h-screen">
+    <div className="flex min-h-screen items-center justify-center bg-[#fff6f0] p-4">
       <div className="w-full max-w-md">
-        <AuthCardWrapper icon={<Mail className="w-10 h-10 text-[#e34b4b]" />}>
+        <AuthCardWrapper>
           <div className="p-6">
-            <h2 className="text-2xl font-semibold text-center mb-4 text-[#e34b4b]">
+            <h2 className="mb-4 text-center text-2xl font-semibold text-[#e34b4b]">
               Verify Your Email
             </h2>
-            <p className="text-sm text-gray-600 text-center mb-6">
+            <p className="mb-6 text-center text-sm text-gray-600">
               Enter your email to receive a verification link. This helps us
               ensure the security of your account.
             </p>
@@ -67,17 +67,16 @@ const ApplyEmailVerification: React.FC = () => {
                   Email Address
                 </Label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                     <Mail width={16} height={16} className="text-gray-400" />
                   </div>
                   <Input
                     type="email"
                     id="email"
-                    variant="solidred"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
-                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e34b4b] focus:border-transparent transition-all"
+                    className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-3 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#e34b4b]"
                   />
                 </div>
               </div>
@@ -86,8 +85,7 @@ const ApplyEmailVerification: React.FC = () => {
                 id="send-button"
                 onClick={handleResendVerification}
                 disabled={isLoading}
-                variant={"gradient"}
-                className="w-full py-2.5 px-4 "
+                className="w-full px-4 py-2.5"
               >
                 <span>
                   {isLoading ? "Sending..." : "Send Verification Email"}
@@ -100,7 +98,7 @@ const ApplyEmailVerification: React.FC = () => {
                 Already verified?{" "}
                 <Link
                   to="/login"
-                  className="text-[#e34b4b] font-medium hover:underline"
+                  className="font-medium text-[#e34b4b] hover:underline"
                 >
                   Login here
                 </Link>
@@ -108,7 +106,7 @@ const ApplyEmailVerification: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-[#fff8f0] p-4 text-center border-t border-orange-100">
+          <div className="border-t border-orange-100 bg-[#fff8f0] p-4 text-center">
             <div className="flex flex-col space-y-2">
               <p className="text-sm text-gray-600">
                 Didn't receive the email? Check your spam folder.
@@ -116,14 +114,14 @@ const ApplyEmailVerification: React.FC = () => {
               <div className="flex justify-center space-x-2">
                 <Link
                   to="#"
-                  className="text-sm text-[#e34b4b] font-medium hover:underline"
+                  className="text-sm font-medium text-[#e34b4b] hover:underline"
                 >
                   Contact Support
                 </Link>
                 <span className="text-gray-400">|</span>
                 <Link
                   to="#"
-                  className="text-sm text-[#e34b4b] font-medium hover:underline"
+                  className="text-sm font-medium text-[#e34b4b] hover:underline"
                 >
                   FAQ
                 </Link>
@@ -132,8 +130,8 @@ const ApplyEmailVerification: React.FC = () => {
           </div>
         </AuthCardWrapper>
 
-        <div className="mt-8 bg-white rounded-xl shadow-sm border border-orange-200 p-5">
-          <h3 className="text-lg font-semibold text-[#e34b4b] mb-4">
+        <div className="mt-8 rounded-xl border border-orange-200 bg-white p-5 shadow-sm">
+          <h3 className="mb-4 text-lg font-semibold text-[#e34b4b]">
             What happens next?
           </h3>
 

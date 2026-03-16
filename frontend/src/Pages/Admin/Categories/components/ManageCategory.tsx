@@ -1,5 +1,4 @@
 import { Form } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
 
 import { DialogWrapper } from "@/components/DialogWrapper";
 import { useForm } from "react-hook-form";
@@ -20,6 +19,8 @@ import { showSuccess } from "@/components/toastUtills";
 import { FileField } from "@/components/FormRender/renderFileField";
 import { RenderField } from "@/components/FormRender/renderFields";
 import Loader from "@/components/Loader";
+import { GradientButton } from "@/components/GradientButton";
+import { Loader2 } from "lucide-react";
 
 type Props = {
   slug?: string;
@@ -88,7 +89,7 @@ export function CategoryDialog({ slug, trigger }: Props) {
         trigger={trigger}
         resetForm={() => form.reset()}
       >
-        <div className="flex items-center justify-center min-h-[200px]">
+        <div className="flex min-h-[200px] items-center justify-center">
           <Loader />
         </div>
       </DialogWrapper>
@@ -98,52 +99,58 @@ export function CategoryDialog({ slug, trigger }: Props) {
     <DialogWrapper
       type={isEdit ? "edit" : "add"}
       title={isEdit ? "Update Category" : "Add Category"}
-      description={
-        isEdit ? "Edit your category details." : "Fill category details."
-      }
       trigger={trigger}
+      size="xl"
       resetForm={() => form.reset()}
     >
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
-          className={`space-y-6 p-4 ${
+          className={`space-y-3.5 ${
             isSubmitting ? "pointer-events-none opacity-50" : ""
           }`}
         >
           <RenderField
-            Inputvariant="solidred"
+            className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none sm:text-base"
             name="name"
+            labelClass="text-lg text-white font-normal leading-[100%] font-outfit"
             label="Name"
             control={form.control}
             inputProps={{ required: true, placeholder: "enter Category Name" }}
           />
           <RenderField
-            Inputvariant="solidred"
+            className="h-10 w-full rounded-[20px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none sm:text-base"
             name="description"
             label="Description"
+            labelClass="text-lg text-white font-normal leading-[100%] font-outfit"
             type="textarea"
             control={form.control}
             inputProps={{ required: true, placeholder: "enter description" }}
           />
           <FileField
             control={form.control}
+            className="h-[128px] w-[128px]"
             label="Thumbnail"
             name="thumbnail"
             // inputProps={{
             //   placeholder: "Upload Thumbnail image",
             // }}
           />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-            <Button
+          <div className="flex flex-row gap-[18px]">
+            <GradientButton
               type="submit"
-              className="w-full"
-              variant="gradient"
+              className="w-fit"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Saving..." : isEdit ? "Update" : "Add"}
-            </Button>
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Submitting...
+                </span>
+              ) : (
+                "Submit"
+              )}
+            </GradientButton>
 
             {/* Cancel button */}
             <DialogWrapper.CancelButton />

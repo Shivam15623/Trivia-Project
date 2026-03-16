@@ -29,7 +29,7 @@ const MobileMenu = ({ urls, isPublic = false }: MobileMenuProps) => {
         <SheetContent
           side="right"
           className="w-72 sm:w-80 px-4 p-0 gap-0"
-          hideCloseButton
+         
         >
           <div className="flex items-center justify-between  p-2.5 sm:py-4 border-b-1 border-[#f3f4f6] ">
             <div className="flex items-center space-x-2">

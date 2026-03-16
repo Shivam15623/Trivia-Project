@@ -8,7 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+
 import {
   useAddQuestiontoCategoryMutation,
   useFetchCategoriesQuery,
@@ -29,6 +29,7 @@ import {
 import { ReactNode, useEffect } from "react";
 import { RenderField } from "@/components/FormRender/renderFields";
 import { Loader2 } from "lucide-react";
+import { GradientButton } from "@/components/GradientButton";
 
 const Points = [200, 400, 600];
 type Props = {
@@ -116,28 +117,24 @@ export function QuestionDialog({ id, trigger }: Props) {
       title={isEdit ? "Update Question" : "Add Question"}
       type={isEdit ? "edit" : "add"}
       trigger={trigger}
-      description={
-        isEdit
-          ? "Update the question details below."
-          : "Add a new question to the category."
-      }
-      size="2xl"
+      size="3xl"
       resetForm={() => form.reset()} // ✅ resets when dialog closes
     >
       {" "}
       <Form {...form}>
         <form
-          className={`space-y-6 p-4 ${
+          className={`space-y-3.5 ${
             isSubmitting ? "pointer-events-none opacity-50" : ""
           }`}
           onSubmit={form.handleSubmit(handleSubmit)}
         >
           {/* Category Dropdown */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-[2fr_1fr]">
             <RenderField
-              Inputvariant="solidred"
               name="categoryId"
               label="Category"
+              className="h-10 w-full rounded-[20px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none sm:text-base"
+              labelClass="text-lg text-white font-normal leading-[100%] font-outfit"
               control={form.control}
               type="select"
               options={categoryList?.data || []}
@@ -145,9 +142,11 @@ export function QuestionDialog({ id, trigger }: Props) {
               getOptionValue={(opt) => opt._id}
               inputProps={{ required: true }}
             />
+
             <RenderField
-              Inputvariant="solidred"
               name="points"
+              labelClass="text-lg text-white font-normal leading-[100%] font-outfit"
+              className="h-10 w-full rounded-[20px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none sm:text-base"
               label="Points"
               control={form.control}
               type="select"
@@ -156,7 +155,8 @@ export function QuestionDialog({ id, trigger }: Props) {
             />
           </div>
           <RenderField
-            Inputvariant="solidred"
+            labelClass="text-lg text-white font-normal leading-[100%] font-outfit"
+            className="h-10 w-full rounded-[20px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none sm:text-base"
             name="questionText"
             label="Question"
             control={form.control}
@@ -166,7 +166,8 @@ export function QuestionDialog({ id, trigger }: Props) {
 
           {/* Answer */}
           <RenderField
-            Inputvariant="solidred"
+            className="h-10 w-full rounded-[20px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none sm:text-base"
+            labelClass="text-lg text-white font-normal leading-[100%] font-outfit"
             name="answer"
             label="Answer"
             control={form.control}
@@ -180,12 +181,14 @@ export function QuestionDialog({ id, trigger }: Props) {
             name="options"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Options</FormLabel>
+                <FormLabel className="font-outfit text-lg font-normal text-white">
+                  Options
+                </FormLabel>
                 <FormControl>
                   <div className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-2">
                     {field.value.map((option, index) => (
                       <Input
-                        variant="solidred"
+                        className="h-10 w-full rounded-[20px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none sm:text-base"
                         key={index}
                         placeholder={`Option ${index + 1}`}
                         value={option}
@@ -194,7 +197,6 @@ export function QuestionDialog({ id, trigger }: Props) {
                           newOptions[index] = e.target.value;
                           field.onChange(newOptions);
                         }}
-                        className="p-3 border rounded-lg"
                       />
                     ))}
                   </div>
@@ -204,45 +206,38 @@ export function QuestionDialog({ id, trigger }: Props) {
             )}
           />
           {/* Question Image */}
-          <hr className="my-3 h-[1px] bg-[#e2e8f0]" />
-          <div className="flex w-full flex-row gap-2">
-            <div className="w-1/2">
-              <FileField
-                name="questionImage"
-                label="Question Image"
-                control={form.control}
-              />
-            </div>
 
-            {/* Vertical Divider */}
-            <div className="w-px bg-[#e2e8f0]" />
-
-            <div className="w-1/2">
-              <FileField
-                name="answerImage"
-                label="Answer Image"
-                control={form.control}
-              />
-            </div>
+          <div className="grid w-full grid-cols-1 gap-6 font-outfit font-normal leading-[100%] text-white sm:max-w-[60%] sm:grid-cols-2">
+            <FileField
+              name="questionImage"
+              label="Question Image"
+              className="max-h-[120px] max-w-[200px]"
+              control={form.control}
+            />
+            <FileField
+              name="answerImage"
+              className="max-h-[120px] max-w-[200px]"
+              label="Answer Image"
+              control={form.control}
+            />
           </div>
 
           {/* Submit Button */}
-          <div className="grid grid-col-1 md:grid-cols-2 mt-4 gap-3">
-            <Button
+          <div className="flex flex-row gap-[18px]">
+            <GradientButton
               type="submit"
-              variant="gradient"
-              className="w-full rounded-lg"
+              className="w-fit"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="animate-spin w-4 h-4" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Submitting...
                 </span>
               ) : (
                 "Submit"
               )}
-            </Button>
+            </GradientButton>
             <DialogWrapper.CancelButton />
           </div>
         </form>

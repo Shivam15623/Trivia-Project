@@ -6,6 +6,7 @@ import { ApiResponse } from "../utills/ApiResponse.js";
 import { asyncHandler } from "../utills/Asynchandler.js";
 import generateTokens from "../utills/GenerateTokens.js";
 import jwt from "jsonwebtoken";
+import geoip from "geoip-lite";
 export const RegisterAdmin = asyncHandler(async (req, res) => {
   const { firstname, lastname, phoneNo, password, DOB, email } = req.body;
   if (!firstname || !lastname || !phoneNo || !password || !DOB || !email) {
@@ -30,7 +31,7 @@ export const RegisterAdmin = asyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(
       500,
-      "Its a Server side Error so User Creation UnSuccessfull"
+      "Its a Server side Error so User Creation UnSuccessfull",
     );
   }
   return res
@@ -61,7 +62,7 @@ export const RegisterCustomer = asyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(
       500,
-      "Its a Server side Error so User Creation UnSuccessfull"
+      "Its a Server side Error so User Creation UnSuccessfull",
     );
   }
   return res
@@ -71,12 +72,17 @@ export const RegisterCustomer = asyncHandler(async (req, res) => {
 
 export const LoginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-
+  const ip =
+    req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
+  const geo = geoip.lookup(ip);
+  const country = geo?.country ?? "Unknown"; // "US", "IN", "CN" etc — ISO 3166-1 alpha-2
   if (!email || !password) {
     throw new ApiError(400, "All fields are required for login");
   }
 
   const user = await User.findOne({ email });
+
+  // In your register or login controller:
 
   if (!user) {
     throw new ApiError(404, "No such user with this email");
@@ -87,6 +93,8 @@ export const LoginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Invalid Password");
   }
 
+  user.country = country;
+  await user.save({ validateModifiedOnly: true });
   const { accessToken, refreshToken } = await generateTokens(user._id);
 
   // Sanitize user object for frontend
@@ -127,7 +135,7 @@ export const LoginUser = asyncHandler(async (req, res) => {
         user: userToSend,
         accessToken,
         refreshToken,
-      })
+      }),
     );
 });
 export const LogOut = asyncHandler(async (req, res) => {
@@ -223,7 +231,7 @@ export const silentAuth = asyncHandler(async (req, res) => {
 
   const decodedToken = jwt.verify(
     incomingRefreshToken,
-    process.env.REFRESH_TOKEN_SECRET
+    process.env.REFRESH_TOKEN_SECRET,
   );
   const user = await User.findById(decodedToken._id);
   if (!user) {
@@ -276,7 +284,7 @@ export const silentAuth = asyncHandler(async (req, res) => {
         user: LoginResponse,
         refreshToken,
         accessToken,
-      })
+      }),
     );
 });
 export const verificationRequest = asyncHandler(async (req, res) => {

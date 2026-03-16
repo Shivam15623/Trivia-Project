@@ -54,6 +54,7 @@ const UserSchema = new mongoose.Schema(
           "User must be at least 4 years old and DOB cannot be in the future",
       },
     },
+    country: { type: String, index: true, default: "Unknown" },
     password: {
       type: String,
       required: true,
@@ -71,17 +72,7 @@ const UserSchema = new mongoose.Schema(
         "Please enter a valid international phone number",
       ],
     },
-    MyGames: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Game", // Changed from "Games"
-      },
-    ],
 
-    gameCredits: {
-      type: Number,
-      default: 0,
-    },
     role: {
       type: String,
       enum: ["admin", "customer"],
@@ -91,6 +82,28 @@ const UserSchema = new mongoose.Schema(
     isVerified: {
       type: Boolean,
       default: false,
+    },
+    accountStatus: {
+      type: String,
+      enum: ["active", "suspended", "banned", "deleted"],
+      default: "active",
+      index: true,
+    },
+    accountStatusUpdatedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    suspensionReason: {
+      type: String,
+      default: "",
+    },
+    banReason: {
+      type: String,
+      default: "",
+    },
+    suspensionExpiry: {
+      type: Date,
+      default: null,
     },
 
     forgotPasswordToken: String,
@@ -105,7 +118,7 @@ const UserSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Pre-save middleware to generate slug from name
@@ -146,7 +159,7 @@ UserSchema.methods.generateAccessToken = function () {
     process.env.ACCESS_TOKEN_SECRET,
     {
       expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "7d",
-    }
+    },
   );
 };
 
@@ -159,9 +172,20 @@ UserSchema.methods.generateRefreshToken = function () {
     process.env.REFRESH_TOKEN_SECRET,
     {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRY || "30d",
-    }
+    },
   );
 };
+UserSchema.methods.isSuspended = function () {
+  if (this.accountStatus !== "suspended") return false;
 
+  if (this.suspensionExpiry && this.suspensionExpiry < new Date()) {
+    this.accountStatus = "active";
+    this.suspensionReason = "";
+    this.suspensionExpiry = null;
+    return false;
+  }
+
+  return true;
+};
 const User = mongoose.model("User", UserSchema);
 export default User;

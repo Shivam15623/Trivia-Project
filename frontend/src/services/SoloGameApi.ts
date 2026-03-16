@@ -1,25 +1,27 @@
 import {
   SoloGameinitresponse,
-  SoloGameResponse,
   SubmitAnswerSoloResponse,
 } from "@/interfaces/SoloGameInterface";
 import { api } from "../redux/ApiSlice/apiSlice";
 import { ApiGeneralResponse } from "@/interfaces/GenericResponse";
-import {
-  CurrentQuestionResponse,
-  submitAnswerSoloCredential,
-} from "@/interfaces/GameSessionInterface";
+import { submitAnswerSoloCredential } from "@/interfaces/GameSessionInterface";
 
 export const SoloGameApi = api.injectEndpoints({
   endpoints: (builder) => ({
     InitializeSoloGame: builder.mutation<
       SoloGameinitresponse,
-      { gameId: string }
+      {
+        mode: "solo" | "team" | "timed_solo";
+        timer: number;
+        categoryIds: string[];
+        title: string;
+        socketId: string;
+      }
     >({
-      query: ({ gameId }) => ({
+      query: (credentials) => ({
         url: "/api/v1/soloGame/initializeGame",
         method: "POST",
-        body: { gameId },
+        body: credentials,
       }),
       invalidatesTags: ["SoloGame"],
     }),
@@ -39,12 +41,6 @@ export const SoloGameApi = api.injectEndpoints({
         method: "PATCH",
         body: credentials,
       }),
-      invalidatesTags: (result) => {
-        if (result?.success && result.data?.gameEnded) {
-          return [{ type: "SoloGame" }];
-        }
-        return [];
-      },
     }),
     EndSoloGame: builder.mutation<ApiGeneralResponse, string>({
       query: (sessionId) => ({
@@ -53,31 +49,11 @@ export const SoloGameApi = api.injectEndpoints({
       }),
       invalidatesTags: ["SoloGame"],
     }),
-    CurrentQuestionSolo: builder.query<CurrentQuestionResponse, string>({
-      query: (sessionId) => ({
-        url: `/api/v1/soloGame/fetchCurrentQuestion/${encodeURIComponent(
-          sessionId
-        )}`,
-        method: "GET",
-      }),
-      providesTags: ["SoloGame"],
-    }),
-    FetchSessionInfoSolo: builder.query<SoloGameResponse, string>({
-      query: (sessionId) => ({
-        url: `/api/v1/soloGame/FetchSessionInfo/${encodeURIComponent(
-          sessionId
-        )}`,
-        method: "GET",
-      }),
-      providesTags: ["SoloGame"],
-    }),
   }),
 });
 
 export const {
-  useCurrentQuestionSoloQuery,
   useEndSoloGameMutation,
-  useFetchSessionInfoSoloQuery,
   useInitializeSoloGameMutation,
   useStartSoloGameMutation,
   useSubmitAnswerSoloMutation,
