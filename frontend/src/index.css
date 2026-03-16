@@ -76,7 +76,9 @@
     inherits: false;
     initial-value: -45deg;
   }
-
+  [data-radix-accordion-content] {
+    transition: height 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
   .glass-arc {
     --border-width: 1px;
 

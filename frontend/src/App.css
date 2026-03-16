@@ -126,3 +126,8 @@ body {
 .react-tel-input .selected-flag:focus {
   background: transparent !important;
 }
+
+.react-tel-input .flag-dropdown.open .selected-flag {
+  background: transparent !important;
+  border-radius: 3px 0 0 0;
+}
