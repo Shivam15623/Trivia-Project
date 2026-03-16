@@ -30,7 +30,6 @@ function GradientChevron({
     </svg>
   );
 }
-
 function FAQItem({
   value,
   question,
@@ -43,90 +42,20 @@ function FAQItem({
   return (
     <AccordionItem
       value={value}
-      className="
-    group
-    relative
-    border-b-0
-    rounded-[20px]
-    p-[3px]
-    bg-transparent
-    transition-all
-    duration-300
-
-    data-[state=open]:bg-gradient-to-b
-    data-[state=open]:from-[#7BFDFD]
-    data-[state=open]:to-[#2884C7]
-
-    /* Gradient divider */
-    after:absolute
-    after:left-0
-    after:bottom-0
-    after:h-[4px]
-    after:w-full
-    after:bg-gradient-to-r
-    after:from-[#2884C7]
-    after:to-[#7BFDFD]
-
-    /* hide divider when open */
-    data-[state=open]:after:opacity-0
-
-    /* hide divider for last item */
-    last:after:hidden
-  "
+      className="ease-[cubic-bezier(0.4,0,0.2,1)] before:ease-[cubic-bezier(0.4,0,0.2,1)] group relative rounded-[20px] border-b-0 bg-transparent p-[3px] pb-[6px] transition-all duration-500 before:absolute before:left-0 before:top-0 before:h-[4px] before:w-full before:bg-gradient-to-r before:from-[#2884C7] before:to-[#7BFDFD] before:transition-all before:duration-500 first:before:hidden data-[state=open]:bg-gradient-to-b data-[state=open]:from-[#7BFDFD] data-[state=open]:to-[#2884C7] data-[state=open]:before:opacity-0 [[data-state=open]+&]:before:opacity-0"
     >
-      {/* Inner container */}
-      <div
-        className="
-        rounded-[17px]
-          bg-black
-        "
-      >
-        <div
-          className=" bg-black rounded-[17px] px-5 transition-all
-          duration-300  group-data-[state=open]:bg-white/10"
-        >
-          <AccordionTrigger
-            className="
-            py-5
-            flex
-            items-center
-            justify-between
-            text-left
-            text-white
-            text-lg
-            leading-[150%]
-            font-bold
-            hover:no-underline
-            [&>svg]:hidden
-          "
-          >
+      <div className="rounded-[17px] bg-black">
+        <div className="ease-[cubic-bezier(0.4,0,0.2,1)] rounded-[17px] bg-black px-5 transition-all duration-500 group-data-[state=open]:bg-white/10">
+          <AccordionTrigger className="flex items-center justify-between py-5 text-left text-lg font-bold leading-[150%] text-white hover:no-underline [&>svg]:hidden">
             <span>{question}</span>
-            <span
-              className="
-              transition-transform
-              duration-300
-              group-data-[state=open]:rotate-180
-            "
-            >
+            <span className="ease-[cubic-bezier(0.4,0,0.2,1)] transition-transform duration-500 group-data-[state=open]:rotate-180">
               <GradientChevron size={32} strokeWidth={1.33} />
             </span>
           </AccordionTrigger>
-
-          {/* Content */}
-          <AccordionContent
-            className="
-            pb-6
-            text-white/80
-            text-[16px]
-            sm:text-lg
-            leading-[150%]
-            font-normal
-          "
-          >
+          <AccordionContent className="pb-6 text-[16px] font-normal leading-[150%] text-white/80 sm:text-lg">
             {answer}
           </AccordionContent>
         </div>
-        {/* Trigger */}
       </div>
     </AccordionItem>
   );
@@ -134,7 +63,7 @@ function FAQItem({
 
 export default function FAQAccordion() {
   return (
-    <Accordion type="single" collapsible className="w-full   space-y-2">
+    <Accordion type="single" collapsible className="w-full space-y-2">
       <FAQItem
         value="item-1"
         question="How do I start a duel?"
