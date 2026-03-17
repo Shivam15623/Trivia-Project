@@ -24,6 +24,7 @@ export const useGameEngine = (sessionCode: string) => {
   const [questionData, setQuestionData] = useState<
     currentQuestionData | undefined
   >();
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -165,6 +166,7 @@ export const useGameEngine = (sessionCode: string) => {
     setQuestionData,
     setAnswerResult,
     emitGameEnd,
+    setIsTransitioning,
   });
 
   // ── 7. Emit player-ready for timed_solo ──────────────────────────────────────
@@ -243,5 +245,6 @@ export const useGameEngine = (sessionCode: string) => {
     showTurnBanner: mode === "team",
     answerResult,
     emitGameEnd,
+    isTransitioning,
   };
 };
