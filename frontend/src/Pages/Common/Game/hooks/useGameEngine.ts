@@ -150,6 +150,7 @@ export const useGameEngine = (sessionCode: string) => {
         navigate(`/game/SoloGameEnd/${sessionCode}`);
       }
     },
+    setIsTransitioning
   });
 
   // ── 6. Submit ────────────────────────────────────────────────────────────────

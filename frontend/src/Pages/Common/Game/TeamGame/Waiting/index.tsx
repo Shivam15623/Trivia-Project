@@ -18,6 +18,7 @@ import { GradientButton } from "@/components/GradientButton";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Category } from "@/interfaces/categoriesInterface";
+import { Check, Copy } from "lucide-react";
 
 const CategoryCard = ({ cat }: { cat: Category }) => (
   <div
@@ -69,8 +70,9 @@ const WaitingRoom = () => {
   const sessionData = sessionInfo?.data;
 
   const [joiningTeam, setJoiningTeam] = useState<string | null>(null);
-
+  const [copied, setCopied] = useState(false);
   const teams = sessionData?.teams ?? [];
+  const isHost = sessionData?.host === user?._id;
 
   const allTeamsFull = useMemo(() => {
     return teams.every((team) => team.members.length >= team.expectedMembers);
@@ -185,12 +187,15 @@ const WaitingRoom = () => {
       </div>
     );
   }
+
   const handleCopyCode = async () => {
     try {
       await navigator.clipboard.writeText(sessionData.sessionCode);
       showSuccess("Session code copied!");
+      setCopied(true); // ✅ trigger animation
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      handleApiError(err)
+      handleApiError(err);
     }
   };
   return (
@@ -256,17 +261,17 @@ const WaitingRoom = () => {
                 return (
                   <motion.div
                     key={team.name}
-                    className="relative flex flex-col items-center gap-3.5 rounded-[40px] bg-[linear-gradient(180deg,_#FF6D00_0%,_#FA9923_100%)] px-[22px] py-[20px] shadow-sm transition-transform duration-200 hover:shadow-lg sm:items-start sm:px-[55px] sm:py-[60px]"
+                    className="relative z-0 flex flex-col items-center gap-3.5 rounded-[40px] bg-[linear-gradient(180deg,_#FF6D00_0%,_#FA9923_100%)] px-[22px] py-[20px] shadow-sm transition-transform duration-200 hover:shadow-lg sm:items-start sm:px-[55px] sm:py-[60px]"
                     whileHover={{ scale: 1.02 }}
                   >
                     <div
-                      className="pointer-events-none absolute inset-0 opacity-[20%]"
+                      className="pointer-events-none absolute inset-0 z-10"
                       style={{
                         backgroundImage: "url('/Noise.png')",
                         backgroundRepeat: "repeat",
                       }}
                     />
-                    <div className="flex items-center justify-center sm:justify-between">
+                    <div className="relative z-20 flex w-full items-center justify-between">
                       <h3 className="text-2xl font-semibold leading-[100%] text-white md:text-[48px] md:leading-[70px]">
                         Team{" "}
                         <span
@@ -279,24 +284,35 @@ const WaitingRoom = () => {
                           {team.name}
                         </span>
                       </h3>
-                      {!userAlreadyInTeam && (
-                        <Button
+                      {/* ✅ Join / Full badge — always visible, right aligned */}
+                      {!userAlreadyInTeam ? (
+                        <button
                           disabled={isFull || isJoining}
                           onClick={() => handleJoinTeam(team.name)}
-                          className="flex items-center justify-center gap-2 bg-orange-800 text-white hover:bg-orange-900"
+                          className={cn(
+                            "relative z-10 flex min-w-[100px] items-center justify-center gap-2 rounded-full px-5 py-2 font-outfit text-sm font-semibold transition-all duration-200",
+                            isFull
+                              ? "cursor-not-allowed bg-white/10 text-white/40" // ✅ muted when full
+                              : "bg-white text-orange-600 hover:scale-105 hover:bg-white/90 active:scale-95", // ✅ white pill when joinable
+                          )}
                         >
                           {isJoining && joiningTeam === team.name ? (
                             <>
-                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                              Joining...
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
+                              <span>Joining...</span>
                             </>
                           ) : isFull ? (
                             "Team Full"
                           ) : (
                             "Join"
                           )}
-                        </Button>
-                      )}
+                        </button>
+                      ) : isUserInTeam ? (
+                        // ✅ "You're here" badge for current user's team
+                        <span className="relative z-10 rounded-full bg-white/20 px-4 py-1.5 font-outfit text-sm font-medium text-white">
+                          ✓ Your Team
+                        </span>
+                      ) : null}
                     </div>
                     {team.members?.map((member, idx) => (
                       <li
@@ -349,7 +365,7 @@ const WaitingRoom = () => {
                   {sessionData.sessionCode}
                 </div>
                 <div className="flex flex-row gap-5">
-                  {allTeamsFull ? (
+                  {allTeamsFull && isHost ? (
                     <GradientButton
                       className="shadow-[0px_0px_34px_0px_#F5FFE633]"
                       onClick={handleStartGame}
@@ -364,27 +380,47 @@ const WaitingRoom = () => {
                       disabled={isEnding}
                       icon={false}
                     >
-                      End Session
+                      End Game
                     </GradientButton>
                   )}
                   <Button
                     className={cn(
-                      "gradient-border",
+                      "gradient-border group",
                       "flex h-[40px] items-center px-5 py-0",
+                      "transition-all duration-200 active:scale-95", // ✅ press effect
                     )}
                     onClick={handleCopyCode}
                     style={
                       {
                         "--border-gradient":
                           "linear-gradient(93.58deg, #67C3FF 8.55%, #010A2A 47.56%, #67C3FF 94.76%)",
-
                         "--radius": `20px`,
                         "--padding": "1px",
                       } as React.CSSProperties
                     }
                   >
-                    <div className="relative z-10 flex h-full flex-col items-center justify-center text-lg">
-                      <span>Copy Code</span>
+                    <div className="relative z-10 flex h-full flex-row items-center justify-center gap-2 text-lg">
+                      {copied ? (
+                        // ✅ Check icon fades in when copied
+                        <>
+                          <Check
+                            size={18}
+                            className="text-green-400 duration-200 animate-in fade-in zoom-in"
+                          />
+                          <span className="text-green-400 duration-200 animate-in fade-in">
+                            Copied!
+                          </span>
+                        </>
+                      ) : (
+                        // ✅ Copy icon slides up slightly on hover
+                        <>
+                          <Copy
+                            size={18}
+                            className="transition-transform duration-200 group-hover:-translate-y-0.5"
+                          />
+                          <span>Copy Code</span>
+                        </>
+                      )}
                     </div>
                   </Button>
                 </div>
