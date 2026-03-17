@@ -21,6 +21,9 @@ import { RenderField } from "@/components/FormRender/renderFields";
 import Loader from "@/components/Loader";
 import { GradientButton } from "@/components/GradientButton";
 import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { DialogClose } from "@/components/ui/dialog";
 
 type Props = {
   slug?: string;
@@ -97,6 +100,7 @@ export function CategoryDialog({ slug, trigger }: Props) {
   }
   return (
     <DialogWrapper
+
       type={isEdit ? "edit" : "add"}
       title={isEdit ? "Update Category" : "Add Category"}
       trigger={trigger}
@@ -129,7 +133,7 @@ export function CategoryDialog({ slug, trigger }: Props) {
           />
           <FileField
             control={form.control}
-            className="h-[128px] w-[128px]"
+            className="h-full max-h-[128px] w-full max-w-[132px]"
             label="Thumbnail"
             name="thumbnail"
             // inputProps={{
@@ -153,7 +157,30 @@ export function CategoryDialog({ slug, trigger }: Props) {
             </GradientButton>
 
             {/* Cancel button */}
-            <DialogWrapper.CancelButton />
+            <DialogClose asChild>
+              <Button
+                className={cn(
+                  "gradient-border h-[40px] cursor-pointer p-0 transition-all duration-200",
+                )}
+                style={
+                  {
+                    "--border-gradient":
+                      "linear-gradient(93.58deg, #67C3FF 8.55%, #010A2A 47.56%, #67C3FF 94.76%)",
+                    "--radius": `20px`,
+                    "--padding": `1px`,
+                  } as React.CSSProperties
+                }
+              >
+                <div
+                  className={cn(
+                    "relative z-10 flex h-[40px] items-center justify-center rounded-[20px] px-5 font-outfit text-[16px] transition-all duration-200 sm:text-[18px]",
+                    "bg-transparent text-white hover:bg-[#2985C866]",
+                  )}
+                >
+                  Cancel
+                </div>
+              </Button>
+            </DialogClose>
           </div>
         </form>
       </Form>

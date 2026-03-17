@@ -9,8 +9,6 @@ import { fetchQuestionsForOneCategory } from "../helper/fetchrandomquestion.js";
 export const addQuestionToCategory = asyncHandler(async (req, res) => {
   const { categoryId, points, questionText, answer, options } = req.body;
 
-
-
   // Ensure all required fields are present
   if (
     !categoryId ||
@@ -22,7 +20,7 @@ export const addQuestionToCategory = asyncHandler(async (req, res) => {
   ) {
     throw new ApiError(
       400,
-      "All fields are required and there must be exactly 4 options."
+      "All fields are required and there must be exactly 4 options.",
     );
   }
 
@@ -42,7 +40,7 @@ export const addQuestionToCategory = asyncHandler(async (req, res) => {
   if (!questionImage.url) {
     throw new ApiError(
       500,
-      "Error while uploading question image to Cloudinary"
+      "Error while uploading question image to Cloudinary",
     );
   }
 
@@ -81,25 +79,23 @@ export const addQuestionToCategory = asyncHandler(async (req, res) => {
 
 export const getQuestionsByCategory = asyncHandler(async (req, res) => {
   const { slug } = req.params;
-  const catagory = await Category.findOne({ slug: slug });
-  if (!catagory) {
-    throw new ApiError(404, "Category Not Found");
+
+  const category = await Category.findOne({ slug });
+  if (!category) {
+    throw new ApiError(404, "Category not found");
   }
-  const allQuestions = await fetchQuestionsForOneCategory(catagory._id);
-  if (
-    !allQuestions ||
-    Object.values(allQuestions).every((questions) => questions.length === 0)
-  ) {
-    throw new ApiError(404, "No Questions found for this category");
-  }
+
+  // Empty questions is valid — return 200 with empty structure, not a 404
+  const questionsByPoints = await fetchQuestionsForOneCategory(category._id);
+
   return res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        `all questions for category ${catagory.name}`,
-        allQuestions
-      )
+        `Questions for category "${category.name}"`,
+        questionsByPoints ?? {},
+      ),
     );
 });
 export const updateQuestion = asyncHandler(async (req, res) => {
@@ -109,7 +105,6 @@ export const updateQuestion = asyncHandler(async (req, res) => {
   if (!categoryId || !points || !questionText || !answer) {
     throw new ApiError(400, "All fields are required");
   }
- 
 
   const imagesPath = {};
   if (req.files?.questionImage?.[0]?.path) {
