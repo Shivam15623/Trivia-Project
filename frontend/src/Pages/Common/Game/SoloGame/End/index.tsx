@@ -90,7 +90,7 @@ const EndGame = () => {
                 className={cn(
                   "sm:bg-[linear-gradient(180deg,_rgba(85, 197, 228, 0)_75.97%,_#55C6E4_100%)] absolute sm:h-full sm:w-fit sm:max-w-[305px]",
                   score < 4680
-                    ? "right-4 top-[62px] sm:-bottom-[15px] sm:-right-[24px] sm:top-auto"
+                    ? "right-4 top-[62px] sm:-bottom-[23px] sm:-right-[24px] sm:top-auto"
                     : "left-[7px] top-[27px] sm:-bottom-[15px] sm:-left-[24px] sm:top-auto",
                 )}
               >
