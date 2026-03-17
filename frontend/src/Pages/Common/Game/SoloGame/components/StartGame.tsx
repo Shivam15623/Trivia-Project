@@ -11,14 +11,8 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
-/* ✅ Proper refetch type extracted from hook */
-type RefetchType = ReturnType<
-  typeof import("@/services").useFetchGameSessionInfoQuery
->["refetch"];
-
 interface StartGameProps {
   session: GameSession;
-  refetch: RefetchType;
 }
 const CategoryCard = ({ cat }: { cat: Category }) => (
   <div
@@ -49,7 +43,7 @@ const CategoryCard = ({ cat }: { cat: Category }) => (
     </div>
   </div>
 );
-const StartGame: React.FC<StartGameProps> = ({ session, refetch }) => {
+const StartGame: React.FC<StartGameProps> = ({ session }) => {
   const { sessionCode } = useParams<{ sessionCode: string }>();
   const navigate = useNavigate();
   const { user } = useSelector(selectAuth);
@@ -65,7 +59,6 @@ const StartGame: React.FC<StartGameProps> = ({ session, refetch }) => {
 
       if (response.success) {
         showSuccess(response.message);
-        await refetch(); // force status update
       }
     } catch (error) {
       handleApiError(error);
