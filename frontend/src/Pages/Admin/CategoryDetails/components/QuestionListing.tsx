@@ -80,7 +80,7 @@ const QuestionTable = ({ questions }: Props) => {
     totalPages,
     paginatedData: paginatedquestions,
     setPage,
-  } = usePagination(filtered || [], 3);
+  } = usePagination(filtered || [], 20);
 
   useEffect(() => {
     setPage(1);

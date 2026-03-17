@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 
 import { Switch } from "@/components/ui/switch";
 import { Category } from "@/interfaces/categoriesInterface";
-import { Eye } from "lucide-react";
+import { Edit, Eye } from "lucide-react";
 
 import DeleteCategory from "./DeleteCategory";
 import { usePublicToggleMutation } from "@/services";
@@ -10,6 +10,8 @@ import { useNavigate } from "react-router-dom";
 import { showSuccess } from "@/components/toastUtills";
 import { handleApiError } from "@/utills/handleApiError";
 import { GradientCard } from "@/Pages/Customer/CustomerHome/components/GradientBorderCard";
+import { CategoryDialog } from "./ManageCategory";
+
 type Props = {
   category: Category;
 };
@@ -36,7 +38,7 @@ const Categorylisting = ({ category }: Props) => {
       <div className="flex flex-row gap-[10px] p-5">
         <img
           src={category.thumbnail}
-          className="aspect-square max-w-[150px]"
+          className="aspect-square max-w-[150px] object-contain"
           alt={category.name}
         />
         <div className="relative flex flex-1 flex-col gap-3.5 pt-2.5">
@@ -63,15 +65,27 @@ const Categorylisting = ({ category }: Props) => {
           <p className="font-outfit text-[14px] leading-[100%] text-white">
             {category.description}
           </p>
-          <div className="absolute bottom-0 right-0 flex w-fit flex-row gap-3.5">
+          <div className="absolute bottom-0 right-0 flex w-fit flex-row gap-1">
             <Button
               onClick={() => navigate(`/admin/category/${category.slug}`)}
-              className="rounded-md p-1.5"
+              className="rounded-md p-0.5 hover:bg-[#f5f5f52b]"
               variant="ghost"
               size="icon"
             >
-              <Eye className="text-white" />
+              <Eye className="text-2xl text-white" size={24} />
             </Button>
+            <CategoryDialog
+              slug={category.slug}
+              trigger={
+                <Button
+                  className="rounded-md p-0.5 hover:bg-[#f5f5f52b]"
+                  variant="ghost"
+                  size="icon"
+                >
+                  <Edit className="text-2xl text-white" size={24}/>
+                </Button>
+              }
+            />
             <DeleteCategory
               categoryId={category._id}
               categoryName={category.name}

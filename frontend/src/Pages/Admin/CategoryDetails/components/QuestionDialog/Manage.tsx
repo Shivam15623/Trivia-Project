@@ -30,6 +30,9 @@ import { ReactNode, useEffect } from "react";
 import { RenderField } from "@/components/FormRender/renderFields";
 import { Loader2 } from "lucide-react";
 import { GradientButton } from "@/components/GradientButton";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { DialogClose } from "@/components/ui/dialog";
 
 const Points = [200, 400, 600];
 type Props = {
@@ -238,7 +241,30 @@ export function QuestionDialog({ id, trigger }: Props) {
                 "Submit"
               )}
             </GradientButton>
-            <DialogWrapper.CancelButton />
+            <DialogClose asChild>
+              <Button
+                className={cn(
+                  "gradient-border h-[40px] cursor-pointer p-0 transition-all duration-200",
+                )}
+                style={
+                  {
+                    "--border-gradient":
+                      "linear-gradient(93.58deg, #67C3FF 8.55%, #010A2A 47.56%, #67C3FF 94.76%)",
+                    "--radius": `20px`,
+                    "--padding": `1px`,
+                  } as React.CSSProperties
+                }
+              >
+                <div
+                  className={cn(
+                    "relative z-10 flex h-[40px] items-center justify-center rounded-[20px] px-5 font-outfit text-[16px] transition-all duration-200 sm:text-[18px]",
+                    "bg-transparent text-white hover:bg-[#2985C866]",
+                  )}
+                >
+                  Cancel
+                </div>
+              </Button>
+            </DialogClose>
           </div>
         </form>
       </Form>

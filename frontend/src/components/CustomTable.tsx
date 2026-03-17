@@ -67,7 +67,12 @@ const CustomTable = <T,>({ columns, data, variant = "Question" }: Props<T>) => {
   return (
     <Table className={styles.table}>
       <TableHeader className={styles.header}>
-        <TableRow className={cn(styles.headerrow, "gradientRow")}>
+        <TableRow
+          className={cn(
+            styles.headerrow,
+            "gradientRow !border-b-0 ",
+          )}
+        >
           {columns.map((column, idx) => (
             <TableHead key={idx} className={styles.headercell}>
               {column.name}
@@ -81,14 +86,17 @@ const CustomTable = <T,>({ columns, data, variant = "Question" }: Props<T>) => {
           <TableRow className="gradientRow">
             <TableCell
               colSpan={columns.length}
-              className="text-muted-foreground py-4 text-center text-sm"
+              className="py-4 text-center text-sm text-muted-foreground"
             >
               No data available.
             </TableCell>
           </TableRow>
         ) : (
           data.map((row, rowIndex) => (
-            <TableRow key={rowIndex} className={cn(styles.row, "gradientRow")}>
+            <TableRow
+              key={rowIndex}
+              className={cn(styles.row, "gradientRow border-b-0")}
+            >
               {columns.map((col, colIndex) => (
                 <TableCell key={colIndex} className={styles.cell}>
                   {col.cell(row, rowIndex, data)}
