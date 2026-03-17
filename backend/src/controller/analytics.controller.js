@@ -2,6 +2,7 @@ import { onlineUsers } from "../index.js";
 import Category from "../model/categorie.model.js";
 import { GameAnalytics } from "../model/gameAnalytics.model.js";
 import { GameSession } from "../model/GameSession.model.js";
+import User from "../model/user.model.js";
 import { ApiResponse } from "../utills/ApiResponse.js";
 import { asyncHandler } from "../utills/Asynchandler.js";
 
@@ -106,33 +107,23 @@ export const analyticsDashboard = asyncHandler(async (req, res) => {
       },
     ]),
     // 10️⃣ Users per country (from User model via GameAnalytics players)
-    GameAnalytics.aggregate([
-      { $unwind: "$players" },
-      {
-        $lookup: {
-          from: "users",
-          localField: "players",
-          foreignField: "_id",
-          as: "user",
-        },
-      },
-      { $unwind: "$user" },
+    User.aggregate([
       {
         $match: {
-          "user.country": { $exists: true, $ne: "unknown", $ne: null, $ne: "" },
+          country: { $exists: true, $nin: ["unknown", null, ""] },
         },
       },
       {
         $group: {
-          _id: "$user.country", // "IN", "US", "BR" etc.
-          users: { $addToSet: "$players" }, // unique users per country
+          _id: "$country",
+          users: { $sum: 1 }, // count users
         },
       },
       {
         $project: {
           _id: 0,
           country: "$_id",
-          users: { $size: "$users" }, // count of unique users
+          users: 1,
         },
       },
       { $sort: { users: -1 } },
@@ -166,6 +157,7 @@ export const analyticsDashboard = asyncHandler(async (req, res) => {
       },
       liveUsers: onlineUsers.size,
       activeUsersToday: ActiveUsersToday[0]?.activeUsers || 0,
+      usersByCountry,
     }),
   );
 });

@@ -32,6 +32,7 @@ interface UseGameSubmitProps {
   emitGameEnd: () => void;
   setAnswerResult: (result: AnswerResult | null) => void;
   setQuestionData: (q: currentQuestionData) => void;
+  setIsTransitioning: (v: boolean) => void;
 }
 
 const preloadImage = (src: string | undefined | null): Promise<void> =>
@@ -58,6 +59,7 @@ export const useGameSubmit = ({
   setQuestionData,
   setAnswerResult,
   emitGameEnd,
+  setIsTransitioning,
 }: UseGameSubmitProps) => {
   const navigate = useNavigate();
   // const { user } = useSelector(selectAuth);
@@ -133,17 +135,13 @@ export const useGameSubmit = ({
 
         if (!res.success) return;
 
-        // Game is over — navigate immediately, no overlay needed
         if (res.data.gameEnded) {
           navigate(`/game/SoloGameEnd/${sessionCode}`);
           return;
         }
 
-        // Preload both images in parallel while the overlay is showing
-        await Promise.all([
-          preloadImage(questionData.answerImage),
-          preloadImage(res.data.nextQuestion?.questionImage),
-        ]);
+        // ✅ Preload answer image only (shown in overlay)
+        await preloadImage(questionData.answerImage);
 
         if ("isCorrect" in res.data) {
           setAnswerResult({
@@ -154,14 +152,11 @@ export const useGameSubmit = ({
           });
         }
 
-        setTimeout(() => {
+        setTimeout(async () => {
           setAnswerResult(null);
 
-          // Map API response field names → internal interface field names.
-          // Keeping this mapping here (not in a transformer) makes the mismatch
-          // explicit and easy to fix if the API changes.
           if ("nextQuestion" in res.data && res.data.nextQuestion) {
-            setQuestionData({
+            const nextQ: currentQuestionData = {
               questionId: res.data.nextQuestion.questionId,
               Answer: res.data.nextQuestion.Answer,
               answerImage: res.data.nextQuestion.AnswerImage,
@@ -170,7 +165,14 @@ export const useGameSubmit = ({
               points: res.data.nextQuestion.points,
               questionImage: res.data.nextQuestion.questionImage,
               questionText: res.data.nextQuestion.questionText,
-            });
+            };
+
+            // ✅ Show skeleton FIRST, preload THEN reveal
+            setIsTransitioning(true);
+            await preloadImage(nextQ.questionImage);
+            await preloadImage(nextQ.answerImage); // preload for next submit too
+            setQuestionData(nextQ);
+            setIsTransitioning(false); // ✅ image is ready, now show it
           }
         }, ANSWER_DISPLAY_MS);
       }

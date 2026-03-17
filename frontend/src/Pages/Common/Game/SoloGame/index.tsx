@@ -1,7 +1,6 @@
 import Loader from "@/components/Loader";
 import { selectAuth } from "@/redux/AuthSlice/authSlice";
 import { useFetchGameSessionInfoQuery } from "@/services";
-
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import PlayGame from "../components/PlayGame";
@@ -12,16 +11,14 @@ const SoloGame = () => {
   const { user } = useSelector(selectAuth);
   const userId = user?._id;
 
-  const {
-    data: sessionData,
-    isLoading,
+  const { data: sessionData, isLoading } = useFetchGameSessionInfoQuery(
+    sessionCode!,
+    {
+      skip: !sessionCode,
+    },
+  );
 
-    refetch,
-  } = useFetchGameSessionInfoQuery(sessionCode!, {
-    skip: !sessionCode,
-  });
-
-  // 🔄 Show loader only on initial load
+  // ✅ Only block UI on the INITIAL load, not on refetches
   if (isLoading) return <Loader />;
 
   if (!sessionData?.data) {
@@ -37,9 +34,7 @@ const SoloGame = () => {
 
   return (
     <>
-      {status === "waiting" && (
-        <StartGame session={session} refetch={refetch} />
-      )}
+      {status === "waiting" && <StartGame session={session} />}
 
       {status === "active" && userId === host && <PlayGame />}
 

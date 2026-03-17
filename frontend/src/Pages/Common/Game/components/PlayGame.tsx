@@ -21,11 +21,10 @@ const PlayGame = () => {
     hasSubmitted,
     timeLeft,
     showTimer,
-
     answerResult,
+    isTransitioning, // ✅ new
   } = useGameEngine(sessionCode!);
-  console.log("hi ,play", timeLeft);
-  // Loading state
+
   if (isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center bg-black">
@@ -34,7 +33,6 @@ const PlayGame = () => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="flex flex-1 items-center justify-center bg-black">
@@ -47,9 +45,7 @@ const PlayGame = () => {
 
   return (
     <>
-      {" "}
       <div className="relative flex flex-1 flex-col overflow-hidden px-4 sm:items-center sm:justify-center">
-        {/* Centering wrapper */}
         <div className="relative z-10 mx-auto h-fit w-full max-w-[1096px] px-4 sm:px-6 md:px-8 lg:px-10 xl:px-0">
           <div className="flex flex-col gap-6 py-6">
             {/* Question Card */}
@@ -74,7 +70,6 @@ const PlayGame = () => {
                         : "bg-red-500/20",
                     )}
                   >
-                    {/* Icon */}
                     <div
                       className={cn(
                         "flex h-16 w-16 items-center justify-center rounded-full text-4xl",
@@ -86,7 +81,6 @@ const PlayGame = () => {
                       {answerResult.isCorrect ? "✓" : "✗"}
                     </div>
 
-                    {/* Correct / Wrong label */}
                     <p
                       className={cn(
                         "font-inter text-2xl font-bold",
@@ -98,7 +92,6 @@ const PlayGame = () => {
                       {answerResult.isCorrect ? "Correct!" : "Wrong!"}
                     </p>
 
-                    {/* ✅ Answer image if present */}
                     {answerResult.answerImage && (
                       <img
                         src={answerResult.answerImage}
@@ -107,7 +100,6 @@ const PlayGame = () => {
                       />
                     )}
 
-                    {/* Correct answer text — always show so player knows */}
                     <p className="font-outfit text-lg text-white">
                       Correct answer:{" "}
                       <span className="font-semibold text-green-400">
@@ -115,14 +107,12 @@ const PlayGame = () => {
                       </span>
                     </p>
 
-                    {/* Points — only if correct */}
                     {answerResult.isCorrect && (
                       <p className="font-outfit text-base text-white/70">
                         +{answerResult.pointsAwarded} pts
                       </p>
                     )}
 
-                    {/* Drain bar */}
                     <div className="mt-2 h-1 w-32 overflow-hidden rounded-full bg-white/20">
                       <div
                         className="h-full w-full rounded-full bg-white"
@@ -131,6 +121,7 @@ const PlayGame = () => {
                     </div>
                   </div>
                 )}
+
                 <div className="flex flex-row items-center justify-between font-inter text-2xl font-medium leading-[100%] text-white">
                   <h4 className="font-inter text-sm font-medium leading-[100%] text-white sm:text-2xl">
                     {questionData?.category.name}
@@ -140,19 +131,31 @@ const PlayGame = () => {
                     <div>{timeLeft} Sec</div>
                   )}
                 </div>
-                <img
-                  src={questionData?.questionImage}
-                  alt="question image"
-                  className="mx-auto aspect-video w-full max-w-none object-contain sm:max-w-2xl md:max-w-3xl lg:max-w-4xl"
-                />
+
+                {/* ✅ Hide stale image during transition, show skeleton instead */}
+                {isTransitioning ? (
+                  <div className="mx-auto aspect-video w-full max-w-none animate-pulse rounded-xl bg-white/10 sm:max-w-2xl md:max-w-3xl lg:max-w-4xl" />
+                ) : (
+                  <img
+                    src={questionData?.questionImage}
+                    alt="question image"
+                    className="mx-auto aspect-video w-full max-w-none object-contain sm:max-w-2xl md:max-w-3xl lg:max-w-4xl"
+                  />
+                )}
+
                 <h3 className="text-center font-outfit text-sm font-medium leading-[150%] text-white sm:leading-[100%] lg:text-[32px]">
                   {questionData?.questionText}
                 </h3>
               </div>
             </div>
 
-            {/* Options Grid */}
-            <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-2">
+            {/* ✅ Options locked during transition to prevent clicks on stale data */}
+            <div
+              className={cn(
+                "grid grid-cols-1 gap-[18px] sm:grid-cols-2",
+                isTransitioning && "pointer-events-none opacity-40",
+              )}
+            >
               {questionData?.options.map((option, index) => {
                 const isSelected = selectedIndex === index;
 
@@ -168,7 +171,6 @@ const PlayGame = () => {
                 const innerCard = (
                   <div
                     onClick={() => {
-                      // ✅ hasSubmitted blocks selection after submit or time up
                       if (hasSubmitted) return;
                       setSelectedIndex(index);
                       setSelectedOption(option);
@@ -210,15 +212,21 @@ const PlayGame = () => {
               <GradientButton
                 onClick={handleSubmit}
                 icon={false}
-                // ✅ disabled when: nothing selected, already submitted, or mid-request
-                disabled={!selectedOption || hasSubmitted || isSubmitting}
+                disabled={
+                  !selectedOption ||
+                  hasSubmitted ||
+                  isSubmitting ||
+                  isTransitioning
+                } // ✅ also disabled during transition
                 className={cn(
                   "transition-opacity",
-                  (!selectedOption || hasSubmitted || isSubmitting) &&
+                  (!selectedOption ||
+                    hasSubmitted ||
+                    isSubmitting ||
+                    isTransitioning) &&
                     "cursor-not-allowed opacity-50",
                 )}
               >
-                {/* ✅ isSubmitting shows loading text */}
                 {isSubmitting
                   ? "Submitting..."
                   : hasSubmitted
@@ -228,7 +236,8 @@ const PlayGame = () => {
             </div>
           </div>
         </div>
-      </div>{" "}
+      </div>
+
       <div className="pointer-events-none absolute inset-0 z-0 overflow-x-hidden">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -301,8 +310,8 @@ const PlayGame = () => {
               y2="295.148"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="0.0187462" stop-color="#FC9924" />
-              <stop offset="1" stop-color="#FCD645" />
+              <stop offset="0.0187462" stopColor="#FC9924" />
+              <stop offset="1" stopColor="#FCD645" />
             </linearGradient>
             <linearGradient
               id="paint1_linear_457_1966"
@@ -312,8 +321,8 @@ const PlayGame = () => {
               y2="256.908"
               gradientUnits="userSpaceOnUse"
             >
-              <stop stop-color="#7BFDFD" />
-              <stop offset="0.716346" stop-color="#2884C7" />
+              <stop stopColor="#7BFDFD" />
+              <stop offset="0.716346" stopColor="#2884C7" />
             </linearGradient>
           </defs>
         </svg>

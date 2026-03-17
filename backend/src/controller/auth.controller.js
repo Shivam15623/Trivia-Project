@@ -9,6 +9,11 @@ import jwt from "jsonwebtoken";
 import geoip from "geoip-lite";
 export const RegisterAdmin = asyncHandler(async (req, res) => {
   const { firstname, lastname, phoneNo, password, DOB, email } = req.body;
+  const ip =
+    req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
+
+  const geo = geoip.lookup(ip);
+  const country = geo?.country ?? "Unknown";
   if (!firstname || !lastname || !phoneNo || !password || !DOB || !email) {
     throw new ApiError(400, "All fields are Required");
   }
@@ -26,6 +31,7 @@ export const RegisterAdmin = asyncHandler(async (req, res) => {
     phoneNo: phoneNo,
     isVerified: false,
     role: "admin",
+    country,
   });
   await sendVerificationEmail({ email: email, userId: user._id });
   if (!user) {
@@ -44,6 +50,11 @@ export const RegisterCustomer = asyncHandler(async (req, res) => {
     throw new ApiError(400, "All fields are Required");
   }
   //existing check
+  const ip =
+    req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
+
+  const geo = geoip.lookup(ip);
+  const country = geo?.country ?? "Unknown";
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new ApiError(400, "A User Already Exists with This Email");
@@ -57,6 +68,7 @@ export const RegisterCustomer = asyncHandler(async (req, res) => {
     phoneNo: phoneNo,
     isVerified: false,
     role: "customer",
+    country,
   });
   await sendVerificationEmail({ email: email, userId: user._id });
   if (!user) {
@@ -93,8 +105,16 @@ export const LoginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Invalid Password");
   }
 
-  user.country = country;
-  await user.save({ validateModifiedOnly: true });
+  // ✅ Smart country update
+  if (
+    !user.country ||
+    user.country === "Unknown" ||
+    (country !== "Unknown" && user.country !== country)
+  ) {
+    user.country = country;
+    await user.save({ validateModifiedOnly: true });
+  }
+
   const { accessToken, refreshToken } = await generateTokens(user._id);
 
   // Sanitize user object for frontend

@@ -35,6 +35,7 @@ interface TooltipData {
 const HeatMap = ({ usersByCountry }: Props) => {
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
   const [iso2To3, setIso2To3] = useState<Record<string, string>>({});
+  console.log(usersByCountry, iso2To3);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // ── Build ISO2 → ISO3 map from the same GeoJSON (browser cache hits) ───────
