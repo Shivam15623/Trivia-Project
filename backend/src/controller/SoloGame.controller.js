@@ -392,7 +392,7 @@ export const SubmitAnswerSolo = asyncHandler(async (req, res) => {
   const nextQuestionResponse = {
     questionId: nextQuestion._id,
     points: nextQuestion.points,
-    QuestionImage: nextQuestion.questionImage,
+    questionImage: nextQuestion.questionImage,
     questionText: nextQuestion.questionText,
     AnswerImage: nextQuestion.answerImage,
     options: nextQuestion.options,
