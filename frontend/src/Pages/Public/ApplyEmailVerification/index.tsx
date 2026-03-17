@@ -76,7 +76,7 @@ const ApplyEmailVerification: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
-                    className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-3 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#e34b4b]"
+                    className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-3 transition-all focus:border-transparent focus:outline-none "
                   />
                 </div>
               </div>

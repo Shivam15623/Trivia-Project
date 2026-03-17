@@ -238,6 +238,7 @@ export const getAllUsers = asyncHandler(async (req, res) => {
 
   const totalUsers = await User.countDocuments(matchStage);
 
+
   return res.status(200).json(
     new ApiResponse(200, "Users fetched successfully", {
       users,

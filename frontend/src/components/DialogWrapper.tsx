@@ -138,39 +138,48 @@ export const DialogWrapper = ({
           style.dialogClass,
         )}
       >
-        <DialogHeader className={cn(style.headerClass, "flex")}>
-          <DialogTitle
-            className={cn(
-              "flex items-center justify-between gap-2 font-outfit text-[24px] font-normal",
-              style.titleClass,
-            )}
-          >
-            <div className="flex items-center gap-2">
-              {" "}
-              <div
-                className={cn(
-                  "flex items-center justify-center rounded-full p-1.5",
-                  style.iconBgClass,
-                )}
-              >
-                {style.icon}
+        <div
+          className="pointer-events-none absolute inset-0 z-10"
+          style={{
+            backgroundImage: "url('/Noise.png')",
+            backgroundRepeat: "repeat",
+          }}
+        />
+        <div className="relative z-20 flex flex-col gap-5">
+          <DialogHeader className={cn(style.headerClass, "flex")}>
+            <DialogTitle
+              className={cn(
+                "flex items-center justify-between gap-2 font-outfit text-[24px] font-normal",
+                style.titleClass,
+              )}
+            >
+              <div className="flex items-center gap-2">
+                {" "}
+                <div
+                  className={cn(
+                    "flex items-center justify-center rounded-full p-1.5",
+                    style.iconBgClass,
+                  )}
+                >
+                  {style.icon}
+                </div>
+                <span>{title}</span>
               </div>
-              <span>{title}</span>
-            </div>
-            <DialogClose asChild>
-              <button className="rounded-md p-1 transition hover:bg-white/10">
-                <X className="h-6 w-6" />
-              </button>
-            </DialogClose>
-          </DialogTitle>
-          {description && (
-            <DialogDescription className={style.descriptionClass}>
-              {description}
-            </DialogDescription>
-          )}
-        </DialogHeader>
+              <DialogClose asChild>
+                <button className="rounded-md p-1 transition hover:bg-white/10">
+                  <X className="h-6 w-6" />
+                </button>
+              </DialogClose>
+            </DialogTitle>
+            {description && (
+              <DialogDescription className={style.descriptionClass}>
+                {description}
+              </DialogDescription>
+            )}
+          </DialogHeader>
 
-        {children}
+          {children}
+        </div>
       </DialogContent>
     </Dialog>
   );

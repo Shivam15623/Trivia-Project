@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/form";
 import { useController, Control, FieldValues, Path } from "react-hook-form";
 import { useEffect, useRef, useState } from "react";
+import { Icon } from "@iconify/react";
 type FileFieldProps<TForm extends FieldValues> = {
   name: Path<TForm>;
   label: string;
@@ -70,17 +71,22 @@ export function FileField<TForm extends FieldValues>({
               />
 
               <div
-                className="text-muted-foreground flex h-full w-full cursor-pointer items-center justify-center overflow-hidden border text-center text-sm"
+                className="flex h-full w-full cursor-pointer items-center justify-center overflow-hidden text-center text-sm text-muted-foreground"
                 onClick={() => inputRef.current?.click()}
               >
                 {preview ? (
                   <img
                     src={preview}
                     alt="Preview"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full  object-contain"
                   />
                 ) : (
-                  "Upload Image"
+                  <div className="flex flex-row w-full gap-2 text-[#FFFFFF]">
+                    <Icon icon={"mynaui:upload"} className="text-2xl" />{" "}
+                    <span className="font-outfit text-base font-normal opacity-60">
+                      Upload Image
+                    </span>
+                  </div>
                 )}
               </div>
             </div>

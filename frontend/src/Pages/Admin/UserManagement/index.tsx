@@ -47,6 +47,7 @@ const UserManagement = () => {
   });
 
   const users = data?.data?.users || [];
+  console.log(users)
   const totalPages = data?.data?.totalPages || 1;
 
   const columns = [

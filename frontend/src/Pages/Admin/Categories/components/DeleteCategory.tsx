@@ -1,10 +1,11 @@
 import { DialogWrapper } from "@/components/DialogWrapper";
 import { showSuccess } from "@/components/toastUtills";
 import { Button } from "@/components/ui/button";
-import { DialogFooter } from "@/components/ui/dialog";
+import { DialogClose, DialogFooter } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { useDeleteCategoryMutation } from "@/services";
 import { handleApiError } from "@/utills/handleApiError";
-import {  Trash2} from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 type Props = {
   categoryId: string;
@@ -25,9 +26,8 @@ const DeleteCategory = ({ categoryId, categoryName }: Props) => {
   return (
     <DialogWrapper
       title={`Remove Category ${categoryName}?`}
-      
       trigger={
-        <button className="group relative flex h-[40px] w-[40px]  px-[10px] cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-[#2985C8]  font-outfit text-[18px] text-white transition-all duration-300 ease-out hover:-translate-y-[2px] hover:shadow-[0_10px_25px_rgba(41,133,200,0.45)]">
+        <button className="group relative flex h-[40px] w-[40px] cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-[#2985C8] px-[10px] font-outfit text-[18px] text-white transition-all duration-300 ease-out hover:-translate-y-[2px] hover:shadow-[0_10px_25px_rgba(41,133,200,0.45)]">
           <div className="pointer-events-none absolute inset-0 rounded-[10px] bg-[linear-gradient(93.58deg,#67C3FF_8.55%,#010A2A_47.56%,#67C3FF_94.76%)] p-[1px]">
             <div className="h-full w-full rounded-[10px] bg-[#2985C8]" />
           </div>
@@ -134,7 +134,30 @@ const DeleteCategory = ({ categoryId, categoryName }: Props) => {
         </Button>
 
         {/* Cancel button */}
-        <DialogWrapper.CancelButton />
+        <DialogClose asChild>
+          <Button
+            className={cn(
+              "gradient-border h-[40px] cursor-pointer p-0 transition-all duration-200",
+            )}
+            style={
+              {
+                "--border-gradient":
+                  "linear-gradient(93.58deg, #67C3FF 8.55%, #010A2A 47.56%, #67C3FF 94.76%)",
+                "--radius": `20px`,
+                "--padding": `1px`,
+              } as React.CSSProperties
+            }
+          >
+            <div
+              className={cn(
+                "relative z-10 flex h-[40px] w-full items-center justify-center rounded-[20px] px-5 font-outfit text-[16px] transition-all duration-200 sm:text-[18px]",
+                "bg-transparent text-white hover:bg-[#2985C866]",
+              )}
+            >
+              Cancel
+            </div>
+          </Button>
+        </DialogClose>
       </DialogFooter>
     </DialogWrapper>
   );
