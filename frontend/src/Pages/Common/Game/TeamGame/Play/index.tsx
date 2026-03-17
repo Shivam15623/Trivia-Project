@@ -33,6 +33,7 @@ const Play = () => {
     // showTurnBanner,
     answerResult,
     emitGameEnd,
+    isTransitioning,
   } = useGameEngine(sessionCode!);
 
   const isHost = sessionInfo?.host === user?._id;
@@ -199,21 +200,30 @@ const Play = () => {
                     <h4 className="font-inter text-2xl font-medium leading-[100%] text-white">
                       {questionData?.category.name}
                     </h4>
-                    {}
+
                     {/* <div>time</div> */}
                   </div>
-                  <img
-                    src={questionData?.questionImage}
-                    alt="question image"
-                    className="mx-auto aspect-video w-full max-w-none object-cover sm:max-w-2xl md:max-w-3xl lg:max-w-4xl"
-                  />
+                  {isTransitioning ? (
+                    <div className="mx-auto aspect-video w-full max-w-none animate-pulse rounded-xl bg-white/10 sm:max-w-2xl md:max-w-3xl lg:max-w-4xl" />
+                  ) : (
+                    <img
+                      src={questionData?.questionImage}
+                      alt="question image"
+                      className="mx-auto aspect-video w-full max-w-none object-contain sm:max-w-2xl md:max-w-3xl lg:max-w-4xl"
+                    />
+                  )}
                   <h3 className="text-center font-outfit text-[32px] font-medium leading-[100%] text-white">
                     {questionData?.questionText}
                   </h3>
                 </div>
               </GradientCard>
               {currentMember?.userId === user?._id ? (
-                <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-2">
+                <div
+                  className={cn(
+                    "grid grid-cols-1 gap-[18px] sm:grid-cols-2",
+                    isTransitioning && "pointer-events-none opacity-40",
+                  )}
+                >
                   {questionData?.options.map((option, index) => {
                     const isSelected = selectedIndex === index;
 
@@ -229,22 +239,19 @@ const Play = () => {
                     const innerCard = (
                       <div
                         onClick={() => {
+                          if (hasSubmitted) return;
                           setSelectedIndex(index);
                           setSelectedOption(option);
                         }}
-                        className="relative flex h-[58px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-[10px] p-5 font-outfit text-[18px] text-white transition-all duration-200 ease-out hover:scale-[1.03] hover:brightness-110 active:scale-[0.97]"
+                        className="relative z-0 flex h-[58px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-[10px] p-5 font-outfit text-[18px] text-white transition-all duration-200 ease-out hover:scale-[1.03] hover:brightness-110 active:scale-[0.97]"
                         style={{ background: baseGradient }}
                       >
-                        {/* noise overlay */}
                         <div
-                          className="pointer-events-none absolute inset-0 opacity-30"
+                          className="pointer-events-none absolute inset-0 z-10"
                           style={{ backgroundImage: "url('/Noise.png')" }}
                         />
-
-                        {/* hover glow */}
                         <div className="pointer-events-none absolute inset-0 bg-white opacity-0 transition-opacity duration-200 hover:opacity-20" />
-
-                        <span className="relative z-10 font-medium">
+                        <span className="relative z-20 font-medium">
                           {option}
                         </span>
                       </div>
@@ -262,7 +269,7 @@ const Play = () => {
                           } as React.CSSProperties
                         }
                       >
-                        <div className="relative z-10 flex h-full w-full">
+                        <div className="relative z-10 flex h-full">
                           {innerCard}
                         </div>
                       </div>
@@ -277,27 +284,41 @@ const Play = () => {
             <div className="flex flex-row gap-3.5">
               {currentMember?.userId === user?._id && (
                 <GradientButton
-                  disabled={!selectedOption || isSubmitting || hasSubmitted}
-                  type="button"
                   onClick={handleSubmit}
                   icon={false}
-                  className="w-fit"
+                  disabled={
+                    !selectedOption ||
+                    hasSubmitted ||
+                    isSubmitting ||
+                    isTransitioning
+                  } // ✅ also disabled during transition
+                  className={cn(
+                    "transition-opacity",
+                    (!selectedOption ||
+                      hasSubmitted ||
+                      isSubmitting ||
+                      isTransitioning) &&
+                      "cursor-not-allowed opacity-50",
+                  )}
                 >
-                  Submit
+                  {isSubmitting
+                    ? "Submitting..."
+                    : hasSubmitted
+                      ? "Submitted"
+                      : "Submit"}
                 </GradientButton>
               )}
               {isHost && (
                 <Button
                   className={cn(
-                    "gradient-border",
-                    "flex h-[40px] items-center px-5 py-0",
+                    "gradient-border group",
+                    "flex h-[40px] items-center px-5 py-0 transition-opacity duration-200 hover:opacity-90",
                   )}
                   onClick={handleEndGame}
                   style={
                     {
                       "--border-gradient":
                         "linear-gradient(93.58deg, #67C3FF 8.55%, #010A2A 47.56%, #67C3FF 94.76%)",
-
                       "--radius": `20px`,
                       "--padding": "1px",
                     } as React.CSSProperties
@@ -311,7 +332,7 @@ const Play = () => {
                       height="25"
                       viewBox="0 0 25 25"
                       fill="none"
-                      className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
+                      className="relative z-10 transition-transform duration-300 group-hover:translate-x-2" // ✅ arrow slides right on hover
                     >
                       <path
                         d="M15.1449 6.50586L20.9659 12.8151L14.6567 18.636"
