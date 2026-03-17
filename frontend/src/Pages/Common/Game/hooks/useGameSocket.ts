@@ -15,6 +15,7 @@ interface UseGameSocketProps {
   onTimerStart: (startedAt: string, duration: number) => void;
   onTimeUp: () => void;
   onGameEnded: () => void;
+  setIsTransitioning: (v: boolean) => void;
 }
 
 export const useGameSocket = ({
@@ -25,6 +26,7 @@ export const useGameSocket = ({
   onTimerStart,
   onTimeUp,
   onGameEnded,
+  setIsTransitioning,
 }: UseGameSocketProps) => {
   const socket = useSocket();
 
@@ -43,6 +45,7 @@ export const useGameSocket = ({
     onTimerStart,
     onTimeUp,
     onGameEnded,
+    setIsTransitioning, // ✅ new
   });
 
   // Update ref every render so listeners always call the latest callbacks
@@ -53,6 +56,7 @@ export const useGameSocket = ({
       onTimerStart,
       onTimeUp,
       onGameEnded,
+      setIsTransitioning, // ✅ new
     };
   });
 
@@ -84,6 +88,7 @@ export const useGameSocket = ({
         session: GameSession;
         currentQuestion: currentQuestionData;
       }) => {
+        cbRef.current.setIsTransitioning(true);
         cbRef.current.setSessionInfo(session);
         cbRef.current.setQuestionData(currentQuestion);
 
@@ -93,6 +98,7 @@ export const useGameSocket = ({
         //   lastQuestionIdRef.current = incomingId;
         //   socket.emit("player-ready", { sessionCode });
         // }
+        cbRef.current.setIsTransitioning(false);
       };
 
       socket.on("chngeState", onStateChange);
@@ -107,7 +113,7 @@ export const useGameSocket = ({
       }: {
         startedAt: string;
         timer: number;
-      }) => cbRef.current.onTimerStart(startedAt, timer);
+      }) => cbRef.current.onTimerStart(startedAt, timer - 1);
 
       /**
        * time-up arrives with the next question data already attached.
@@ -125,8 +131,10 @@ export const useGameSocket = ({
         cbRef.current.onTimeUp();
 
         setTimeout(() => {
+            cbRef.current.setIsTransitioning(true);
           if (session) cbRef.current.setSessionInfo(session);
           if (currentQuestion) cbRef.current.setQuestionData(currentQuestion);
+            cbRef.current.setIsTransitioning(false);
         }, 2000);
       };
 
