@@ -23,7 +23,7 @@ import { PlayerStats } from "../model/userStats.model.js";
  * check makes every orphaned callback a silent no-op.
  */
 const activeTimers = new Map();
-
+const GRACE_PERIOD_MS = 1500;
 /**
  * sessionCode → boolean
  *
@@ -351,7 +351,7 @@ async function armTimer(sessionCode, startedAt, duration, latencyMs) {
   // ── Compensate for time already consumed by the DB write ──────────────────
   const elapsedMs = Date.now() - startedAt.getTime();
   const remaining = Math.max(0, duration * 1000 - elapsedMs);
-  const timeoutMs = remaining + latencyMs; // buffer ensures client hits 0 first
+  const timeoutMs = remaining + latencyMs + GRACE_PERIOD_MS; // buffer ensures client hits 0 first
 
   console.log(
     `[timer] armed  session=${sessionCode}  gen=${generation}  ` +

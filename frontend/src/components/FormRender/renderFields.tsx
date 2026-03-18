@@ -150,7 +150,7 @@ export function RenderField<TForm extends FieldValues, TOption = unknown>({
                   options={options as Option[]}
                   value={field.value}
                   onChange={field.onChange}
-                  className={inputClass}
+                  
                 />
               ) : type === "phone" ? (
                 <div className="relative">
