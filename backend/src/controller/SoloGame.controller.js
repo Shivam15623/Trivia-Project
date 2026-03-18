@@ -13,6 +13,7 @@ import { GameAnalytics } from "../model/gameAnalytics.model.js";
 import { customAlphabet } from "nanoid";
 import { PlayerStats } from "../model/userStats.model.js";
 import { cancelTimer } from "./Socket.controller.js";
+import mongoose from "mongoose";
 const generateCode = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 6);
 export const initializeGame = asyncHandler(async (req, res) => {
   const { mode, categoryIds, socketId, timer, title } = req.body;
