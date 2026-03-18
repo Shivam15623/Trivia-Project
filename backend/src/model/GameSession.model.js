@@ -18,6 +18,8 @@ const playerSchema = new mongoose.Schema(
     username: { type: String, required: true },
     score: { type: Number, default: 0, min: 0 },
     hasAnswered: { type: Boolean, default: false },
+    currentSuggestion: { type: String, default: null },
+    hasSuggested: { type: Boolean, default: false },
     attemptHistory: [
       {
         questionId: { type: mongoose.Schema.Types.ObjectId, ref: "Question" },
