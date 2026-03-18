@@ -24,6 +24,7 @@ const PlayGame = () => {
     answerResult,
     isTransitioning, // ✅ new
   } = useGameEngine(sessionCode!);
+  console.log(questionData, sessionInfo);
 
   if (isLoading || !questionData || !sessionInfo) {
     return (
