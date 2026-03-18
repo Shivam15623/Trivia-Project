@@ -25,10 +25,128 @@ const PlayGame = () => {
     isTransitioning, // ✅ new
   } = useGameEngine(sessionCode!);
 
-  if (isLoading) {
+  if (isLoading || !questionData || !sessionInfo) {
     return (
-      <div className="flex flex-1 items-center justify-center bg-black">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-white border-t-transparent" />
+      <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-black px-[20px] sm:px-[40px] md:px-[60px] lg:px-[80px] xl:px-[120px]">
+        {/* Same layout structure as the real game */}
+        <div className="relative z-10 mx-auto flex h-fit w-full max-w-[1096px] flex-col items-center justify-center gap-10">
+          {/* Team banner skeleton */}
+          <div className="h-[60px] w-[280px] animate-pulse rounded-[20px] bg-white/10" />
+
+          {/* Question card skeleton */}
+          <div className="flex w-full flex-col gap-4 rounded-[20px] bg-white/10 p-6">
+            {/* Category name */}
+            <div className="h-6 w-32 animate-pulse rounded-md bg-white/10" />
+            {/* Question image */}
+            <div className="mx-auto aspect-video w-full animate-pulse rounded-xl bg-white/10" />
+            {/* Question text */}
+            <div className="mx-auto h-8 w-3/4 animate-pulse rounded-md bg-white/10" />
+          </div>
+
+          {/* Options skeleton */}
+          <div className="grid w-full grid-cols-1 gap-[18px] sm:grid-cols-2">
+            {[0, 1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-[58px] animate-pulse rounded-[10px] bg-white/10"
+                style={{
+                  animationDelay: `${i * 100}ms`, // ✅ staggered feel
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Same background SVG so it doesn't flash */}
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-x-hidden">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="2426"
+            height="823"
+            viewBox="0 0 1920 823"
+            className="absolute bottom-[120px] max-h-[900px] w-[1920px] max-w-[1400px] sm:-bottom-[57px] sm:max-h-none sm:max-w-none sm:rotate-0"
+            fill="none"
+          >
+            <g opacity="0.5" filter="url(#filter0_f_457_1966)">
+              <path
+                d="M1946.85 878.796C1752.03 782.934 1425.03 705.218 1024.68 688.82C325.077 660.164 -22.3887 638.305 -199.526 552.201L-172.355 489.777L-157.626 281.855C96.6818 407.879 460.211 478.942 1143.25 490.743C1569.31 502.145 1908.38 563.404 2036.58 620.317L1946.85 878.796Z"
+                fill="url(#paint0_linear_457_1966)"
+              />
+            </g>
+            <g opacity="0.5" filter="url(#filter1_f_457_1966)">
+              <path
+                d="M-22.8442 167.6C152.282 269.624 332.309 342.78 810.569 388.762C1365.79 442.144 1913.36 431.679 2072.74 523.607L2061.86 752.251L1955.93 735.104C1852.8 675.129 1128.41 653.499 468.768 552.044C298.562 525.866 220.051 534.984 -119.171 399.761L-22.8442 167.6Z"
+                fill="url(#paint1_linear_457_1966)"
+              />
+            </g>
+            <defs>
+              <filter
+                id="filter0_f_457_1966"
+                x="-290.327"
+                y="191.055"
+                width="2417.71"
+                height="778.541"
+                filterUnits="userSpaceOnUse"
+                color-interpolation-filters="sRGB"
+              >
+                <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                <feBlend
+                  mode="normal"
+                  in="SourceGraphic"
+                  in2="BackgroundImageFix"
+                  result="shape"
+                />
+                <feGaussianBlur
+                  stdDeviation="45.4"
+                  result="effect1_foregroundBlur_457_1966"
+                />
+              </filter>
+              <filter
+                id="filter1_f_457_1966"
+                x="-230.772"
+                y="55.9996"
+                width="2415.11"
+                height="807.852"
+                filterUnits="userSpaceOnUse"
+                color-interpolation-filters="sRGB"
+              >
+                <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                <feBlend
+                  mode="normal"
+                  in="SourceGraphic"
+                  in2="BackgroundImageFix"
+                  result="shape"
+                />
+                <feGaussianBlur
+                  stdDeviation="55.8"
+                  result="effect1_foregroundBlur_457_1966"
+                />
+              </filter>
+              <linearGradient
+                id="paint0_linear_457_1966"
+                x1="1979.62"
+                y1="704.565"
+                x2="-102.253"
+                y2="295.148"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop offset="0.0187462" stopColor="#FC9924" />
+                <stop offset="1" stopColor="#FCD645" />
+              </linearGradient>
+              <linearGradient
+                id="paint1_linear_457_1966"
+                x1="2291.81"
+                y1="665.527"
+                x2="-688.946"
+                y2="256.908"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stopColor="#7BFDFD" />
+                <stop offset="0.716346" stopColor="#2884C7" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
       </div>
     );
   }

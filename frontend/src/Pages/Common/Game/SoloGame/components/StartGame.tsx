@@ -1,6 +1,7 @@
 import { GradientButton } from "@/components/GradientButton";
 import Loader from "@/components/Loader";
 import { showSuccess } from "@/components/toastUtills";
+import { Button } from "@/components/ui/button";
 import { Category } from "@/interfaces/categoriesInterface";
 import { GameSession } from "@/interfaces/GameSessionInterface";
 import { cn } from "@/lib/utils";
@@ -137,12 +138,26 @@ const StartGame: React.FC<StartGameProps> = ({ session }) => {
                 Start Game
               </GradientButton>
 
-              <GradientButton
+              <Button
+                className={cn(
+                  "gradient-border group w-full max-w-[168px]",
+                  "flex h-[40px] items-center px-5 py-0",
+                  "transition-all duration-200 active:scale-95", // ✅ press effect
+                )}
                 onClick={handleEndGame}
-                className="w-full max-w-[168px]"
+                style={
+                  {
+                    "--border-gradient":
+                      "linear-gradient(93.58deg, #67C3FF 8.55%, #010A2A 47.56%, #67C3FF 94.76%)",
+                    "--radius": `20px`,
+                    "--padding": "1px",
+                  } as React.CSSProperties
+                }
               >
-                End Game
-              </GradientButton>
+                <div className="relative z-10 flex h-full flex-row items-center justify-center gap-2 text-lg">
+                  End Game
+                </div>
+              </Button>
             </div>
           </div>
         </div>
