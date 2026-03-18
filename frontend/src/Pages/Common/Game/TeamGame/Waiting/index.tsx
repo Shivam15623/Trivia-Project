@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Category } from "@/interfaces/categoriesInterface";
 import { Check, Copy } from "lucide-react";
+import { Team } from "@/interfaces/GameSessionInterface";
 
 const CategoryCard = ({ cat }: { cat: Category }) => (
   <div
@@ -71,18 +72,80 @@ const WaitingRoom = () => {
 
   const [joiningTeam, setJoiningTeam] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const teams = sessionData?.teams ?? [];
-  const isHost = sessionData?.host === user?._id;
+  const [optimisticTeams, setOptimisticTeams] = useState<Team[]>([]);
 
+  // Keep in sync when real data arrives
+  useEffect(() => {
+    setOptimisticTeams(sessionData?.teams ?? []);
+  }, [sessionData?.teams]);
+
+  const handleJoinTeam = async (teamName: string) => {
+    if (!socket?.id || !sessionData?.sessionCode || !user) return;
+    setJoiningTeam(teamName);
+
+    // ✅ Optimistically add user to team immediately
+    setOptimisticTeams((prev) =>
+      prev.map((team) =>
+        team.name === teamName
+          ? {
+              ...team,
+              members: [
+                ...team.members,
+                {
+                  userId: user._id,
+                  username: user.firstname + " " + user.lastname, // ← check your User type, might be `name` not `username`
+                  socketId: socket.id,
+                  score: 0,
+                  hasAnswered: false,
+                  attemptHistory: [],
+                  currentSuggestion: null,
+                  hasSuggested: false,
+                  isSubmitter: false,
+                }, // ✅ cast to Player
+              ],
+            }
+          : team,
+      ),
+    );
+
+    try {
+      await joinGame({
+        sessionCode: sessionData.sessionCode,
+        teamName,
+        socketId: socket.id,
+      }).unwrap();
+
+      socket.emit("player-joined", {
+        sessionCode: sessionData.sessionCode,
+        teamName,
+        userId,
+      });
+
+      showSuccess(`Joined team "${teamName}"`);
+    } catch (error) {
+      // ✅ Rollback on failure
+      setOptimisticTeams(sessionData?.teams ?? []);
+      handleApiError(error);
+    } finally {
+      setJoiningTeam(null);
+    }
+  };
+
+  const isHost = sessionData?.host === user?._id;
   const allTeamsFull = useMemo(() => {
-    return teams.every((team) => team.members.length >= team.expectedMembers);
-  }, [teams]);
+    return (optimisticTeams ?? []).every(
+      (team) => team.members.length >= team.expectedMembers,
+    );
+  }, [optimisticTeams]);
 
   const userAlreadyInTeam = useMemo(() => {
-    return teams.some((team) =>
+    return (optimisticTeams ?? []).some((team) =>
       team.members?.some((member) => member.userId === userId),
     );
-  }, [teams, userId]);
+  }, [optimisticTeams, userId]);
+
+  // And where you assign:
+  const teams = optimisticTeams ?? [];
 
   useEffect(() => {
     if (!socket || !sessionCode) return;
@@ -106,30 +169,6 @@ const WaitingRoom = () => {
       socket.off("game-ended");
     };
   }, [socket, sessionCode, refetch, navigate, user?.role]);
-
-  const handleJoinTeam = async (teamName: string) => {
-    if (!socket?.id || !sessionData?.sessionCode) return;
-    setJoiningTeam(teamName);
-    try {
-      await joinGame({
-        sessionCode: sessionData.sessionCode,
-        teamName,
-        socketId: socket.id,
-      }).unwrap();
-
-      socket.emit("player-joined", {
-        sessionCode: sessionData.sessionCode,
-        teamName,
-        userId,
-      });
-
-      showSuccess(`Joined team "${teamName}"`);
-    } catch (error) {
-      handleApiError(error);
-    } finally {
-      setJoiningTeam(null);
-    }
-  };
 
   const handleEndSession = async () => {
     if (!sessionData?._id) return;
@@ -365,24 +404,25 @@ const WaitingRoom = () => {
                   {sessionData.sessionCode}
                 </div>
                 <div className="flex flex-row gap-5">
-                  {allTeamsFull && isHost ? (
-                    <GradientButton
-                      className="shadow-[0px_0px_34px_0px_#F5FFE633]"
-                      onClick={handleStartGame}
-                      disabled={isStarting}
-                    >
-                      {isStarting ? "Starting..." : "Start Match"}
-                    </GradientButton>
-                  ) : (
-                    <GradientButton
-                      className="shadow-[0px_0px_34px_0px_#F5FFE633]"
-                      onClick={handleEndSession}
-                      disabled={isEnding}
-                      icon={false}
-                    >
-                      End Game
-                    </GradientButton>
-                  )}
+                  {isHost &&
+                    (allTeamsFull ? (
+                      <GradientButton
+                        className="min-w-fit max-w-fit shadow-[0px_0px_34px_0px_#F5FFE633]"
+                        onClick={handleStartGame}
+                        disabled={isStarting}
+                      >
+                        {isStarting ? "Starting..." : "Start Match"}
+                      </GradientButton>
+                    ) : (
+                      <GradientButton
+                        className="shadow-[0px_0px_34px_0px_#F5FFE633]"
+                        onClick={handleEndSession}
+                        disabled={isEnding}
+                        icon={false}
+                      >
+                        End Game
+                      </GradientButton>
+                    ))}
                   <Button
                     className={cn(
                       "gradient-border group",

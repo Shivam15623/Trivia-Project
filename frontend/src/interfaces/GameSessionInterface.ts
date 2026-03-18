@@ -120,7 +120,7 @@ interface Player {
   attemptHistory: AttemptHistory[];
 }
 
-interface Team {
+export interface Team {
   name: string;
   expectedMembers: number;
   members: Player[];

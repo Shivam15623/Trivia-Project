@@ -201,68 +201,95 @@ async function recordAnalytics(session) {
  *  8. Emit              — time-up (next question) or game-ended.
  */
 async function handleTimerExpiry(sessionCode, generation) {
-  // ── 1. Generation guard ────────────────────────────────────────
+  // ── 1. Generation guard ────────────────────────────────────────────────────
   const current = activeTimers.get(sessionCode);
   if (!current || current.generation !== generation) {
-    console.log(`[timer] stale expiry dropped session=${sessionCode}`);
+    console.log(
+      `[timer] stale expiry dropped  session=${sessionCode}  ` +
+        `captured-gen=${generation}  current-gen=${current?.generation ?? "none"}`,
+    );
     return;
   }
-  activeTimers.delete(sessionCode);
 
-  // ── 2. Reload session to get currentQuestionId ─────────────────
+  activeTimers.delete(sessionCode);
+  console.log(
+    `[timer] handling expiry  session=${sessionCode}  gen=${generation}`,
+  );
+
+  // ── 2. Reload session ──────────────────────────────────────────────────────
   const session = await GameSession.findOne({ sessionCode });
-  if (!session) return;
+  if (!session) {
+    console.warn(`[timer] session not found on expiry  session=${sessionCode}`);
+    return;
+  }
 
   const questionId = session.progress.currentQuestionId;
 
-  // ── 3. Atomic claim — replaces the old .some() idempotency check
-  const claimed = await GameSession.findOneAndUpdate(
-    {
-      sessionCode,
-      status: "active",
-      questionPool: {
-        $elemMatch: {
-          questionId,
-          used: false, // ← fails if REST submit already claimed it
-        },
-      },
-    },
-    {
-      $set: {
-        "questionPool.$.used": true,
-        "progress.questionTimer.startedAt": null,
-        "progress.questionTimer.expiresAt": null,
-      },
-    },
-    { new: false },
+  // ── 3. Idempotency check ───────────────────────────────────────────────────
+  // The player may have submitted an answer in the brief window between the
+  // event-loop queuing this callback and it actually executing.
+  const alreadyAnswered = session.soloPlayer.attemptHistory.some(
+    (a) => a.questionId.toString() === questionId.toString(),
   );
 
-  // REST handler already claimed this question — nothing to do
-  if (!claimed) {
-    console.log(`[timer] question already claimed by submit, expiry no-op session=${sessionCode}`);
+  if (alreadyAnswered) {
+    console.log(
+      `[timer] player already answered, expiry is no-op  session=${sessionCode}`,
+    );
+    // The submit path owns timer clearing and question advancement from here.
     return;
   }
 
-  // ── 4. Record miss ─────────────────────────────────────────────
+  // ── 4. Record miss ─────────────────────────────────────────────────────────
+  const questionEntry = getQuestionFromPool(session, questionId);
+  if (questionEntry && !questionEntry.used) {
+    questionEntry.used = true;
+  }
   session.soloPlayer.attemptHistory.push({ questionId, isCorrect: false });
 
-  // ── 5. Advance ─────────────────────────────────────────────────
+  // ── 5. Clear DB timer atomically ───────────────────────────────────────────
+  // Write this before session.save() so a crash mid-save doesn't leave a stale
+  // startedAt visible to a reconnecting client.
+  await GameSession.findOneAndUpdate(
+    { sessionCode },
+    {
+      "progress.questionTimer.startedAt": null,
+      "progress.questionTimer.expiresAt": null,
+    },
+  );
+
+  session.progress.questionTimer.startedAt = null;
+  session.progress.questionTimer.expiresAt = null;
+
+  // ── 6. Advance ─────────────────────────────────────────────────────────────
   const { status, nextQuestionEntry } = getNextQuestionSolo(session);
 
   if (status === "ended") {
+    // ── GAME OVER ────────────────────────────────────────────────────────────
     session.status = "completed";
     session.completedAt = new Date();
     await session.save();
+
+    console.log(`[timer] game ended  session=${sessionCode}`);
+
+    // ── 7. Analytics ──────────────────────────────────────────────────────────
     await recordAnalytics(session);
+
+    // ── 8. Emit ───────────────────────────────────────────────────────────────
     io.to(sessionCode).emit("game-ended");
     return;
   }
 
-  const nextQuestion = await Question.findById(nextQuestionEntry.questionId)
-    .populate("categoryId", "_id name thumbnail");
+  // ── NEXT QUESTION ──────────────────────────────────────────────────────────
+  const nextQuestion = await Question.findById(
+    nextQuestionEntry.questionId,
+  ).populate("categoryId", "_id name thumbnail");
 
   if (!nextQuestion) {
-    console.error(`[timer] next question not found session=${sessionCode}`);
+    console.error(
+      `[timer] next question not found  session=${sessionCode}  ` +
+        `questionId=${nextQuestionEntry.questionId}`,
+    );
     return;
   }
 
@@ -272,120 +299,16 @@ async function handleTimerExpiry(sessionCode, generation) {
 
   await session.save();
 
+  console.log(
+    `[timer] advancing  session=${sessionCode}  nextQuestion=${nextQuestion._id}`,
+  );
+
+  // ── 8. Emit ─────────────────────────────────────────────────────────────────
   io.to(sessionCode).emit("time-up", {
     session,
     currentQuestion: formatQuestion(nextQuestion),
   });
 }
-// async function handleTimerExpiry(sessionCode, generation) {
-//   // ── 1. Generation guard ────────────────────────────────────────────────────
-//   const current = activeTimers.get(sessionCode);
-//   if (!current || current.generation !== generation) {
-//     console.log(
-//       `[timer] stale expiry dropped  session=${sessionCode}  ` +
-//         `captured-gen=${generation}  current-gen=${current?.generation ?? "none"}`,
-//     );
-//     return;
-//   }
-
-//   activeTimers.delete(sessionCode);
-//   console.log(
-//     `[timer] handling expiry  session=${sessionCode}  gen=${generation}`,
-//   );
-
-//   // ── 2. Reload session ──────────────────────────────────────────────────────
-//   const session = await GameSession.findOne({ sessionCode });
-//   if (!session) {
-//     console.warn(`[timer] session not found on expiry  session=${sessionCode}`);
-//     return;
-//   }
-
-//   const questionId = session.progress.currentQuestionId;
-
-//   // ── 3. Idempotency check ───────────────────────────────────────────────────
-//   // The player may have submitted an answer in the brief window between the
-//   // event-loop queuing this callback and it actually executing.
-//   const alreadyAnswered = session.soloPlayer.attemptHistory.some(
-//     (a) => a.questionId.toString() === questionId.toString(),
-//   );
-
-//   if (alreadyAnswered) {
-//     console.log(
-//       `[timer] player already answered, expiry is no-op  session=${sessionCode}`,
-//     );
-//     // The submit path owns timer clearing and question advancement from here.
-//     return;
-//   }
-
-//   // ── 4. Record miss ─────────────────────────────────────────────────────────
-//   const questionEntry = getQuestionFromPool(session, questionId);
-//   if (questionEntry && !questionEntry.used) {
-//     questionEntry.used = true;
-//   }
-//   session.soloPlayer.attemptHistory.push({ questionId, isCorrect: false });
-
-//   // ── 5. Clear DB timer atomically ───────────────────────────────────────────
-//   // Write this before session.save() so a crash mid-save doesn't leave a stale
-//   // startedAt visible to a reconnecting client.
-//   await GameSession.findOneAndUpdate(
-//     { sessionCode },
-//     {
-//       "progress.questionTimer.startedAt": null,
-//       "progress.questionTimer.expiresAt": null,
-//     },
-//   );
-
-//   session.progress.questionTimer.startedAt = null;
-//   session.progress.questionTimer.expiresAt = null;
-
-//   // ── 6. Advance ─────────────────────────────────────────────────────────────
-//   const { status, nextQuestionEntry } = getNextQuestionSolo(session);
-
-//   if (status === "ended") {
-//     // ── GAME OVER ────────────────────────────────────────────────────────────
-//     session.status = "completed";
-//     session.completedAt = new Date();
-//     await session.save();
-
-//     console.log(`[timer] game ended  session=${sessionCode}`);
-
-//     // ── 7. Analytics ──────────────────────────────────────────────────────────
-//     await recordAnalytics(session);
-
-//     // ── 8. Emit ───────────────────────────────────────────────────────────────
-//     io.to(sessionCode).emit("game-ended");
-//     return;
-//   }
-
-//   // ── NEXT QUESTION ──────────────────────────────────────────────────────────
-//   const nextQuestion = await Question.findById(
-//     nextQuestionEntry.questionId,
-//   ).populate("categoryId", "_id name thumbnail");
-
-//   if (!nextQuestion) {
-//     console.error(
-//       `[timer] next question not found  session=${sessionCode}  ` +
-//         `questionId=${nextQuestionEntry.questionId}`,
-//     );
-//     return;
-//   }
-
-//   session.progress.currentCategory = nextQuestion.categoryId;
-//   session.progress.currentPointLevel = nextQuestionEntry.points;
-//   session.progress.currentQuestionId = nextQuestion._id;
-
-//   await session.save();
-
-//   console.log(
-//     `[timer] advancing  session=${sessionCode}  nextQuestion=${nextQuestion._id}`,
-//   );
-
-//   // ── 8. Emit ─────────────────────────────────────────────────────────────────
-//   io.to(sessionCode).emit("time-up", {
-//     session,
-//     currentQuestion: formatQuestion(nextQuestion),
-//   });
-// }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ARM TIMER
