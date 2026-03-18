@@ -127,11 +127,13 @@ export const useGameSocket = ({
         currentQuestion: currentQuestionData;
       }) => {
         // ✅ Lock UI immediately — show wrong answer overlay
+
         cbRef.current.onTimeUp();
 
         // ✅ Set next question data after overlay display time
         // No isTransitioning needed — just swap the data
         setTimeout(() => {
+          console.log("bgbgfb", session, currentQuestion);
           if (session) cbRef.current.setSessionInfo(session);
           if (currentQuestion) cbRef.current.setQuestionData(currentQuestion);
         }, 2000);
