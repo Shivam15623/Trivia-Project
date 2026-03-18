@@ -103,6 +103,9 @@ export const useGameSubmit = ({
         }).unwrap();
 
         if (!res.success) return;
+        if (!res.data.gameEnded) {
+          emitGameUpdated(); // ← moved here, fires during overlay
+        }
 
         // Preload answer image while result overlay is showing
         await preloadImage(questionData.answerImage);
