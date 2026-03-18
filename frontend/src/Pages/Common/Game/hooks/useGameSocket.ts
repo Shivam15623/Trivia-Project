@@ -88,7 +88,6 @@ export const useGameSocket = ({
         session: GameSession;
         currentQuestion: currentQuestionData;
       }) => {
-        cbRef.current.setIsTransitioning(true);
         cbRef.current.setSessionInfo(session);
         cbRef.current.setQuestionData(currentQuestion);
 
@@ -98,7 +97,6 @@ export const useGameSocket = ({
         //   lastQuestionIdRef.current = incomingId;
         //   socket.emit("player-ready", { sessionCode });
         // }
-        cbRef.current.setIsTransitioning(false);
       };
 
       socket.on("chngeState", onStateChange);
@@ -128,16 +126,16 @@ export const useGameSocket = ({
         session: GameSession;
         currentQuestion: currentQuestionData;
       }) => {
+        // ✅ Lock UI immediately — show wrong answer overlay
         cbRef.current.onTimeUp();
 
+        // ✅ Set next question data after overlay display time
+        // No isTransitioning needed — just swap the data
         setTimeout(() => {
-            cbRef.current.setIsTransitioning(true);
           if (session) cbRef.current.setSessionInfo(session);
           if (currentQuestion) cbRef.current.setQuestionData(currentQuestion);
-            cbRef.current.setIsTransitioning(false);
         }, 2000);
       };
-
       socket.on("timer-start", onTimerStart);
       socket.on("time-up", onTimeUp);
 

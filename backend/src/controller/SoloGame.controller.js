@@ -224,25 +224,48 @@ export const endSoloGame = asyncHandler(async (req, res) => {
 export const SubmitAnswerSolo = asyncHandler(async (req, res) => {
   const { sessionId, questionId, answer } = req.body;
 
+  // ✅ Atomic claim
+  const claimed = await GameSession.findOneAndUpdate(
+    {
+      _id: sessionId,
+      status: "active",
+      questionPool: {
+        $elemMatch: {
+          questionId: new mongoose.Types.ObjectId(questionId),
+          used: false,
+        },
+      },
+    },
+    {
+      $set: {
+        "questionPool.$.used": true,
+        "progress.questionTimer.startedAt": null,
+        "progress.questionTimer.expiresAt": null,
+      },
+    },
+    { new: false },
+  );
+
+  if (!claimed) {
+    throw new ApiError(400, "Question already answered or session inactive");
+  }
+
+  // ✅ Cancel timer once, right here
+  cancelTimer(claimed.sessionCode);
+
   const session = await GameSession.findById(sessionId);
   if (!session) throw new ApiError(404, "Session does not exist");
   if (session.status !== "active")
     throw new ApiError(400, "Session is not active");
-  if (!session.soloPlayer)
-    throw new ApiError(400, "No solo player found in this session");
+  if (!session.soloPlayer) throw new ApiError(400, "No solo player found");
 
+  // ✅ Problem 1 fixed — use claimed for timer check
   let timedOut = false;
-
   if (session.mode === "timed_solo") {
-    const timer = session.progress.questionTimer;
-    console.log("⏱ Timer check:", timer);
-
+    const timer = claimed.progress.questionTimer; // ← claimed not session
     if (timer?.startedAt) {
       const elapsed = Date.now() - new Date(timer.startedAt).getTime();
       const allowed = timer.duration * 1000 + 500;
-
-      console.log("elapsed:", elapsed, "allowed:", allowed);
-
       if (elapsed > allowed) {
         console.log("⏰ Timer expired on server");
         timedOut = true;
@@ -253,10 +276,7 @@ export const SubmitAnswerSolo = asyncHandler(async (req, res) => {
     }
   }
 
-  const questionEntry = getQuestionFromPool(session, questionId);
-  if (questionEntry.used === true)
-    throw new ApiError(400, "Question Already Answered");
-
+  // ✅ Problem 2 fixed — removed redundant used check and questionEntry.used = true
   const originalQuestion = await Question.findById(questionId);
   if (!originalQuestion) throw new ApiError(404, "Original question not found");
 
@@ -266,19 +286,16 @@ export const SubmitAnswerSolo = asyncHandler(async (req, res) => {
 
   session.soloPlayer.attemptHistory.push({ questionId, isCorrect });
   if (isCorrect) session.soloPlayer.score += session.progress.currentPointLevel;
-
-  questionEntry.used = true;
-  session.markModified("questionPool");
   session.markModified("soloPlayer");
 
-  // 🔴 Stop the running server timer first
-  cancelTimer(session.sessionCode);
-
-  // ✅ Clear timer in DB state
+  // ✅ Problem 3 fixed — removed second cancelTimer call
+  // ✅ Timer fields already cleared atomically above — no need to set again
   session.progress.questionTimer.startedAt = null;
   session.progress.questionTimer.expiresAt = null;
 
   const { status, nextQuestionEntry } = getNextQuestionSolo(session);
+
+  // ─── rest of your code is correct, no changes needed below ───
 
   // ─── Game Ended ───────────────────────────────────────────────
   if (status === "ended") {
