@@ -111,7 +111,7 @@ export const useGameSocket = ({
       }: {
         startedAt: string;
         timer: number;
-      }) => cbRef.current.onTimerStart(startedAt, timer - 1);
+      }) => cbRef.current.onTimerStart(startedAt, timer );
 
       /**
        * time-up arrives with the next question data already attached.

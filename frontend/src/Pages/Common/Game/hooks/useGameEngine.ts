@@ -130,7 +130,9 @@ export const useGameEngine = (sessionCode: string) => {
     sessionCode,
     setSessionInfo: patchSession,
     setQuestionData,
-    onTimerStart: startTimer,
+    onTimerStart: (startedAt: string, duration: number) => {
+      startTimer(startedAt, duration, lockUI);
+    },
 
     /**
      * onTimeUp is called by the socket when the SERVER's timer fires.
@@ -150,7 +152,7 @@ export const useGameEngine = (sessionCode: string) => {
         navigate(`/game/SoloGameEnd/${sessionCode}`);
       }
     },
-    setIsTransitioning
+    setIsTransitioning,
   });
 
   // ── 6. Submit ────────────────────────────────────────────────────────────────
