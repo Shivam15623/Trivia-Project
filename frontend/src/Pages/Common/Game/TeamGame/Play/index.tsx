@@ -59,10 +59,42 @@ const Play = () => {
     sessionInfo?.progress?.currentPointLevel,
   ]);
   // Loading state
-  if (isLoading) {
+  if (isLoading || !questionData || !sessionInfo) {
     return (
-      <div className="flex flex-1 items-center justify-center bg-black">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-white border-t-transparent" />
+      <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-black px-[20px] sm:px-[40px] md:px-[60px] lg:px-[80px] xl:px-[120px]">
+        {/* Same layout structure as the real game */}
+        <div className="relative z-10 mx-auto flex h-fit w-full max-w-[1096px] flex-col items-center justify-center gap-10">
+          {/* Team banner skeleton */}
+          <div className="h-[60px] w-[280px] animate-pulse rounded-[20px] bg-white/10" />
+
+          {/* Question card skeleton */}
+          <div className="flex w-full flex-col gap-4 rounded-[20px] bg-white/10 p-6">
+            {/* Category name */}
+            <div className="h-6 w-32 animate-pulse rounded-md bg-white/10" />
+            {/* Question image */}
+            <div className="mx-auto aspect-video w-full animate-pulse rounded-xl bg-white/10" />
+            {/* Question text */}
+            <div className="mx-auto h-8 w-3/4 animate-pulse rounded-md bg-white/10" />
+          </div>
+
+          {/* Options skeleton */}
+          <div className="grid w-full grid-cols-1 gap-[18px] sm:grid-cols-2">
+            {[0, 1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-[58px] animate-pulse rounded-[10px] bg-white/10"
+                style={{
+                  animationDelay: `${i * 100}ms`, // ✅ staggered feel
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Same background SVG so it doesn't flash */}
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-x-hidden">
+          {/* paste your existing background SVG here */}
+        </div>
       </div>
     );
   }
