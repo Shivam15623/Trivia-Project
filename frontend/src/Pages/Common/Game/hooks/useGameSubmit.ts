@@ -2,12 +2,14 @@ import {
   currentQuestionData,
   GameSession,
 } from "@/interfaces/GameSessionInterface";
+// import { selectAuth } from "@/redux/AuthSlice/authSlice";
 import {
   useSubmitAnswerMutation,
   useSubmitAnswerSoloMutation,
 } from "@/services";
 import { handleApiError } from "@/utills/handleApiError";
 import { useCallback, useRef } from "react";
+// import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 interface AnswerResult {
@@ -42,8 +44,6 @@ const preloadImage = (src: string | undefined | null): Promise<void> =>
     img.onerror = () => resolve(); // never reject — a missing image must not block the flow
   });
 
-// Must match the delay used in useGameSocket's onTimeUp handler so overlays
-// are never cleared before they've had time to display.
 const ANSWER_DISPLAY_MS = 2500;
 
 export const useGameSubmit = ({
@@ -62,6 +62,7 @@ export const useGameSubmit = ({
   setIsTransitioning,
 }: UseGameSubmitProps) => {
   const navigate = useNavigate();
+  // const { user } = useSelector(selectAuth);
 
   const [submitTeam, { isLoading: isSubmittingTeam }] =
     useSubmitAnswerMutation();
@@ -102,6 +103,9 @@ export const useGameSubmit = ({
         }).unwrap();
 
         if (!res.success) return;
+        if (!res.data.gameEnded) {
+          emitGameUpdated(); // ← moved here, fires during overlay
+        }
 
         // Preload answer image while result overlay is showing
         await preloadImage(questionData.answerImage);
@@ -114,11 +118,9 @@ export const useGameSubmit = ({
             answerImage: questionData.answerImage,
           });
         }
-
         setTimeout(() => {
           setAnswerResult(null);
-          // FIX Bug 7: was emitting emitGameUpdated() BOTH immediately and
-          // inside this timeout. Only emit once — after the overlay clears.
+          // Let server drive the next state via socket after emitting
           if (res.data.gameEnded) {
             emitGameEnd();
           } else {
@@ -141,7 +143,7 @@ export const useGameSubmit = ({
           return;
         }
 
-        // Preload answer image (shown in overlay)
+        // ✅ Preload answer image only (shown in overlay)
         await preloadImage(questionData.answerImage);
 
         if ("isCorrect" in res.data) {
@@ -168,12 +170,12 @@ export const useGameSubmit = ({
               questionText: res.data.nextQuestion.questionText,
             };
 
-            // Show skeleton FIRST, preload THEN reveal
+            // ✅ Show skeleton FIRST, preload THEN reveal
             setIsTransitioning(true);
             await preloadImage(nextQ.questionImage);
-            await preloadImage(nextQ.answerImage);
+            await preloadImage(nextQ.answerImage); // preload for next submit too
             setQuestionData(nextQ);
-            setIsTransitioning(false); // image is ready, now show it
+            setIsTransitioning(false); // ✅ image is ready, now show it
           }
         }, ANSWER_DISPLAY_MS);
       }
@@ -182,9 +184,6 @@ export const useGameSubmit = ({
       setHasSubmitted(false);
       handleApiError(err);
     } finally {
-      // FIX Bug 10: always reset the ref — even on the lockUI / time-up path.
-      // Without this, a race where the server fires time-up just as the user
-      // taps Submit can leave isSubmittingRef permanently true.
       isSubmittingRef.current = false;
     }
   }, [
@@ -203,7 +202,6 @@ export const useGameSubmit = ({
     submitSolo,
     navigate,
     emitGameEnd,
-    setIsTransitioning,
   ]);
 
   return {
