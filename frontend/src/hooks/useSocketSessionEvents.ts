@@ -62,6 +62,7 @@ export const useSocketSessionEvents = ({
     socket.on(
       "timer-start",
       ({ startedAt, duration }: { startedAt: string; duration: number }) => {
+        console.log(startedAt,duration)
         onTimerStart(startedAt, duration);
       },
     );

@@ -129,7 +129,7 @@ export const useGameSubmit = ({
         }, ANSWER_DISPLAY_MS);
 
         // ── SOLO / TIMED_SOLO mode ──────────────────────────────────────────────
-      } else {
+      } else {    
         const res = await submitSolo({
           sessionId: sessionInfo._id,
           questionId: questionData.questionId,
