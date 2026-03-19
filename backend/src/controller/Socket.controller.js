@@ -23,13 +23,27 @@ import { PlayerStats } from "../model/userStats.model.js";
  * check makes every orphaned callback a silent no-op.
  */
 const activeTimers = new Map();
-const GRACE_PERIOD_MS = 1500;
+
+/**
+ * FIX Bug 5: Raised from 1500ms to 2000ms.
+ *
+ * GRACE_PERIOD_MS is added to the server timeout so the client's visual
+ * countdown always reaches zero before the server cuts the question. With the
+ * client timer fixed to fire at remaining <= 0, the theoretical minimum buffer
+ * is one tick (500ms) + one-way latency. 2000ms gives a comfortable margin
+ * even on 700ms RTT connections while still feeling fair.
+ */
+const GRACE_PERIOD_MS = 2000;
+
 /**
  * sessionCode → boolean
  *
  * Async mutex. Held for the duration of the player-ready async handler.
  * A second player-ready that arrives while the first is still awaiting DB
  * calls is dropped immediately, preventing duplicate timer arms.
+ *
+ * FIX Bug 6: This map is now also cleaned up in the disconnect handler so a
+ * socket that disconnects mid-handler never leaves a permanent lock.
  */
 const processingLock = new Map();
 
@@ -41,6 +55,15 @@ const processingLock = new Map();
  * always reaches zero before the server cuts the question.
  */
 const playerLatency = new Map();
+
+/**
+ * FIX Bug 7 (latency not ready): socketId → Array of pending player-ready
+ * handlers. If player-ready fires before the first pong round-trip completes
+ * we queue the handler and replay it once pong arrives.
+ *
+ * socketId → { sessionCode: string }[]
+ */
+const pendingPlayerReady = new Map();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PURE HELPERS
@@ -184,22 +207,8 @@ async function recordAnalytics(session) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TIMER EXPIRY HANDLER
-// Extracted so it can be reasoned about independently of socket plumbing.
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Runs when the server-side countdown for a question expires.
- *
- * Steps:
- *  1. Generation guard  — drop stale callbacks instantly.
- *  2. Reload session    — always read fresh DB state; never trust in-memory.
- *  3. Idempotency check — bail if player already submitted before timeout fired.
- *  4. Record miss       — mark question used + push incorrect attempt.
- *  5. Clear DB timer    — atomic update before the document save.
- *  6. Advance           — move to next question OR end the game.
- *  7. Analytics         — written on game-end only.
- *  8. Emit              — time-up (next question) or game-ended.
- */
 async function handleTimerExpiry(sessionCode, generation) {
   // ── 1. Generation guard ────────────────────────────────────────────────────
   const current = activeTimers.get(sessionCode);
@@ -226,8 +235,6 @@ async function handleTimerExpiry(sessionCode, generation) {
   const questionId = session.progress.currentQuestionId;
 
   // ── 3. Idempotency check ───────────────────────────────────────────────────
-  // The player may have submitted an answer in the brief window between the
-  // event-loop queuing this callback and it actually executing.
   const alreadyAnswered = session.soloPlayer.attemptHistory.some(
     (a) => a.questionId.toString() === questionId.toString(),
   );
@@ -236,7 +243,6 @@ async function handleTimerExpiry(sessionCode, generation) {
     console.log(
       `[timer] player already answered, expiry is no-op  session=${sessionCode}`,
     );
-    // The submit path owns timer clearing and question advancement from here.
     return;
   }
 
@@ -248,8 +254,6 @@ async function handleTimerExpiry(sessionCode, generation) {
   session.soloPlayer.attemptHistory.push({ questionId, isCorrect: false });
 
   // ── 5. Clear DB timer atomically ───────────────────────────────────────────
-  // Write this before session.save() so a crash mid-save doesn't leave a stale
-  // startedAt visible to a reconnecting client.
   await GameSession.findOneAndUpdate(
     { sessionCode },
     {
@@ -265,17 +269,14 @@ async function handleTimerExpiry(sessionCode, generation) {
   const { status, nextQuestionEntry } = getNextQuestionSolo(session);
 
   if (status === "ended") {
-    // ── GAME OVER ────────────────────────────────────────────────────────────
     session.status = "completed";
     session.completedAt = new Date();
     await session.save();
 
     console.log(`[timer] game ended  session=${sessionCode}`);
 
-    // ── 7. Analytics ──────────────────────────────────────────────────────────
     await recordAnalytics(session);
 
-    // ── 8. Emit ───────────────────────────────────────────────────────────────
     io.to(sessionCode).emit("game-ended");
     return;
   }
@@ -303,7 +304,6 @@ async function handleTimerExpiry(sessionCode, generation) {
     `[timer] advancing  session=${sessionCode}  nextQuestion=${nextQuestion._id}`,
   );
 
-  // ── 8. Emit ─────────────────────────────────────────────────────────────────
   io.to(sessionCode).emit("time-up", {
     session,
     currentQuestion: formatQuestion(nextQuestion),
@@ -314,17 +314,7 @@ async function handleTimerExpiry(sessionCode, generation) {
 // ARM TIMER
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Persist timer state to DB, broadcast timer-start, then set the server
- * setTimeout with elapsed-time and latency compensation.
- *
- * @param {string} sessionCode
- * @param {Date}   startedAt    The canonical start instant (used as the reference).
- * @param {number} duration     Question duration in seconds.
- * @param {number} latencyMs    One-way client latency buffer in ms.
- */
 async function armTimer(sessionCode, startedAt, duration, latencyMs) {
-  // ── Write to DB first so the source of truth is always Mongo ──────────────
   const expiresAt = new Date(startedAt.getTime() + duration * 1000);
 
   await GameSession.findOneAndUpdate(
@@ -335,23 +325,18 @@ async function armTimer(sessionCode, startedAt, duration, latencyMs) {
     },
   );
 
-  // ── Bump generation (cancel old handle as a courtesy) ─────────────────────
   const prevEntry = activeTimers.get(sessionCode);
   const generation = (prevEntry?.generation ?? 0) + 1;
   if (prevEntry?.timeout) clearTimeout(prevEntry.timeout);
 
-  // ── Broadcast timer-start before we block on setTimeout ───────────────────
-  // Clients need the ISO string so their own timers sync to wall-clock time,
-  // not to the moment they receive the event (network delay varies per client).
   io.to(sessionCode).emit("timer-start", {
     startedAt: startedAt.toISOString(),
     timer: duration,
   });
 
-  // ── Compensate for time already consumed by the DB write ──────────────────
   const elapsedMs = Date.now() - startedAt.getTime();
   const remaining = Math.max(0, duration * 1000 - elapsedMs);
-  const timeoutMs = remaining + latencyMs + GRACE_PERIOD_MS; // buffer ensures client hits 0 first
+  const timeoutMs = remaining + latencyMs + GRACE_PERIOD_MS;
 
   console.log(
     `[timer] armed  session=${sessionCode}  gen=${generation}  ` +
@@ -368,6 +353,77 @@ async function armTimer(sessionCode, startedAt, duration, latencyMs) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// PLAYER-READY CORE LOGIC
+// Extracted so it can be called both immediately and from the pong-deferred queue.
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function handlePlayerReady(socket, sessionCode) {
+  // ── Mutex ──────────────────────────────────────────────────────────────────
+  if (processingLock.get(sessionCode)) {
+    console.log(
+      `[player-ready] duplicate dropped (locked)  session=${sessionCode}`,
+    );
+    return;
+  }
+  processingLock.set(sessionCode, true);
+
+  try {
+    console.log(
+      `[player-ready] received  session=${sessionCode}  socket=${socket.id}`,
+    );
+
+    const session = await GameSession.findOne({ sessionCode });
+    if (!session) {
+      console.warn(`[player-ready] session not found  session=${sessionCode}`);
+      return;
+    }
+
+    const timerState = session.progress.questionTimer;
+
+    // ── Re-sync reconnecting client ────────────────────────────────────────
+    if (timerState.startedAt) {
+      const elapsedSec =
+        (Date.now() - new Date(timerState.startedAt).getTime()) / 1000;
+      const remainingSec = timerState.duration - elapsedSec;
+
+      if (remainingSec > 0) {
+        console.log(
+          `[player-ready] timer running, re-syncing client  ` +
+            `session=${sessionCode}  remaining=${remainingSec.toFixed(1)}s`,
+        );
+
+        socket.emit("timer-start", {
+          startedAt: new Date(timerState.startedAt).toISOString(),
+          timer: timerState.duration,
+        });
+
+        return;
+      }
+
+      console.log(
+        `[player-ready] stale startedAt (already expired), re-arming  session=${sessionCode}`,
+      );
+    }
+
+    // ── Arm a fresh timer ──────────────────────────────────────────────────
+    const now = new Date();
+    const duration = timerState.duration;
+
+    // FIX Bug 7: use measured latency; safe default is 500ms (was 300ms).
+    // The pendingPlayerReady queue (below) ensures this path is only reached
+    // after at least one pong has been measured, so the default is a true
+    // last-resort for very fast pong drops, not the common case.
+    const latency = playerLatency.get(socket.id) ?? 500;
+
+    await armTimer(sessionCode, now, duration, latency);
+  } catch (err) {
+    console.error(`[player-ready] error  session=${sessionCode}:`, err);
+  } finally {
+    processingLock.delete(sessionCode);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // CONNECTION HANDLER
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -377,7 +433,25 @@ export const handleConnection = (socket) => {
 
   socket.on("pong", ({ t1 }) => {
     const rtt = Date.now() - t1;
-    playerLatency.set(socket.id, Math.round(rtt / 2));
+    const oneWay = Math.round(rtt / 2);
+    playerLatency.set(socket.id, oneWay);
+
+    console.log(
+      `[pong] socket=${socket.id}  rtt=${rtt}ms  one-way=${oneWay}ms`,
+    );
+
+    // FIX Bug 7: drain any player-ready events that arrived before the first
+    // pong. Now that we have a real latency measurement, arm the timer properly.
+    const queued = pendingPlayerReady.get(socket.id);
+    if (queued && queued.length > 0) {
+      pendingPlayerReady.delete(socket.id);
+      // Replay only the last queued event — duplicates from re-renders don't matter.
+      const { sessionCode } = queued[queued.length - 1];
+      console.log(
+        `[pong] replaying queued player-ready  session=${sessionCode}  socket=${socket.id}`,
+      );
+      handlePlayerReady(socket, sessionCode);
+    }
   });
 
   // ── Room management ────────────────────────────────────────────────────────
@@ -391,10 +465,11 @@ export const handleConnection = (socket) => {
   socket.on("game-started", ({ sessionCode }) => {
     io.to(sessionCode).emit("game-started", { message: "Game has started!" });
   });
-  socket.on("player-joined", async ({ sessionCode, teamName, userId }) => {
-    // Update DB (if needed) — though your API already handles this
+
+  socket.on("player-joined", async ({ sessionCode }) => {
     io.to(sessionCode).emit("update-session");
   });
+
   socket.on("gameUpdated", async (sessionCode) => {
     try {
       const session = await GameSession.findOne({ sessionCode }).lean();
@@ -417,84 +492,24 @@ export const handleConnection = (socket) => {
   });
 
   // ── player-ready ───────────────────────────────────────────────────────────
-  /**
-   * Three cases:
-   *
-   *  A) No timer running yet       → arm a fresh timer.
-   *  B) Timer already running      → re-sync THIS socket only (reconnect case).
-   *  C) Concurrent player-ready    → mutex drops the duplicate immediately.
-   */
   socket.on("player-ready", async ({ sessionCode }) => {
-    // ── C) Mutex ──────────────────────────────────────────────────────────────
-    if (processingLock.get(sessionCode)) {
+    // FIX Bug 7: If we haven't received a pong yet, queue this event.
+    // The pong handler will drain the queue with the correct latency value.
+    if (!playerLatency.has(socket.id)) {
       console.log(
-        `[player-ready] duplicate dropped (locked)  session=${sessionCode}`,
+        `[player-ready] latency not yet known, queuing  session=${sessionCode}  socket=${socket.id}`,
       );
+      const queue = pendingPlayerReady.get(socket.id) ?? [];
+      queue.push({ sessionCode });
+      pendingPlayerReady.set(socket.id, queue);
       return;
     }
-    processingLock.set(sessionCode, true);
 
-    try {
-      console.log(
-        `[player-ready] received  session=${sessionCode}  socket=${socket.id}`,
-      );
-
-      const session = await GameSession.findOne({ sessionCode });
-      if (!session) {
-        console.warn(
-          `[player-ready] session not found  session=${sessionCode}`,
-        );
-        return;
-      }
-
-      const timerState = session.progress.questionTimer;
-
-      // ── B) Re-sync reconnecting client ─────────────────────────────────────
-      if (timerState.startedAt) {
-        const elapsedSec =
-          (Date.now() - new Date(timerState.startedAt).getTime()) / 1000;
-        const remainingSec = timerState.duration - elapsedSec;
-
-        if (remainingSec > 0) {
-          console.log(
-            `[player-ready] timer running, re-syncing client  ` +
-              `session=${sessionCode}  remaining=${remainingSec.toFixed(1)}s`,
-          );
-
-          // Unicast to THIS socket only — other sockets are already counting down
-          socket.emit("timer-start", {
-            startedAt: new Date(timerState.startedAt).toISOString(),
-            timer: timerState.duration,
-          });
-
-          return; // ← critically: do NOT arm a second server timeout
-        }
-
-        // startedAt exists but has already expired — fall through and re-arm.
-        // The previous timeout's generation guard will silence its callback.
-        console.log(
-          `[player-ready] stale startedAt (already expired), re-arming  session=${sessionCode}`,
-        );
-      }
-
-      // ── A) Arm a fresh timer ───────────────────────────────────────────────
-      const now = new Date();
-      const duration = timerState.duration;
-      const latency = playerLatency.get(socket.id) ?? 300;
-
-      await armTimer(sessionCode, now, duration, latency);
-    } catch (err) {
-      console.error(`[player-ready] error  session=${sessionCode}:`, err);
-    } finally {
-      // Always release — even if we threw
-      processingLock.delete(sessionCode);
-    }
+    await handlePlayerReady(socket, sessionCode);
   });
 
   // ── end-game ───────────────────────────────────────────────────────────────
   socket.on("end-game", (sessionCode) => {
-    // Cancel any running timer so its expiry callback doesn't fire after the
-    // game is already over.
     cancelTimer(sessionCode);
     io.to(sessionCode).emit("game-ended");
     console.log(`[socket] end-game  session=${sessionCode}`);
@@ -503,10 +518,19 @@ export const handleConnection = (socket) => {
   // ── disconnect ─────────────────────────────────────────────────────────────
   socket.on("disconnect", () => {
     playerLatency.delete(socket.id);
+    pendingPlayerReady.delete(socket.id);
+
+    // FIX Bug 6: If this socket was inside a player-ready handler when it
+    // disconnected, release the lock so the next player-ready can proceed.
+    // socket.currentSession is set in the join-session-room handler.
+    if (socket.currentSession) {
+      processingLock.delete(socket.currentSession);
+    }
+
     console.log(`[socket] disconnected  socket=${socket.id}`);
 
     // Intentionally do NOT cancel the timer on disconnect.
     // The server countdown continues; if the player reconnects they hit the
-    // player-ready → case B path and get re-synced automatically.
+    // player-ready → re-sync path and get synced automatically.
   });
 };
