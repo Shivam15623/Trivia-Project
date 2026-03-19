@@ -64,7 +64,10 @@ export const useGameTimer = () => {
 
         setTimeLeft(Math.ceil(remaining));
 
-        if (remaining < 0) {
+        // FIX Bug 1: was `remaining < 0` — that required the timer to go
+        // negative, firing up to one full interval (500ms) late.
+        // Correct condition is `remaining <= 0`.
+        if (remaining <= 0) {
           generationRef.current++; // invalidate before calling onExpire
           clearTimerInternal();
           onExpireRef.current?.();
