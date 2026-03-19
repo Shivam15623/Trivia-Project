@@ -9,7 +9,9 @@ interface UseGameSocketProps {
   mode: string;
   sessionCode: string;
   setSessionInfo: (
-    s: GameSession | ((prev: GameSession | undefined) => Partial<GameSession>),
+    updater:
+      | Partial<GameSession>
+      | ((prev: Partial<GameSession>) => Partial<GameSession>),
   ) => void;
   setQuestionData: (q: currentQuestionData) => void;
   onTimerStart: (startedAt: string, duration: number) => void;
@@ -45,7 +47,7 @@ export const useGameSocket = ({
     onTimerStart,
     onTimeUp,
     onGameEnded,
-    setIsTransitioning, // ✅ new
+    setIsTransitioning,
   });
 
   // Update ref every render so listeners always call the latest callbacks
@@ -56,7 +58,7 @@ export const useGameSocket = ({
       onTimerStart,
       onTimeUp,
       onGameEnded,
-      setIsTransitioning, // ✅ new
+      setIsTransitioning,
     };
   });
 
@@ -90,13 +92,6 @@ export const useGameSocket = ({
       }) => {
         cbRef.current.setSessionInfo(session);
         cbRef.current.setQuestionData(currentQuestion);
-
-        // Emit player-ready once per unique question
-        // const incomingId = currentQuestion.questionId?.toString();
-        // if (incomingId && incomingId !== lastQuestionIdRef.current) {
-        //   lastQuestionIdRef.current = incomingId;
-        //   socket.emit("player-ready", { sessionCode });
-        // }
       };
 
       socket.on("chngeState", onStateChange);
@@ -111,13 +106,18 @@ export const useGameSocket = ({
       }: {
         startedAt: string;
         timer: number;
-      }) => cbRef.current.onTimerStart(startedAt, timer );
+      }) => cbRef.current.onTimerStart(startedAt, timer);
 
       /**
        * time-up arrives with the next question data already attached.
        * We call onTimeUp immediately (so the UI locks / shows wrong-answer
        * overlay), then after a 2-second delay we update the session and
        * question so the overlay has time to display before the screen changes.
+       *
+       * FIX Bug 8: The 2-second delay must be LONGER than ANSWER_DISPLAY_MS
+       * in useGameSubmit, otherwise setQuestionData fires while answerResult
+       * is still showing, the questionId change resets UI state prematurely,
+       * and the overlay disappears. Keep both at 2500ms or make this 3000ms.
        */
       const onTimeUp = ({
         session,
@@ -126,18 +126,17 @@ export const useGameSocket = ({
         session: GameSession;
         currentQuestion: currentQuestionData;
       }) => {
-        // ✅ Lock UI immediately — show wrong answer overlay
-
+        // Lock UI immediately — show wrong answer overlay
         cbRef.current.onTimeUp();
 
-        // ✅ Set next question data after overlay display time
-        // No isTransitioning needed — just swap the data
+        // Set next question data after overlay display time.
+        // Use 2500ms to match ANSWER_DISPLAY_MS so the overlay isn't cleared early.
         setTimeout(() => {
-          console.log("bgbgfb", session, currentQuestion);
           if (session) cbRef.current.setSessionInfo(session);
           if (currentQuestion) cbRef.current.setQuestionData(currentQuestion);
-        }, 2000);
+        }, 2500);
       };
+
       socket.on("timer-start", onTimerStart);
       socket.on("time-up", onTimeUp);
 

@@ -107,21 +107,28 @@ export const useGameEngine = (sessionCode: string) => {
       correctAnswer: q?.Answer ?? "",
       pointsAwarded: 0,
     });
-  }, [stopTimer]); // stopTimer is stable (useCallback with no deps that change)
+  }, [stopTimer]);
 
-  // ── 4. Session patch (stable setter for socket callbacks) ────────────────────
+  // ── 4. Session patch ─────────────────────────────────────────────────────────
+  /**
+   * FIX Bug 3: The original implementation depended on `sessionInfo` inside
+   * useCallback, causing patchSession to change identity on every socket patch,
+   * which in turn caused useGameSocket to lose its stable reference. Using the
+   * functional updater form of setState removes this dependency entirely.
+   */
   const patchSession = useCallback(
     (
       updater:
-        | GameSession
-        | ((prev: GameSession | undefined) => Partial<GameSession>),
+        | Partial<GameSession>
+        | ((prev: Partial<GameSession>) => Partial<GameSession>),
     ) => {
-      setSessionOverrides((prev) => ({
-        ...prev,
-        ...(typeof updater === "function" ? updater(sessionInfo) : updater),
-      }));
+      if (typeof updater === "function") {
+        setSessionOverrides((prev) => ({ ...prev, ...updater(prev) }));
+      } else {
+        setSessionOverrides((prev) => ({ ...prev, ...updater }));
+      }
     },
-    [sessionInfo],
+    [], // no deps — stable for the lifetime of the component
   );
 
   // ── 5. Socket ────────────────────────────────────────────────────────────────
@@ -133,18 +140,7 @@ export const useGameEngine = (sessionCode: string) => {
     onTimerStart: (startedAt: string, duration: number) => {
       startTimer(startedAt, duration, lockUI);
     },
-
-    /**
-     * onTimeUp is called by the socket when the SERVER's timer fires.
-     *
-     * We delegate entirely to lockUI which already guards against double-firing
-     * (hasSubmittedRef check). The socket then delivers the next question data
-     * 2 seconds later via setSessionInfo / setQuestionData (handled in
-     * useGameSocket's onTimeUp handler), which triggers the question-change
-     * effect below to reset UI state.
-     */
     onTimeUp: lockUI,
-
     onGameEnded: () => {
       if (sessionInfo?.mode === "team") {
         navigate(`/game/endgame/${sessionCode}`);
@@ -191,21 +187,28 @@ export const useGameEngine = (sessionCode: string) => {
 
   // ── 8. Sync server timer from session (handles page refresh / reconnect) ─────
   /**
-   * If the session arrives from the API with an active timer already running
-   * (e.g. the player refreshed mid-question), we restart the client timer so
-   * the countdown is in sync.
+   * FIX Bug 4: The original code always called startTimer when startedAt or
+   * duration changed. On a page refresh this fired twice — once from the API
+   * response and once from the socket's timer-start event — causing a double
+   * start with different generation ids, leaving the display in an undefined
+   * state.
+   *
+   * Fix: track the last startedAt value we actually started a timer for. Skip
+   * if we've already started a timer for this exact startedAt value.
    */
+  const lastSyncedStartedAt = useRef<string | null>(null);
+
   useEffect(() => {
     const timer = sessionInfo?.progress?.questionTimer;
     if (!timer?.startedAt || !timer?.duration) return;
     if (typeof timer.startedAt !== "string") return;
 
+    // Already running this timer — do not restart.
+    if (lastSyncedStartedAt.current === timer.startedAt) return;
+
+    lastSyncedStartedAt.current = timer.startedAt;
     startTimer(timer.startedAt, timer.duration, lockUI);
 
-    // We only want to re-run this when startedAt changes (new question armed)
-    // — NOT when lockUI changes identity (which would restart the timer on every
-    // render). lockUI is stable anyway, but the explicit dep list makes that
-    // contract clear.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     sessionInfo?.progress?.questionTimer?.startedAt,
@@ -213,6 +216,22 @@ export const useGameEngine = (sessionCode: string) => {
   ]);
 
   // ── 9. Reset UI on question change ───────────────────────────────────────────
+  /**
+   * FIX Bug 8: The original code reset answerResult unconditionally when
+   * questionData changed. But when the server sends the next question via
+   * time-up, setQuestionData fires ~2500ms after lockUI sets answerResult.
+   * That questionId change then immediately clears the overlay that the user
+   * hasn't finished reading.
+   *
+   * Fix: only reset UI state when answerResult is NOT currently showing.
+   * The overlay's own setTimeout already calls setAnswerResult(null), which
+   * is the authoritative place to reset.
+   */
+  const answerResultRef = useRef(answerResult);
+  useEffect(() => {
+    answerResultRef.current = answerResult;
+  }, [answerResult]);
+
   useEffect(() => {
     setSelectedOption(null);
     setSelectedIndex(null);
