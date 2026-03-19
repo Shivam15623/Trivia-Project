@@ -10,8 +10,8 @@ interface UseGameSocketProps {
   sessionCode: string;
   setSessionInfo: (
     updater:
-      | Partial<GameSession>
-      | ((prev: Partial<GameSession>) => Partial<GameSession>),
+      | GameSession
+      | ((prev: GameSession | undefined) => Partial<GameSession>),
   ) => void;
   setQuestionData: (q: currentQuestionData) => void;
   onTimerStart: (startedAt: string, duration: number) => void;
@@ -69,7 +69,10 @@ export const useGameSocket = ({
 
     // ── Listeners registered once; they read latest callbacks via cbRef ──────
 
-    const onPing = ({ t1 }: { t1: number }) => socket.emit("pong", { t1 });
+    const onPing = ({ t1 }: { t1: number }) => {
+      console.log("ping Arrived sending pong ");
+      socket.emit("pong", { t1 });
+    };
 
     const onGameEnded = () => cbRef.current.onGameEnded();
 
