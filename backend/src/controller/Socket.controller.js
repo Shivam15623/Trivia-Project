@@ -1,3 +1,9 @@
+import {
+  atomicClaimQuestion,
+  isAnswerInTime,
+  processAnswer,
+  recordGameEnd,
+} from "../helper/gameHelpers.js";
 import { getNextQuestionSolo } from "../helper/getNextQuestion.js";
 import { getQuestionFromPool } from "../helper/getQuestionFromPool.js";
 import { io } from "../index.js";
@@ -239,7 +245,8 @@ async function handleTimerExpiry(sessionCode, generation) {
     // The submit path owns timer clearing and question advancement from here.
     return;
   }
-
+  const expiredQuestion = await Question.findById(questionId);
+  const correctAnswer = expiredQuestion?.answer ?? null;
   // ── 4. Record miss ─────────────────────────────────────────────────────────
   const questionEntry = getQuestionFromPool(session, questionId);
   if (questionEntry && !questionEntry.used) {
@@ -305,8 +312,10 @@ async function handleTimerExpiry(sessionCode, generation) {
 
   // ── 8. Emit ─────────────────────────────────────────────────────────────────
   io.to(sessionCode).emit("time-up", {
+    correctAnswer,
     session,
     currentQuestion: formatQuestion(nextQuestion),
+    answerImage: expiredQuestion?.answerImage ?? null, // ← add
   });
 }
 
@@ -334,6 +343,20 @@ async function armTimer(sessionCode, startedAt, duration, latencyMs) {
       "progress.questionTimer.expiresAt": expiresAt,
     },
   );
+  // ── Fetch the current question to send with the timer ─────────────────
+  // We need this here so the client gets question + timer in one event.
+  // No second round-trip needed on the client side.
+  const session = await GameSession.findOne({ sessionCode });
+  const currentQuestion = await Question.findById(
+    session.progress.currentQuestionId,
+  ).populate("categoryId", "_id name thumbnail");
+
+  if (!currentQuestion) {
+    console.error(
+      `[armTimer] currentQuestion not found  session=${sessionCode}`,
+    );
+    return;
+  }
 
   // ── Bump generation (cancel old handle as a courtesy) ─────────────────────
   const prevEntry = activeTimers.get(sessionCode);
@@ -345,7 +368,9 @@ async function armTimer(sessionCode, startedAt, duration, latencyMs) {
   // not to the moment they receive the event (network delay varies per client).
   io.to(sessionCode).emit("timer-start", {
     startedAt: startedAt.toISOString(),
+    expiresAt: expiresAt.toISOString(),
     timer: duration,
+    currentQuestion: formatQuestion(currentQuestion),
   });
 
   // ── Compensate for time already consumed by the DB write ──────────────────
@@ -448,24 +473,30 @@ export const handleConnection = (socket) => {
       }
 
       const timerState = session.progress.questionTimer;
+      console.log(timerState);
 
       // ── B) Re-sync reconnecting client ─────────────────────────────────────
       if (timerState.startedAt) {
         const elapsedSec =
           (Date.now() - new Date(timerState.startedAt).getTime()) / 1000;
         const remainingSec = timerState.duration - elapsedSec;
-
+        console.log(remainingSec);
         if (remainingSec > 0) {
           console.log(
             `[player-ready] timer running, re-syncing client  ` +
               `session=${sessionCode}  remaining=${remainingSec.toFixed(1)}s`,
           );
+          const currentQuestion = await Question.findById(
+            session.progress.currentQuestionId,
+          ).populate("categoryId", "_id name thumbnail");
 
-          // Unicast to THIS socket only — other sockets are already counting down
           socket.emit("timer-start", {
             startedAt: new Date(timerState.startedAt).toISOString(),
+            expiresAt: new Date(timerState.expiresAt).toISOString(), // ← NaNs fix
             timer: timerState.duration,
+            currentQuestion: formatQuestion(currentQuestion), // ← blank screen fix
           });
+          // Unicast to THIS socket only — other sockets are already counting down
 
           return; // ← critically: do NOT arm a second server timeout
         }
@@ -490,7 +521,82 @@ export const handleConnection = (socket) => {
       processingLock.delete(sessionCode);
     }
   });
+  socket.on(
+    "submit-answer",
+    async ({ sessionCode, questionId, answer, answeredAt }, ack) => {
+      try {
+        // ── Atomic claim — identical firewall as REST ────────────────────────────
+        const claimed = await atomicClaimQuestion(sessionCode, questionId);
 
+        if (!claimed) {
+          // Already claimed by timer expiry or duplicate submit
+          return ack?.({ status: "duplicate" });
+        }
+
+        cancelTimer(sessionCode);
+
+        // ── Timestamp guard (solution 2) — only timed_solo uses socket submit ────
+        const inTime = isAnswerInTime(answeredAt, claimed, GRACE_PERIOD_MS);
+
+        const session = await GameSession.findOne({ sessionCode: sessionCode });
+        if (!session)
+          return ack?.({ status: "error", message: "session not found" });
+
+        const originalQuestion = await Question.findById(questionId).populate(
+          "categoryId",
+          "_id name thumbnail",
+        );
+        if (!originalQuestion)
+          return ack?.({ status: "error", message: "question not found" });
+
+        const isCorrect = inTime ? originalQuestion.answer === answer : false;
+
+        if (!inTime) {
+          console.log(
+            `[submit-answer] late answer  session=${sessionCode}  grace=${GRACE_PERIOD_MS}ms`,
+          );
+        }
+
+        // ── Shared processing ────────────────────────────────────────────────────
+        const { status, nextQuestion } = await processAnswer(
+          session,
+          questionId,
+          isCorrect,
+        );
+
+        const pointsAwarded = isCorrect
+          ? claimed.progress.currentPointLevel
+          : 0;
+
+        // Fast ack — client unblocks immediately
+        ack?.({
+          status: "ok",
+          isCorrect,
+          correctAnswer: originalQuestion.answer,
+          pointsAwarded,
+          inTime,
+        });
+
+        if (status === "ended") {
+          await recordGameEnd(session);
+          io.to(sessionCode).emit("game-ended");
+          return;
+        }
+
+        // Full reveal event — carries next question so client can preload it
+        socket.emit("answer-result", {
+          isCorrect,
+          correctAnswer: originalQuestion.answer,
+          pointsAwarded,
+          nextQuestion: formatQuestion(nextQuestion),
+          answerImage: originalQuestion.answerImage ?? null,
+        });
+      } catch (err) {
+        console.error(`[submit-answer] error  session=${sessionCode}:`, err);
+        ack?.({ status: "error" });
+      }
+    },
+  );
   // ── end-game ───────────────────────────────────────────────────────────────
   socket.on("end-game", (sessionCode) => {
     // Cancel any running timer so its expiry callback doesn't fire after the

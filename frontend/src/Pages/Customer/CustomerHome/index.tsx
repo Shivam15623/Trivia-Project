@@ -214,93 +214,10 @@ const Home = () => {
             <TestimonialSlider />
             {/* Background blur shapes */}
 
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="2426"
-              height="1498"
-              className="pointer-events-none absolute -top-[145%] max-h-[1000px] w-[1920px] max-w-none rotate-[5deg] sm:-top-[215%] sm:max-h-none sm:rotate-0"
-              viewBox="0 0 1920 1498"
-              fill="none"
-            >
-              <g opacity="0.5" filter="url(#filter0_f_342_1553)">
-                <path
-                  d="M1967.85 1377.36C1773.03 1227.11 1446.03 1105.31 1045.68 1079.61C346.077 1034.69 -1.38874 1000.43 -178.526 865.481L-151.355 767.641L-136.626 441.76C117.682 639.28 481.211 750.66 1164.25 769.156C1590.31 787.026 1929.38 883.04 2057.58 972.24L1967.85 1377.36Z"
-                  fill="url(#paint0_linear_342_1553)"
-                />
-              </g>
-              <g opacity="0.5" filter="url(#filter1_f_342_1553)">
-                <path
-                  d="M-1.84408 262.683C173.282 422.588 353.309 537.248 831.569 609.318C1386.79 692.984 1934.36 676.582 2093.74 820.664L2082.86 1179.02L1976.93 1152.15C1873.8 1058.15 1149.41 1024.25 489.768 865.234C319.562 824.204 241.051 838.496 -98.1706 626.556L-1.84408 262.683Z"
-                  fill="url(#paint1_linear_342_1553)"
-                />
-              </g>
-              <defs>
-                <filter
-                  id="filter0_f_342_1553"
-                  x="-269.325"
-                  y="350.96"
-                  width="2417.7"
-                  height="1117.2"
-                  filterUnits="userSpaceOnUse"
-                  color-interpolation-filters="sRGB"
-                >
-                  <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                  <feBlend
-                    mode="normal"
-                    in="SourceGraphic"
-                    in2="BackgroundImageFix"
-                    result="shape"
-                  />
-                  <feGaussianBlur
-                    stdDeviation="45.4"
-                    result="effect1_foregroundBlur_342_1553"
-                  />
-                </filter>
-                <filter
-                  id="filter1_f_342_1553"
-                  x="-209.77"
-                  y="151.084"
-                  width="2415.11"
-                  height="1139.54"
-                  filterUnits="userSpaceOnUse"
-                  color-interpolation-filters="sRGB"
-                >
-                  <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                  <feBlend
-                    mode="normal"
-                    in="SourceGraphic"
-                    in2="BackgroundImageFix"
-                    result="shape"
-                  />
-                  <feGaussianBlur
-                    stdDeviation="55.8"
-                    result="effect1_foregroundBlur_342_1553"
-                  />
-                </filter>
-                <linearGradient
-                  id="paint0_linear_342_1553"
-                  x1="2000.62"
-                  y1="1104.28"
-                  x2="-128.252"
-                  y2="837.168"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop offset="0.0187462" stop-color="#FC9924" />
-                  <stop offset="1" stop-color="#FCD645" />
-                </linearGradient>
-                <linearGradient
-                  id="paint1_linear_342_1553"
-                  x1="2312.81"
-                  y1="1043.1"
-                  x2="-700.906"
-                  y2="779.505"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop stop-color="#7BFDFD" />
-                  <stop offset="0.716346" stop-color="#2884C7" />
-                </linearGradient>
-              </defs>
-            </svg>
+            <img
+              src="/home/homeGrb.svg"
+              className="pointer-events-none absolute -top-[145%] max-h-[1497px] w-full min-w-[1920px] max-w-none rotate-[5deg] object-cover sm:-top-[215%] sm:max-h-[1497px] sm:rotate-0"
+            />
           </div>
           <div className="flex w-full flex-col items-center justify-center px-[20px] sm:px-[40px] md:px-[60px] lg:px-[80px] xl:px-[120px]">
             <div className="relative z-10 mb-10 flex w-full max-w-[1280px] flex-col gap-[40px]">
