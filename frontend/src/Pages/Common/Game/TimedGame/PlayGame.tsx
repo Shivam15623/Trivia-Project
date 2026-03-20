@@ -6,12 +6,17 @@ import { cn } from "@/lib/utils";
 import { GradientButton } from "@/components/GradientButton";
 import { useSocket } from "@/hooks/useSocket";
 import { useTimedSoloGame } from "./useTimeSolo";
-import { useFetchCurrentQuestionQuery } from "@/services";
+import {
+  useFetchCurrentQuestionQuery,
+  useFetchGameSessionInfoQuery,
+} from "@/services";
+import { useSelector } from "react-redux";
+import { selectAuth } from "@/redux/AuthSlice/authSlice";
 
 export default function TimedSoloGame() {
   const { sessionCode: codeFromParam } = useParams<{ sessionCode: string }>();
   const location = useLocation();
-
+  const { user } = useSelector(selectAuth);
   // Prefer state passed from StartGame — fallback to param if navigated directly
   const sessionCode = (location.state?.sessionCode ?? codeFromParam) as string;
   const { data: QuestionFromApi, isLoading } = useFetchCurrentQuestionQuery(
@@ -21,6 +26,11 @@ export default function TimedSoloGame() {
       refetchOnMountOrArgChange: true,
     },
   );
+  const { data: sessionFromApi, isLoading: sinfoLoading } =
+    useFetchGameSessionInfoQuery(sessionCode, {
+      skip: !sessionCode,
+      refetchOnMountOrArgChange: true,
+    });
 
   const navigate = useNavigate();
   const socket = useSocket();
@@ -93,7 +103,8 @@ export default function TimedSoloGame() {
     submitAnswer(selectedIndex, question.questionId);
   }
   // ── Derived: show loader when we have no question yet ─────────────────────
-  const isWaitingForQuestion = (isLoading || phase === "IDLE") && !question;
+  const isWaitingForQuestion =
+    (isLoading || sinfoLoading || phase === "IDLE") && !question;
 
   if (isWaitingForQuestion) {
     return (
@@ -108,7 +119,86 @@ export default function TimedSoloGame() {
       </div>
     );
   }
+  const isUnauthorized =
+    !sinfoLoading &&
+    sessionFromApi?.data &&
+    sessionFromApi.data.soloPlayer?.userId !== user?._id;
 
+  if (isUnauthorized) {
+    return (
+      <div className="relative flex flex-1 items-center justify-center">
+        <div className="flex flex-col items-center gap-5 px-6 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/20">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-8 w-8 text-red-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01M5.07 19H19a2 2 0 001.75-2.96L13.75 4a2 2 0 00-3.5 0L3.25 16A2 2 0 005.07 19z"
+              />
+            </svg>
+          </div>
+          <div>
+            <p className="font-outfit text-xl font-semibold text-white">
+              Not Your Game
+            </p>
+            <p className="mt-1.5 font-outfit text-sm text-white/50">
+              This session belongs to a different player. You can only play your
+              own games.
+            </p>
+          </div>
+          <button
+            onClick={() => navigate(-1)}
+            className="mt-2 rounded-xl border border-white/10 px-6 py-2.5 font-outfit text-sm text-white/70 transition-all hover:bg-white/10 hover:text-white"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+  if (error?.includes("not the player")) {
+    return (
+      <div className="relative flex flex-1 items-center justify-center">
+        <div className="flex flex-col items-center gap-5 px-6 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/20">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-8 w-8 text-red-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01M5.07 19H19a2 2 0 001.75-2.96L13.75 4a2 2 0 00-3.5 0L3.25 16A2 2 0 005.07 19z"
+              />
+            </svg>
+          </div>
+          <p className="font-outfit text-xl font-semibold text-white">
+            Not Your Game
+          </p>
+          <p className="font-outfit text-sm text-white/50">
+            This session belongs to a different player.
+          </p>
+          <button
+            onClick={() => navigate(-1)}
+            className="mt-2 rounded-xl border border-white/10 px-6 py-2.5 font-outfit text-sm text-white/70 transition-all hover:bg-white/10 hover:text-white"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <>
       <div className="relative flex flex-1 flex-col overflow-hidden px-4 sm:items-center sm:justify-center">
