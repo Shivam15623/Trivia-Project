@@ -11,56 +11,61 @@ import { selectAuth } from "@/redux/AuthSlice/authSlice";
 const AdminRoot = () => {
   const { user } = useSelector(selectAuth);
 
+  const today = new Date();
+  const shortDate = today.toLocaleDateString("en-IN", {
+    month: "short",
+    day: "numeric",
+  });
+  const fullDate = today.toLocaleDateString("en-IN", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
     <SidebarProvider className="h-screen">
       <AppSidebar />
       <SidebarInset className="bg-black">
-        <div className="relative flex min-h-fit flex-1 flex-col gap-4 overflow-auto bg-black px-4 sm:gap-6 sm:px-8 md:px-12 lg:px-[72px]">
+        <div className="relative flex min-h-fit flex-1 flex-col gap-4 overflow-auto bg-black px-3 sm:gap-6 sm:px-6 lg:px-12 xl:px-[72px]">
           {/* ── Header ── */}
-          <header className="flex min-h-[80px] shrink-0 items-center gap-2 border-b-0 bg-transparent pt-3 sm:min-h-[106px] sm:pt-4">
-            <div className="flex w-full flex-row items-center justify-between gap-3 text-white">
-              {/* ✅ Left — hamburger (mobile) + avatar + welcome text */}
-              <div className="flex min-w-0 flex-1 flex-row items-center gap-3 sm:gap-5">
-                {/* ✅ Sidebar trigger — visible on mobile only */}
-                <SidebarTrigger className="shrink-0 text-white md:hidden" />
+          <header className="flex min-h-[64px] shrink-0 items-center sm:min-h-[90px] lg:min-h-[106px]">
+            <div className="flex w-full flex-row items-center justify-between gap-2 text-white sm:gap-4">
+              {/* Left — trigger + avatar + welcome */}
+              <div className="flex min-w-0 flex-1 flex-row items-center gap-2 sm:gap-4">
+                {/* Sidebar trigger — mobile only */}
+                <SidebarTrigger className="shrink-0 text-white lg:hidden" />
 
                 {/* Avatar */}
                 <img
                   src={user?.profilePic}
-                  className="h-[40px] w-[40px] shrink-0 overflow-hidden rounded-full sm:h-[60px] sm:w-[60px]"
+                  alt="avatar"
+                  className="h-8 w-8 shrink-0 rounded-full object-cover sm:h-11 sm:w-11 lg:h-14 lg:w-14"
                 />
 
                 {/* Welcome text */}
-                <div className="flex min-w-0 flex-col gap-1 sm:gap-2">
-                  <p className="truncate font-outfit text-[16px] font-semibold leading-[100%] sm:text-[20px] md:text-[24px]">
-                    {/* ✅ Shorter on mobile */}
+                <div className="flex min-w-0 flex-col gap-0.5 sm:gap-1.5">
+                  <p className="truncate font-outfit text-sm font-semibold leading-tight sm:text-lg lg:text-2xl">
                     <span className="sm:hidden">Welcome, Admin!</span>
                     <span className="hidden sm:inline">
                       Welcome back, Admin!
                     </span>
                   </p>
-                  <p className="hidden font-outfit text-[13px] font-normal leading-[100%] opacity-70 sm:block sm:text-[14px] md:text-[16px]">
-                    Manage and monitor all trivia game from here.
+                  <p className="hidden font-outfit text-xs font-normal opacity-60 sm:block sm:text-sm lg:text-base">
+                    Manage and monitor all trivia games from here.
                   </p>
                 </div>
               </div>
 
-              {/* ✅ Right — date (hidden on small mobile) */}
-              <div className="hidden flex-col items-end gap-1.5 sm:flex sm:gap-2">
-                <span className="font-outfit text-[13px] font-normal leading-[100%] opacity-60 sm:text-[16px]">
+              {/* Right — date */}
+              <div className="flex shrink-0 flex-col items-end gap-1">
+                <span className="font-outfit text-xs font-normal opacity-60 sm:text-sm">
                   Today
                 </span>
-                <span className="font-outfit text-[13px] font-semibold leading-[100%] sm:text-base md:text-lg">
-                  {/* ✅ Short date on tablet, full date on desktop */}
-                  
-                  <span className="hidden md:inline">
-                    {new Date().toLocaleDateString("en-IN", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </span>
+                <span className="font-outfit text-xs font-semibold leading-tight sm:text-sm lg:text-base">
+                  {/* Short on mobile/tablet, full on desktop */}
+                  <span className="lg:hidden">{shortDate}</span>
+                  <span className="hidden lg:inline">{fullDate}</span>
                 </span>
               </div>
             </div>
