@@ -84,7 +84,8 @@ const AdminHome = () => {
       </div>
 
       {/* ✅ HeatMap + ModeBar: stacked on mobile, side by side on lg+ */}
-      <div className="relative z-10 flex flex-col gap-3 sm:gap-4 lg:flex-row lg:gap-2.5">
+      <div className="relative z-10 flex flex-col gap-3 sm:gap-4 lg:flex-row lg:gap-6 max-h-fit lg
+      :max-h-[564px]">
         <HeatMap usersByCountry={data.usersByCountry} />
         <ModeBarCard modeUsage={data.modeUsage} />
       </div>

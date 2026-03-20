@@ -7,6 +7,7 @@ import {
   SidebarHeader,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar, // ← add this import
 } from "@/components/ui/sidebar";
 import { NavLink, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
@@ -38,6 +39,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const location = useLocation();
+  const { isMobile, setOpenMobile } = useSidebar(); // ← gives us mobile state
 
   const [logout] = useLogoutMutation();
   const dispatch = useDispatch();
@@ -52,16 +54,32 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       handleApiError(err);
     }
   };
-  // pull user from your auth slice — adjust selector to match your state shape
+
   const { user } = useSelector(selectAuth);
+
+  // Close sidebar when a nav link is tapped on mobile
+  const handleNavClick = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   return (
     <Sidebar
       className="border-0 group-data-[side=left]:border-r-0 group-data-[side=right]:border-l-0"
       {...props}
     >
-      {/* ── Logo ── */}
+      {/* ── Logo + close button on mobile ── */}
       <SidebarHeader className="items-center justify-center py-4">
+        {/* Close button — only visible on mobile */}
+        {isMobile && (
+          <button
+            onClick={() => setOpenMobile(false)}
+            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg text-white/50 transition-all hover:bg-white/10 hover:text-white"
+            aria-label="Close sidebar"
+          >
+            <Icon icon="solar:close-circle-bold" className="h-5 w-5" />
+          </button>
+        )}
+
         <img src="/heroTrivvy.png" className="h-[100px] w-[100px]" />
       </SidebarHeader>
 
@@ -85,6 +103,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               >
                 <NavLink
                   to={item.url}
+                  onClick={handleNavClick} // ← auto-close on nav tap
                   className="flex items-center gap-2 px-4 py-3"
                 >
                   <Icon icon={item.icon} className="!h-5 !w-5" width={20} />
@@ -98,19 +117,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       {/* ── Footer: profile + logout ── */}
       <SidebarFooter className="px-4 pb-6 pt-2">
-        {/* divider */}
         <div className="mb-3 h-px w-full bg-[hsla(0,0%,100%,0.08)]" />
 
-        {/* User profile row */}
+        {/* User profile row — also closes on mobile tap */}
         <NavLink
           to={`/${user?.role}/userProfile/${user?.slug}`}
+          onClick={handleNavClick} // ← auto-close on nav tap
           className={({ isActive }) =>
             `flex items-center gap-3 rounded-xl px-3 py-2.5 font-outfit text-[13px] font-medium transition-all hover:bg-[hsla(0,0%,100%,0.06)] ${
               isActive ? "bg-[hsla(0,0%,100%,0.06)]" : ""
             }`
           }
         >
-          {/* Avatar */}
           <div className="relative flex-shrink-0">
             {user?.profilePic ? (
               <img
@@ -128,7 +146,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             )}
           </div>
 
-          {/* Name + email */}
           <div className="min-w-0 flex-1">
             <p className="truncate leading-tight">
               {user?.firstname} {user?.lastname}
@@ -138,14 +155,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </p>
           </div>
 
-          {/* Edit icon */}
           <Icon
             icon="solar:pen-2-linear"
             className="h-4 w-4 flex-shrink-0 opacity-30"
           />
         </NavLink>
 
-        {/* Logout button */}
+        {/* Logout */}
         <button
           onClick={onLogout}
           className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 font-outfit text-[13px] font-medium text-red-400 transition-all hover:bg-red-500/10 hover:text-red-300"
