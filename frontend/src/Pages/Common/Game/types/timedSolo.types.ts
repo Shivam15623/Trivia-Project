@@ -41,6 +41,7 @@ export interface TimeUpPayload {
   correctAnswer: string;
   currentQuestion: QuestionPayload | null; // null = game over
   session: Record<string, unknown>;
+  answerImage: string | null; // ← add
 }
 
 // ─── What the server sends on answer-result ──────────────────────────────────

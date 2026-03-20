@@ -138,12 +138,7 @@ export function createTimedSoloSocket(
   // ─── Socket event handlers ─────────────────────────────────────────────────
 
   function onTimerStart(payload: TimerStartPayload): void {
-    const {
-      startedAt,
-      expiresAt: expiresAtIso,
-      timer,
-      currentQuestion: q,
-    } = payload;
+    const { expiresAt: expiresAtIso, timer, currentQuestion: q } = payload;
     console.log("jdfnvbjdfnjvb", payload);
     // Reset all fallbacks from previous question
     stopRaf();

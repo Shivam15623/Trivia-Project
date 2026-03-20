@@ -28,7 +28,7 @@ export default function TimedSoloGame() {
   const { state, submitAnswer, clearReveal } = useTimedSoloGame({
     socket,
     sessionCode,
-    initialQuestion: QuestionFromApi?.data,
+    initialQuestion: QuestionFromApi?.data ?? null,
     onGameEnd: () => navigate(`/game/SoloGameEnd/${sessionCode}`),
   });
 
@@ -91,6 +91,22 @@ export default function TimedSoloGame() {
   function handleSubmit() {
     if (selectedIndex === null || !question || optionsLocked) return;
     submitAnswer(selectedIndex, question.questionId);
+  }
+  // ── Derived: show loader when we have no question yet ─────────────────────
+  const isWaitingForQuestion = (isLoading || phase === "IDLE") && !question;
+
+  if (isWaitingForQuestion) {
+    return (
+      <div className="relative flex flex-1 items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative h-16 w-16">
+            <div className="absolute inset-0 rounded-full border-4 border-white/10" />
+            <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-[#7BFDFD]" />
+          </div>
+          <p className="font-outfit text-sm text-white/50">Loading game…</p>
+        </div>
+      </div>
+    );
   }
 
   return (
