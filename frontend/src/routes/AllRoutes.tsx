@@ -6,13 +6,10 @@ import {
   LazyAdminHome,
   LazyAdminRoot,
   LazyCategoryDetailsPage,
-
   LazyCreateGame,
-
   LazyForgotPassword,
   LazyLoader,
   LazyLogin,
-
   LazyPublicHome,
   LazyRequestResetPassword,
   LazySignup,
@@ -28,6 +25,7 @@ import {
   LazyNotFound,
   LazyJoinGame,
   LazyUserManagement,
+  LazyTimedPlayGame,
 } from "@/lazy components";
 import Home from "@/Pages/Customer/CustomerHome";
 import RouteGuard from "@/RouteGuard";
@@ -109,7 +107,7 @@ export const AllRoutes: RouteObject[] = [
     element: <CustomRoot />,
     children: [
       { index: true, element: <Home /> },
-    
+
       { path: "CreateGame", element: withSuspense(<LazyCreateGame />) },
       { path: "userProfile/:slug", element: withSuspense(<LazyUserProfile />) },
       { path: "joinGame", element: withSuspense(<LazyJoinGame />) },
@@ -136,7 +134,7 @@ export const AllRoutes: RouteObject[] = [
         path: "user-management",
         element: withSuspense(<LazyUserManagement />),
       },
-     
+
       { path: "CreateGame", element: withSuspense(<LazyCreateGame />) },
       { path: "joinGame", element: withSuspense(<LazyJoinGame />) },
     ],
@@ -149,6 +147,7 @@ export const AllRoutes: RouteObject[] = [
         path: "PlayGameSession/:sessionCode",
         element: withSuspense(<LazyPlayGamePage />),
       },
+
       {
         path: "Waitingroom/:sessionCode",
         element: withSuspense(<LazyWaitingRoom />),
@@ -164,6 +163,10 @@ export const AllRoutes: RouteObject[] = [
       {
         path: "SoloGameEnd/:sessionCode",
         element: withSuspense(<LazySoloGameEnd />),
+      },
+      {
+        path: "timed/:sessionCode",
+        element: withSuspense(<LazyTimedPlayGame />),
       },
     ],
   },

@@ -60,6 +60,20 @@ const StartGame: React.FC<StartGameProps> = ({ session }) => {
 
       if (response.success) {
         showSuccess(response.message);
+
+        // ── Navigate to game screen based on mode ──────────────────────────
+        // TimedSoloGame mounts here — hook auto-joins room and emits player-ready
+        if (session.mode === "timed_solo") {
+          navigate(`/game/timed/${sessionCode}`, {
+            state: {
+              sessionId: session._id, // hook needs this for submit-answer
+              sessionCode: sessionCode, // hook needs this for room join
+            },
+          });
+        } else {
+          // Regular solo — goes to the existing REST-based game screen
+          navigate(`/${role}/solo-game/${sessionCode}`);
+        }
       }
     } catch (error) {
       handleApiError(error);

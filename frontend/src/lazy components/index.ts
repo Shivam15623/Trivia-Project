@@ -26,7 +26,9 @@ export const LazyCategoryDetailsPage = lazy(
 export const LazyWaitingRoom = lazy(
   () => import("@/Pages/Common/Game/TeamGame/Waiting/index"),
 );
-export const LazyPlayGamePage = lazy(() => import("@/Pages/Common/Game/TeamGame/Play/index"));
+export const LazyPlayGamePage = lazy(
+  () => import("@/Pages/Common/Game/TeamGame/Play/index"),
+);
 
 export const LazyLogin = lazy(() => import("@/Pages/Public/Login"));
 export const LazyEndGame = lazy(
@@ -50,5 +52,8 @@ export const LazyEmailVerificationSent = lazy(
 );
 export const LazyApplyEmailVerification = lazy(
   () => import("@/Pages/Public/ApplyEmailVerification"),
+);
+export const LazyTimedPlayGame = lazy(
+  () => import("@/Pages/Common/Game/TimedGame/PlayGame"),
 );
 export const LazyNotFound = lazy(() => import("@/Pages/Public/NotFound"));
