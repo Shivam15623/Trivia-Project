@@ -332,8 +332,14 @@ async function handleTimerExpiry(sessionCode, generation) {
  * @param {number} duration     Question duration in seconds.
  * @param {number} latencyMs    One-way client latency buffer in ms.
  */
-async function armTimer(sessionCode, startedAt, duration, latencyMs) {
-  // ── Write to DB first so the source of truth is always Mongo ──────────────
+async function armTimer(
+  sessionCode,
+  startedAt,
+  duration,
+  latencyMs,
+  prefetchedSession = null,
+  prefetchedQuestion = null,
+) {
   const expiresAt = new Date(startedAt.getTime() + duration * 1000);
 
   await GameSession.findOneAndUpdate(
@@ -343,13 +349,16 @@ async function armTimer(sessionCode, startedAt, duration, latencyMs) {
       "progress.questionTimer.expiresAt": expiresAt,
     },
   );
-  // ── Fetch the current question to send with the timer ─────────────────
-  // We need this here so the client gets question + timer in one event.
-  // No second round-trip needed on the client side.
-  const session = await GameSession.findOne({ sessionCode });
-  const currentQuestion = await Question.findById(
-    session.progress.currentQuestionId,
-  ).populate("categoryId", "_id name thumbnail");
+
+  // Use prefetched data if available — skip the DB reads
+  const session =
+    prefetchedSession ?? (await GameSession.findOne({ sessionCode }));
+  const currentQuestion =
+    prefetchedQuestion ??
+    (await Question.findById(session.progress.currentQuestionId).populate(
+      "categoryId",
+      "_id name thumbnail",
+    ));
 
   if (!currentQuestion) {
     console.error(
@@ -471,6 +480,15 @@ export const handleConnection = (socket) => {
         );
         return;
       }
+      if (session.soloPlayer.userId.toString() !== socket.user._id.toString()) {
+        console.warn(
+          `[player-ready] unauthorized  socket=${socket.id}  session=${sessionCode}`,
+        );
+        socket.emit("error", {
+          message: "You are not the player for this session",
+        });
+        return;
+      }
 
       const timerState = session.progress.questionTimer;
       console.log(timerState);
@@ -513,7 +531,7 @@ export const handleConnection = (socket) => {
       const duration = timerState.duration;
       const latency = playerLatency.get(socket.id) ?? 300;
 
-      await armTimer(sessionCode, now, duration, latency);
+      await armTimer(sessionCode, now, duration, latency, session);
     } catch (err) {
       console.error(`[player-ready] error  session=${sessionCode}:`, err);
     } finally {
@@ -532,7 +550,12 @@ export const handleConnection = (socket) => {
           // Already claimed by timer expiry or duplicate submit
           return ack?.({ status: "duplicate" });
         }
-
+        if (
+          claimed.soloPlayer.userId.toString() !== socket.user._id.toString()
+        ) {
+          console.warn(`[submit-answer] unauthorized  socket=${socket.id}`);
+          return ack?.({ status: "error", message: "Unauthorized" });
+        }
         cancelTimer(sessionCode);
 
         // ── Timestamp guard (solution 2) — only timed_solo uses socket submit ────

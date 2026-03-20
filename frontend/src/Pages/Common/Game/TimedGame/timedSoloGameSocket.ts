@@ -20,7 +20,6 @@ export function createTimedSoloSocket(
   const {
     socket,
     sessionCode,
-
     onPhaseChange,
     onTick,
     onReveal,
@@ -226,7 +225,13 @@ export function createTimedSoloSocket(
   socket.on("answer-result", onAnswerResult);
   socket.on("game-ended", onGameEnded);
   socket.on("connect", onReconnect);
+  socket.on("error", onSocketError); // ← add
 
+  // Add the handler function:
+  function onSocketError(payload: { message: string }): void {
+    console.warn("[TimedSoloSocket] server error:", payload.message);
+    onError(payload.message);
+  }
   // ─── Join room + signal ready ──────────────────────────────────────────────
   // join-session-room MUST come before player-ready
   // so the socket is in the room when the server broadcasts timer-start
@@ -323,7 +328,7 @@ export function createTimedSoloSocket(
     socket.off("game-ended", onGameEnded);
     socket.off("connect", onReconnect);
     socket.off("connect", joinAndReady); // ← remove pending once if not yet fired
-
+    socket.off("error", onSocketError);
     console.log("[TimedSoloSocket] destroyed");
   }
   return { submitAnswer, signalReady, destroy };
