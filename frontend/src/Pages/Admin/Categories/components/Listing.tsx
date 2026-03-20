@@ -1,9 +1,7 @@
 import { Button } from "@/components/ui/button";
-
 import { Switch } from "@/components/ui/switch";
 import { Category } from "@/interfaces/categoriesInterface";
 import { Edit, Eye } from "lucide-react";
-
 import DeleteCategory from "./DeleteCategory";
 import { usePublicToggleMutation } from "@/services";
 import { useNavigate } from "react-router-dom";
@@ -12,68 +10,74 @@ import { handleApiError } from "@/utills/handleApiError";
 import { GradientCard } from "@/Pages/Customer/CustomerHome/components/GradientBorderCard";
 import { CategoryDialog } from "./ManageCategory";
 
-type Props = {
-  category: Category;
-};
+type Props = { category: Category };
+
 const Categorylisting = ({ category }: Props) => {
   const [PublicToggle] = usePublicToggleMutation();
   const navigate = useNavigate();
+
   const handleTogglePublic = async (id: string) => {
     try {
       const response = await PublicToggle(id).unwrap();
-      if (response.success === true) {
-        showSuccess(response.message);
-      }
+      if (response.success) showSuccess(response.message);
     } catch (error) {
       handleApiError(error);
     }
   };
+
   return (
     <GradientCard
-      className=""
+      className="w-full"
       gradient="linear-gradient(180deg, #7BFDFD 38.94%, #2884C7 61.54%)"
       padding={4}
       radius={13.33}
     >
-      <div className="flex flex-row gap-[10px] p-5">
-        <img
-          src={category.thumbnail}
-          className="aspect-square max-w-[150px] object-contain"
-          alt={category.name}
-        />
-        <div className="relative flex flex-1 flex-col gap-3.5 pt-2.5">
-          <div className="flex flex-row items-center justify-between">
-            <div className="font-michroma text-[18px] font-normal text-white">
-              {category.name}
-            </div>
+      <div className="flex flex-col gap-4 p-4 sm:flex-row sm:gap-3 sm:p-5">
+        {/* Thumbnail */}
+        <div className="flex justify-center sm:block">
+          <img
+            src={category.thumbnail}
+            className="h-[100px] w-[100px] flex-shrink-0 object-contain sm:h-[120px] sm:w-[120px] lg:h-[150px] lg:w-[150px]"
+            alt={category.name}
+          />
+        </div>
 
-            <div className="flex flex-col items-center justify-start gap-0.5">
+        {/* Content */}
+        <div className="flex flex-1 flex-col gap-3">
+          {/* Top row — name + toggle */}
+          <div className="flex flex-row items-start justify-between gap-2">
+            <h3 className="font-michroma text-[15px] font-normal leading-snug text-white sm:text-[16px] lg:text-[18px]">
+              {category.name}
+            </h3>
+
+            <div className="flex flex-shrink-0 flex-col items-center gap-0.5">
               <Switch
                 checked={category.isPublic}
                 onCheckedChange={() => handleTogglePublic(category._id)}
-                className="relative h-5 w-10 rounded-[16px] border-transparent data-[state=unchecked]:bg-gray-300 data-[state=checked]:bg-[linear-gradient(180deg,_#7BFDFD_5.07%,_#2884C7_98.61%)]"
+                className="h-5 w-10 rounded-[16px] border-transparent data-[state=unchecked]:bg-gray-300 data-[state=checked]:bg-[linear-gradient(180deg,_#7BFDFD_5.07%,_#2884C7_98.61%)]"
               />
-              {category.isPublic === true ? (
-                <span className="text-[8px] text-white opacity-80">Public</span>
-              ) : (
-                <span className="text-[8px] text-white opacity-80">
-                  Not Public
-                </span>
-              )}
+              <span className="text-[8px] text-white opacity-80">
+                {category.isPublic ? "Public" : "Not Public"}
+              </span>
             </div>
           </div>
-          <p className="font-outfit text-[14px] leading-[100%] text-white">
+
+          {/* Description */}
+          <p className="line-clamp-2 font-outfit text-[13px] leading-relaxed text-white/80 sm:text-[14px]">
             {category.description}
           </p>
-          <div className="absolute bottom-0 right-0 flex w-fit flex-row gap-1">
+
+          {/* Actions — in flow, not absolute */}
+          <div className="mt-auto flex flex-row items-center gap-1 pt-1">
             <Button
               onClick={() => navigate(`/admin/category/${category.slug}`)}
               className="rounded-md p-0.5 hover:bg-[#f5f5f52b]"
               variant="ghost"
               size="icon"
             >
-              <Eye className="text-2xl text-white" size={24} />
+              <Eye className="text-white" size={20} />
             </Button>
+
             <CategoryDialog
               slug={category.slug}
               trigger={
@@ -82,10 +86,11 @@ const Categorylisting = ({ category }: Props) => {
                   variant="ghost"
                   size="icon"
                 >
-                  <Edit className="text-2xl text-white" size={24}/>
+                  <Edit className="text-white" size={20} />
                 </Button>
               }
             />
+
             <DeleteCategory
               categoryId={category._id}
               categoryName={category.name}
@@ -94,71 +99,6 @@ const Categorylisting = ({ category }: Props) => {
         </div>
       </div>
     </GradientCard>
-    // <Card
-    //   key={category._id}
-    //   className="group relative flex flex-col border border-orange-200 shadow-sm hover:shadow-md transition-all gap-0 py-0 duration-200 rounded-2xl overflow-hidden bg-white"
-    // >
-    //   {/* Thumbnail */}
-    //   <div className="relative w-full h-40 bg-[#fff0f0] flex items-center justify-center border-b border-orange-100">
-    //     <img
-    //       src={category.thumbnail}
-    //       alt={category.name}
-    //       className="h-full object-contain p-4"
-    //     />
-    //   </div>
-
-    //   {/* Header */}
-    //   <CardHeader className="px-4 pt-4 pb-2">
-    //     <div className="flex-1">
-    //       <div className=" flex justify-between items-start">
-    //         <CardTitle className="text-base font-semibold text-[#e34b4b] line-clamp-1">
-    //           {category.name}
-    //         </CardTitle>
-    //         <div className="flex items-center px-3 py-1 rounded-full bg-[#ffe4e1] gap-2 text-xs text-gray-600 font-medium">
-    //           <span>Public</span>
-    //           <Switch
-    //             checked={category.isPublic}
-    //             onCheckedChange={() => handleTogglePublic(category._id)}
-    //             className="scale-[0.85] data-[state=checked]:bg-[#e34b4b]"
-    //           />
-    //         </div>
-    //       </div>
-
-    //       {category.description && (
-    //         <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-    //           {category.description}
-    //         </p>
-    //       )}
-    //     </div>
-    //   </CardHeader>
-
-    //   {/* Footer Actions */}
-    //   <CardFooter className="px-4 pb-4 pt-1 flex justify-end items-end">
-    //     <div className="flex gap-2">
-    //       <Button
-    //         onClick={() => navigate(`/admin/category/${category.slug}`)}
-    //         className="p-1.5 rounded-md "
-    //         variant="ghost"
-    //         size="icon"
-    //       >
-    //         <Eye />
-    //       </Button>
-
-    //       <CategoryDialog
-    //         slug={category.slug}
-    //         trigger={
-    //           <Button className="p-1.5 rounded-md" variant={"ghost"}>
-    //             <Edit />{" "}
-    //           </Button>
-    //         }
-    //       />
-    //       <DeleteCategory
-    //         categoryId={category._id}
-    //         categoryName={category.name}
-    //       />
-    //     </div>
-    //   </CardFooter>
-    // </Card>
   );
 };
 
