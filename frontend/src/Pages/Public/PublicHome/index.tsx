@@ -331,11 +331,11 @@ const PublicHome = () => {
       <div className="pointer-events-none absolute inset-0 z-0 overflow-x-hidden">
         <img
           src="/home/skyShot1.svg"
-          className="absolute right-auto opacity-80 lg:left-[35%] lg:top-[1.5%]"
+          className="absolute right-[10%] top-[4.5%] w-[35.37%] opacity-80 lg:left-[35%] lg:right-auto lg:top-[1.5%] lg:w-[22%]"
         />
         <img
           src="/home/skyShot2.svg"
-          className="z-2 absolute right-auto opacity-80 lg:left-[53%] lg:top-[4.5%]"
+          className="z-2 absolute left-[9%] top-[5.7%] w-[45.57%] opacity-80 lg:left-[53%] lg:right-auto lg:top-[4.5%] lg:w-[22%]"
         />
       </div>
     </>
