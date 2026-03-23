@@ -383,7 +383,7 @@ export const SubmitAnswerSolo = asyncHandler(async (req, res) => {
         {
           isCorrect,
           correctAnswer: originalQuestion.answer,
-          pointsAwarded: isCorrect ? session.progress.currentPointLevel : 0,
+          pointsAwarded: isCorrect ? originalQuestion.points : 0,
           gameEnded: true,
           score: session.soloPlayer.score,
           username: session.soloPlayer.username,

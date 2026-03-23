@@ -587,9 +587,7 @@ export const handleConnection = (socket) => {
           isCorrect,
         );
 
-        const pointsAwarded = isCorrect
-          ? claimed.progress.currentPointLevel
-          : 0;
+        const pointsAwarded = isCorrect ? originalQuestion.points : 0;
 
         // Fast ack — client unblocks immediately
         ack?.({
