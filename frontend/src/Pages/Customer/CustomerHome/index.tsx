@@ -250,11 +250,11 @@ const Home = () => {
       <div className="pointer-events-none absolute inset-0 z-0 overflow-x-hidden">
         <img
           src="/home/skyShot1.svg"
-          className="absolute right-auto opacity-80 lg:left-[35%] lg:top-[1.5%]"
+          className="absolute w-[180px] sm:w-auto lg:w-[22%] right-auto opacity-80 lg:left-[35%] lg:top-[1.5%]"
         />
         <img
           src="/home/skyShot2.svg"
-          className="z-2 absolute right-auto opacity-80 lg:left-[53%] lg:top-[4.5%]"
+          className="z-2 absolute w-[180px] sm:w-auto lg:w-[22%] right-auto opacity-80 lg:left-[53%] lg:top-[4.5%]"
         />
       </div>
     </>
