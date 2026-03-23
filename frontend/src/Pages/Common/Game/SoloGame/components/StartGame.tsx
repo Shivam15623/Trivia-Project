@@ -72,7 +72,7 @@ const StartGame: React.FC<StartGameProps> = ({ session }) => {
           });
         } else {
           // Regular solo — goes to the existing REST-based game screen
-          navigate(`/${role}/solo-game/${sessionCode}`);
+          navigate(`/game/SoloGame/${sessionCode}`);
         }
       }
     } catch (error) {

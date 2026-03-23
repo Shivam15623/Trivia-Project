@@ -423,7 +423,7 @@ export const SubmitAnswerSolo = asyncHandler(async (req, res) => {
     new ApiResponse(200, "Answer submitted successfully", {
       isCorrect,
       correctAnswer: originalQuestion.answer,
-      pointsAwarded: isCorrect ? session.progress.currentPointLevel : 0,
+      pointsAwarded: isCorrect ? originalQuestion.points : 0,
       gameEnded: false,
       nextQuestion: nextQuestionResponse,
     }),
