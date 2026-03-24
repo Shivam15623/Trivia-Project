@@ -67,7 +67,7 @@ const Home = () => {
                 A multiplayer trivia game built for thinkers and competitors.
               </h4>
             </div>
-            <div className="relative mx-auto flex h-fit max-w-[1280px] flex-col items-center gap-[14px] overflow-hidden rounded-[20px] lg:h-[532px] lg:flex-row">
+            <div className="relative mx-auto flex h-fit  max-w-[1280px] flex-col items-center gap-[14px] overflow-hidden rounded-[20px] lg:h-[532px] lg:flex-row">
               <div className="relative z-10 flex flex-col gap-[18px] pl-0 sm:gap-6 sm:pl-[20px] md:pl-[35px] lg:w-[53%] lg:pl-[50px]">
                 <h3
                   className="font-inter text-[34px] font-semibold leading-[100%] text-white sm:text-[38px] md:text-[42px] xl:text-[48px]"
@@ -91,7 +91,7 @@ const Home = () => {
               />
               <img
                 src="/home/trivvyBg.svg"
-                className="absolute inset-0 h-full w-full object-cover"
+                className="absolute inset-0 z-0 blur-sm h-full w-full object-cover"
               />
             </div>
           </div>
