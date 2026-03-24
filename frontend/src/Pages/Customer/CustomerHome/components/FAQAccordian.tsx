@@ -48,7 +48,10 @@ function FAQItem({
       <div className="rounded-[17px] bg-black">
         <div className="ease-[cubic-bezier(0.4,0,0.2,1)] rounded-[17px] bg-black px-5 transition-all duration-500 group-data-[state=open]:bg-white/10">
           <AccordionTrigger className="flex items-center justify-between py-5 text-left text-lg font-bold leading-[150%] text-white hover:no-underline [&>svg]:hidden">
-            <span>{question}</span>
+            <div className="flex items-center max-w-fit justify-center">
+              <span className="leading-[100%]">{question}</span>
+            </div>
+
             <span className="ease-[cubic-bezier(0.4,0,0.2,1)] transition-transform duration-500 group-data-[state=open]:rotate-180">
               <GradientChevron size={32} strokeWidth={1.33} />
             </span>

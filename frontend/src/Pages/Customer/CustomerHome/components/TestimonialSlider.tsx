@@ -8,18 +8,34 @@ const GRADIENT_CYAN = "linear-gradient(180deg, #7BFDFD 38.94%, #2884C7 61.54%)";
 
 interface Testimonial {
   review: string;
-  user?: { name: string; picture: string; job: string };
+  user?: { name: string; picture?: string; job: string };
 }
 
 const testimonials: Testimonial[] = [
-  { review: "The strategy depth is unmatched. Every round feels different." },
-  { review: "Feels like chess but for knowledge." },
-  { review: "Finally a trivia game that's not childish." },
+  {
+    review:
+      "This is exactly the kind of game you play when everyone’s together and no one knows what to do.",
+    user: { name: "Aarav Mehta", job: "Student" },
+  },
+  {
+    review:
+      "It lowkey humbles you 😅 you think you know stuff until you actually get asked.",
+    user: { name: "Riya Sharma", job: "College student" },
+  },
+  {
+    review:
+      "Finally something where knowing random stuff about movies and anime is actually useful 😂",
+    user: { name: "Kabir Verma", job: "Gamer" },
+  },
   {
     review:
       "We play this every weekend with friends. Simple to start, hard to stop.",
+    user: { name: "Neha Patel", job: "Youtuber" },
   },
-  { review: "Addictive and brilliant. Best game I've played this year." },
+  {
+    review: "Simple idea, but really fun execution.",
+    user: { name: "Arjun Singh", job: "Content Creater" },
+  },
 ];
 
 const GAP = 24; // px between cards
@@ -105,11 +121,11 @@ const TestimonialSlider: React.FC = () => {
       <div className="relative flex w-full max-w-[1280px] items-center justify-center">
         <img
           src="/home/3Stars.png"
-          className="absolute hidden md:block -bottom-[57px] -left-[51px] z-20"
+          className="absolute -bottom-[57px] -left-[51px] z-20 hidden md:block"
         />
         <img
           src="/home/testimonialtop.png"
-          className="absolute -top-[23px] -right-[8px] md:-top-[50px] md:-right-[36px]  z-20 max-w-[50px] max-h-[50px] md:max-w-none md:max-h-none"
+          className="absolute -right-[8px] -top-[23px] z-20 max-h-[50px] max-w-[50px] md:-right-[36px] md:-top-[50px] md:max-h-none md:max-w-none"
         />
         <div
           ref={containerRef}
