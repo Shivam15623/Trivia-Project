@@ -7,7 +7,7 @@ interface TestimonialProp {
   review: string;
   user?: {
     name: string;
-    picture: string;
+    picture?: string;
     job: string;
   };
 }
@@ -39,11 +39,11 @@ const TestimonialCard: React.FC<TestimonialProp> = ({
 
           {/* 👤 User */}
           <div className="flex items-center gap-3">
-            <img
+            {/* <img
               src={user?.picture ? user.picture : "https://i.pravatar.cc/40"}
               className="h-12 w-12 rounded-full"
               alt="User avatar"
-            />
+            /> */}
             <div className="text-white">
               <div className="font-outfit text-[16px] font-normal">
                 {user ? user.name : "Name Surname"}

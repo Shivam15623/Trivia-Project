@@ -632,7 +632,7 @@ export const SubmitAnswer = asyncHandler(async (req, res) => {
   // =========================
   // 8️⃣ Get next question
   // =========================
-  const { status, nextQuestionEntry } = getNextQuestionSolo(session);
+  const { status, nextQuestionEntry } = getNextQuestion(session);
 
   if (!nextQuestionEntry) {
     // Game ended
