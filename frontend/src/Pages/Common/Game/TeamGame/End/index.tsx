@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { selectAuth } from "@/redux/AuthSlice/authSlice";
 import { useFetchScoreBoardQuery } from "@/services";
 import { fireConfetti } from "@/utills/confetti";
+import { Icon } from "@iconify/react";
 import { LoaderCircle, RefreshCcw } from "lucide-react";
 import React, { useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
@@ -80,15 +81,26 @@ const EndGame = () => {
   return (
     <>
       <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-black px-[20px] sm:px-[40px] md:px-[60px] lg:px-[80px] xl:px-[120px]">
-        <div className="relative z-10 flex flex-col items-center justify-center gap-[80px] sm:gap-[40px]">
-          <div>
-            <h1 className="mb-4 text-center font-inter text-[64px] font-semibold text-white">
+        <div className="relative z-10 flex w-full flex-col items-center justify-center gap-[80px] sm:gap-[40px]">
+          <div className="w-full">
+            <h1 className="mb-4 text-center font-inter text-[44px] font-semibold text-white md:text-[64px]">
               Game Over
             </h1>
 
             {isWinner && (
-              <div className="mb-10 animate-bounce text-center">
-                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-700 px-4 py-2 text-white shadow-lg">
+              <div
+                className="gradient-border mx-auto mb-10 max-w-fit animate-bounce text-center"
+                style={
+                  {
+                    "--border-gradient":
+                      "linear-gradient(93.58deg, rgba(103, 195, 255, 0.4) 8.55%, rgba(1, 10, 42, 0.4) 47.56%, rgba(103, 195, 255, 0.4) 94.76%)",
+                    "--radius": `20px`,
+                    "--padding": `1px`,
+                  } as React.CSSProperties
+                }
+              >
+                <div className="relative z-10 inline-flex items-center gap-2 rounded-full bg-[#2985C866] px-5 py-2 text-white shadow-lg">
+                  <Icon icon={"noto:trophy"} className="text-2xl" />
                   <span className="font-outfit font-semibold">
                     Congratulations! You won the game!
                   </span>
@@ -97,7 +109,7 @@ const EndGame = () => {
             )}
 
             {isDraw ? (
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <div className="mx-auto grid w-full max-w-[1540px] grid-cols-1 gap-6 lg:grid-cols-2">
                 {[
                   {
                     team: teams[0], // in a draw, winner/loser are both equal teams
@@ -108,7 +120,7 @@ const EndGame = () => {
                   {
                     team: teams[1],
                     title: "Draw!",
-                    imgUrl: "/LostRe.svg",
+                    imgUrl: "/soloR.svg",
                     winMsg: "Well played!",
                   },
                 ].map(({ team, winMsg, title, imgUrl }, _idx) => {
@@ -116,19 +128,22 @@ const EndGame = () => {
                   return (
                     <div
                       key={team?.name}
-                      className="relative flex flex-col gap-5 overflow-hidden rounded-[20px] bg-[linear-gradient(179.03deg,_#2884C7_0.83%,_#7BFDFD_181.09%)] p-3 sm:rounded-[40px] sm:px-[150px] sm:py-[60px]"
+                      className="relative flex flex-col gap-5 overflow-hidden rounded-[20px] bg-[linear-gradient(179.03deg,_#2884C7_0.83%,_#7BFDFD_181.09%)] p-3 sm:rounded-[40px] md:px-[30px] md:py-[30px] lg:px-[60px] xl:px-[100px] xl:py-10 2xl:px-[150px] 2xl:py-[60px]"
                     >
                       <div
                         className={cn(
-                          "absolute h-[200px] w-fit sm:h-full sm:bg-[linear-gradient(180deg,rgba(85,197,228,0)_75.97%,#55C6E4_100%)]",
+                          "absolute h-[58%] w-fit sm:h-[72.5%] sm:bg-[linear-gradient(180deg,rgba(85,197,228,0)_75.97%,#55C6E4_100%)]",
                           _idx === 0
-                            ? "sm:-bottom-[95px] sm:-left-[33px] sm:max-w-[305px]"
-                            : "z-10 sm:-bottom-[93px] sm:-right-[50px] sm:max-w-[280px]",
+                            ? "top-[6%] sm:-bottom-[2%] sm:-left-[3%] sm:top-auto sm:max-w-[40%]"
+                            : "right-[0] top-[6%] sm:-bottom-[2%] sm:-right-[3%] sm:top-auto sm:max-w-[40%]",
                         )}
                       >
                         <img
                           src={imgUrl}
-                          className="h-full w-full object-contain"
+                          className={cn(
+                            "h-full w-full object-cover",
+                            _idx === 1 && "scale-x-[-1]",
+                          )}
                         />
                       </div>
 
@@ -151,8 +166,10 @@ const EndGame = () => {
 
                       <div
                         className={cn(
-                          "flex max-w-fit flex-col items-center justify-center gap-1 rounded-[20px] bg-[#FFFFFF1A] px-[30px] py-5 shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] sm:mx-auto sm:px-[60px]",
-                          _idx === 0 ? "ml-auto mr-0" : "ml-0 mr-auto",
+                          "flex max-w-fit flex-col gap-1 rounded-[20px] bg-[#FFFFFF1A] px-[30px] py-5 shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] sm:mx-auto sm:items-center sm:justify-center md:px-[60px]",
+                          _idx === 0
+                            ? "ml-auto mr-0 items-end justify-end"
+                            : "ml-0 mr-auto items-start justify-start",
                         )}
                       >
                         <p className="font-outfit text-sm font-normal leading-[100%] text-white opacity-80">
@@ -217,7 +234,7 @@ const EndGame = () => {
                 })}
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <div className="mx-auto grid w-full max-w-[1540px] grid-cols-1 gap-6 lg:grid-cols-2">
                 {[
                   {
                     team: winner,
@@ -235,19 +252,19 @@ const EndGame = () => {
                   return (
                     <div
                       key={team?.name}
-                      className={`relative flex flex-col gap-5 overflow-hidden rounded-[20px] bg-[linear-gradient(179.03deg,_#2884C7_0.83%,_#7BFDFD_181.09%)] p-3 sm:rounded-[40px] sm:px-[150px] sm:py-[60px]`}
+                      className="relative flex flex-col gap-5 overflow-hidden rounded-[20px] bg-[linear-gradient(179.03deg,_#2884C7_0.83%,_#7BFDFD_181.09%)] p-3 md:rounded-[40px] md:px-[30px] md:py-[30px] lg:px-[60px] xl:px-[100px] xl:py-10 2xl:px-[150px] 2xl:py-[60px]"
                     >
                       <div
                         className={cn(
-                          "absolute h-[200px] w-fit sm:h-full sm:bg-[linear-gradient(180deg,rgba(85,197,228,0)_75.97%,#55C6E4_100%)]",
+                          "absolute h-[58%] w-fit sm:h-[72.5%] sm:bg-[linear-gradient(180deg,rgba(85,197,228,0)_75.97%,#55C6E4_100%)]",
                           _idx === 0
-                            ? "sm:-bottom-[95px] sm:-left-[33px] sm:max-w-[305px]"
-                            : "z-10 sm:-bottom-[93px] sm:-right-[50px] sm:max-w-[280px]",
+                            ? "top-[6%] sm:-bottom-[2%] sm:-left-[3%] sm:top-auto sm:max-w-[40%]"
+                            : "right-[2%] top-[4%] sm:-bottom-[1%] sm:-right-[4%] sm:top-auto sm:max-w-[40%]",
                         )}
                       >
                         <img
                           src={imgUrl}
-                          className="h-full w-full object-contain"
+                          className="h-full w-full object-cover"
                         />
                       </div>
                       <h2 className="hidden text-center font-inter text-5xl font-semibold leading-[100%] text-white sm:block">
@@ -267,8 +284,10 @@ const EndGame = () => {
                       </h3>
                       <div
                         className={cn(
-                          "flex max-w-fit flex-col items-center justify-center gap-1 rounded-[20px] bg-[#FFFFFF1A] px-[30px] py-5 shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] sm:mx-auto sm:px-[60px]",
-                          _idx === 0 ? "ml-auto mr-0" : "ml-0 mr-auto",
+                          "flex max-w-fit flex-col gap-1 rounded-[20px] bg-[#FFFFFF1A] px-[30px] py-5 shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] sm:mx-auto sm:items-center sm:justify-center md:px-[60px]",
+                          _idx === 0
+                            ? "ml-auto mr-0 items-end justify-end"
+                            : "ml-0 mr-auto items-start justify-start",
                         )}
                       >
                         <p className="font-outfit text-sm font-normal leading-[100%] text-white opacity-80">
