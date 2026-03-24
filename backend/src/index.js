@@ -18,14 +18,24 @@ export const io = new Server(server, {
 });
 export const onlineUsers = new Map();
 // Using the controller for handling socket events
+
 io.use((socket, next) => {
-  const token = socket.handshake.auth.token;
+  try {
+    const token = socket.handshake.auth?.token; // safely get token
 
-  const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    if (!token) {
+      console.log("No token provided, disconnecting socket");
+      return next(new Error("Authentication error: token missing"));
+    }
 
-  socket.user = decoded;
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    socket.user = decoded; // attach user info to socket
 
-  next();
+    next(); // continue if verification passed
+  } catch (err) {
+    console.log("JWT verification failed:", err.message);
+    return next(new Error("Authentication error: invalid token"));
+  }
 });
 io.on("connect", (socket) => {
   const userId = socket.user._id;

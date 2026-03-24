@@ -3,15 +3,20 @@ import { GradientButton, GradientLink } from "@/components/GradientButton";
 import FAQAccordion from "@/Pages/Customer/CustomerHome/components/FAQAccordian";
 import PlayCardHome from "@/Pages/Customer/CustomerHome/components/PlayCardHome";
 import TestimonialSlider from "@/Pages/Customer/CustomerHome/components/TestimonialSlider";
+import { selectAuth } from "@/redux/AuthSlice/authSlice";
 import { useFetchCategoryPublicQuery } from "@/services";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
 const PublicHome = () => {
   const { data: categories, isLoading: categoriesLoading } =
     useFetchCategoryPublicQuery();
+  const { user } = useSelector(selectAuth);
   const INITIAL_VISIBLE = 10; // matches your 5-col grid — 2 full rows
   const [showAll, setShowAll] = useState(false);
-
+  const getProtectedRoute = (target: string) => {
+    return user ? target : "/login";
+  };
   // then inside your .map(), slice the categories:
   const visibleCategories = showAll
     ? categories?.data
@@ -36,7 +41,9 @@ const PublicHome = () => {
                   duels, and real rankings.
                 </h3>
               </div>
-              <GradientLink to={`CreateGame`}>Play Now</GradientLink>
+              <GradientLink to={getProtectedRoute(`CreateGame`)}>
+                Play Now
+              </GradientLink>
             </div>
 
             <img
@@ -71,7 +78,9 @@ const PublicHome = () => {
                   challenge friends, or compete globally with real rankings that
                   matter.
                 </h5>
-                <GradientLink to={`CreateGame`}>Play Now</GradientLink>
+                <GradientLink to={getProtectedRoute(`CreateGame`)}>
+                  Play Now
+                </GradientLink>
               </div>
 
               <img
@@ -107,7 +116,7 @@ const PublicHome = () => {
               <div className="flex-2 h-[242.4px] w-full max-w-[85.42%] transition-all duration-300 ease-out hover:[transform:scale(1.03)] md:h-[380px] md:w-[45.77%] md:max-w-none md:[transform:translateX(2.1%)_rotate(2.3deg)] md:hover:z-10 md:hover:[transform:translateX(2.1%)_rotate(0deg)_translateY(-12px)_scale(1.03)] xl:h-[424px]">
                 <PlayCardHome
                   color="#FED846"
-                  playLink="CreateGame?mode=team"
+                  playLink={getProtectedRoute("CreateGame?mode=team")}
                   image="/team.png"
                   title="Team"
                   subTitle="Team up with your Friends! Combine scores and conquer together."
@@ -118,7 +127,7 @@ const PublicHome = () => {
               <div className="h-[348px] w-full max-w-[79.3%] transition-all duration-300 ease-out [transform:rotate(-3.86deg)] hover:z-10 hover:[transform:rotate(0deg)_translateY(-12px)_scale(1.03)] md:h-[380px] md:w-[29.69%] md:max-w-none xl:h-[424px]">
                 <PlayCardHome
                   color="#FE9B24"
-                  playLink="CreateGame?mode=solo"
+                  playLink={getProtectedRoute("CreateGame?mode=solo")}
                   image="/solo-2.png"
                   title="Solo"
                   subTitle="Just you against the questions. Perfect for a quick brain workout."
@@ -129,7 +138,7 @@ const PublicHome = () => {
               <div className="h-[362px] w-full max-w-[79.3%] transition-all duration-300 ease-out hover:[transform:scale(1.03)] md:h-[380px] md:w-[29.69%] md:max-w-none md:[transform:translateX(-1.48%)_rotate(1.67deg)] md:hover:z-10 md:hover:[transform:translateX(-1.48%)_rotate(0deg)_translateY(-12px)_scale(1.03)] xl:h-[424px]">
                 <PlayCardHome
                   color="#3BCCF6"
-                  playLink="CreateGame?mode=timed"
+                  playLink={getProtectedRoute("CreateGame?mode=timed")}
                   image="/alarm-2.png"
                   title="Timed"
                   subTitle="Tick-tock! Beat the clock on each question. Maximum pressure, maximum fun!"

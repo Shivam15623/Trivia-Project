@@ -30,6 +30,7 @@ function GradientChevron({
     </svg>
   );
 }
+
 function FAQItem({
   value,
   question,
@@ -42,7 +43,7 @@ function FAQItem({
   return (
     <AccordionItem
       value={value}
-      className="ease-[cubic-bezier(0.4,0,0.2,1)] before:ease-[cubic-bezier(0.4,0,0.2,1)] group relative rounded-[20px] border-b-0 bg-transparent  transition-all duration-500 before:absolute before:left-0 before:top-0 before:h-[4px] before:w-full before:bg-gradient-to-r before:from-[#2884C7] before:to-[#7BFDFD] before:transition-all before:duration-500 first:before:hidden data-[state=open]:bg-gradient-to-b data-[state=open]:from-[#7BFDFD] data-[state=open]:to-[#2884C7] data-[state=open]:p-[3px] data-[state=open]:pb-[6px] data-[state=open]:before:opacity-0 [[data-state=open]+&]:before:opacity-0"
+      className="ease-[cubic-bezier(0.4,0,0.2,1)] before:ease-[cubic-bezier(0.4,0,0.2,1)] group relative rounded-[20px] border-b-0 bg-transparent transition-all duration-500 before:absolute before:left-0 before:top-0 before:h-[4px] before:w-full before:bg-gradient-to-r before:from-[#2884C7] before:to-[#7BFDFD] before:transition-all before:duration-500 first:before:hidden data-[state=open]:bg-gradient-to-b data-[state=open]:from-[#7BFDFD] data-[state=open]:to-[#2884C7] data-[state=open]:p-[3px] data-[state=open]:pb-[6px] data-[state=open]:before:opacity-0 [[data-state=open]+&]:before:opacity-0"
     >
       <div className="rounded-[17px] bg-black">
         <div className="ease-[cubic-bezier(0.4,0,0.2,1)] rounded-[17px] bg-black px-5 transition-all duration-500 group-data-[state=open]:bg-white/10">
