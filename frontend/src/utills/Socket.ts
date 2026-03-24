@@ -1,26 +1,21 @@
-
 import { io, Socket } from "socket.io-client";
 
 let socket: Socket;
 
-export const initializeSocket = (token: string): Socket => {
-
+export const initializeSocket = (Actoken: string): Socket => {
+  console.log(Actoken)
   if (!socket) {
     socket = io(import.meta.env.VITE_API_BASE_URL, {
       withCredentials: true,
-      transports: ["websocket"], 
-    auth:{
-      token:token
-    }
+      transports: ["websocket"],
+      auth: {
+        token: Actoken,
+      },
     });
 
-    socket.on("connect", () => {
-    
-    });
+    socket.on("connect", () => {});
 
-    socket.on("disconnect", () => {
- 
-    });
+    socket.on("disconnect", () => {});
 
     socket.on("connect_error", (error) => {
       console.error("Socket connection error:", error.message);

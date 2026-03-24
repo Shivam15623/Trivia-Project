@@ -229,9 +229,78 @@ const WaitingRoom = () => {
 
   const handleCopyCode = async () => {
     try {
-      await navigator.clipboard.writeText(sessionData.sessionCode);
-      showSuccess("Session code copied!");
-      setCopied(true); // ✅ trigger animation
+      const code = sessionData.sessionCode;
+      const joinLink = `${window.location.origin}/game/Waitingroom/${code}`;
+
+      // ✅ Build team info
+      const teamText = sessionData.teams
+        .map((team) => {
+          const isFull = team.members.length >= team.expectedMembers;
+          return `Team ${team.name} (${team.members.length}/${team.expectedMembers}) - ${
+            isFull
+              ? "Full"
+              : `${team.expectedMembers - team.members.length} slot(s) left`
+          }`;
+        })
+        .join("\n");
+
+      const teamHTML = sessionData.teams
+        .map((team) => {
+          const isFull = team.members.length >= team.expectedMembers;
+          return `
+          <li>
+            <b>Team ${team.name}</b> (${team.members.length}/${team.expectedMembers}) - 
+            ${
+              isFull
+                ? `<span style="color:red;">Full</span>`
+                : `<span style="color:green;">${
+                    team.expectedMembers - team.members.length
+                  } slot(s) left</span>`
+            }
+          </li>
+        `;
+        })
+        .join("");
+
+      // ✅ Plain text
+      const text = `🎮 Join my Trivvy Game: ${sessionData?.title}
+
+Session Code: ${code}
+Join Link: ${joinLink}
+
+Teams:
+${teamText}
+
+Let’s play 🔥`;
+
+      // ✅ HTML version
+      const html = `
+      <div>
+        <h3>🎮 Join my Trivvy Game: ${sessionData?.title}</h3>
+        <p><b>Session Code:</b> ${code}</p>
+        <p>
+          <b>Join Link:</b> 
+          <a href="${joinLink}">${joinLink}</a>
+        </p>
+
+        <p><b>Teams:</b></p>
+        <ul>
+          ${teamHTML}
+        </ul>
+
+        <p>Let’s play 🔥</p>
+      </div>
+    `;
+
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          "text/plain": new Blob([text], { type: "text/plain" }),
+          "text/html": new Blob([html], { type: "text/html" }),
+        }),
+      ]);
+
+      showSuccess("Invite copied!");
+      setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       handleApiError(err);

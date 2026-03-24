@@ -33,7 +33,7 @@ const Categories = () => {
     totalPages,
     paginatedData: paginatedCategories,
     setPage,
-  } = usePagination(filteredCategories || [], 10);
+  } = usePagination(filteredCategories || [], 12);
   useEffect(() => {
     setPage(1);
   }, [searchQuery, filteredCategories?.length]);
@@ -162,7 +162,7 @@ const Categories = () => {
       {/* <div className="flex h-[44px] w-[403px] items-center justify-center rounded-[52px] relative after: bg-white/10 text-sm font-medium tracking-wide text-white/90 shadow-[inset_0.5px_0.6px_1px_rgba(255,255,255,0.5),0_4px_12px_rgba(0,0,0,0.4)] backdrop-blur-md backdrop-saturate-150">
         Glass Effect
       </div> */}
-      {filteredCategories && filteredCategories?.length > 10 && (
+      {filteredCategories && filteredCategories?.length > 12 && (
         <div className="relative z-10 mt-8">
           <Pagination
             currentPage={currentPage}

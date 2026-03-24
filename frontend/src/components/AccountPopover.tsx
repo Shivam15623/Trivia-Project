@@ -8,33 +8,36 @@ import { Button } from "@/components/ui/button";
 
 import { LogOut, User } from "lucide-react";
 
-import { useDispatch } from "react-redux";
-import { useGetUserProfileQuery, useLogoutMutation } from "@/services";
-import { setLoggedOut } from "@/redux/AuthSlice/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useLogoutMutation } from "@/services";
+import { selectAuth, setLoggedOut } from "@/redux/AuthSlice/authSlice";
 
 import { handleApiError } from "@/utills/handleApiError";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 
 const AccountPopover = () => {
-  const { data: user, isFetching } = useGetUserProfileQuery();
   const [logout] = useLogoutMutation();
-  const dispatch = useDispatch();
 
+  const dispatch = useDispatch();
+  const auth = useSelector(selectAuth);
+  const navigate = useNavigate();
   const onLogout = async () => {
     try {
       const res = await logout(undefined).unwrap();
+
       if (res.statuscode === 200) {
         dispatch(setLoggedOut());
+        navigate("/");
       }
     } catch (err) {
       handleApiError(err);
     }
   };
 
-  if (isFetching || !user?.data) return null;
+  if (!auth.user) return null;
 
-  const { firstname, lastname, email, role, slug } = user.data;
+  const { firstname, lastname, email, role, slug } = auth.user;
 
   return (
     <Popover>

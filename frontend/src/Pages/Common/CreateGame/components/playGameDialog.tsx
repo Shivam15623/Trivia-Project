@@ -261,12 +261,15 @@ export default function PlayGameDialog({
           {/* Submit */}
           <div className="mt-4 flex justify-center">
             <GradientButton
-              className="max-w-[167px]"
+              className="max-w-fit"
               type="submit"
               disabled={isLoading}
             >
-              {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}{" "}
-              {isLoading ? "Starting..." : "Start Game"}
+              <div className="flex flex-row gap-2 items-center ">
+          
+                {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}{" "}
+                <span> {isLoading ? "Starting..." : "Start Game"}</span>
+              </div>
             </GradientButton>
           </div>
         </form>
