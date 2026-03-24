@@ -57,6 +57,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const { user } = useSelector(selectAuth);
 
+  React.useEffect(() => {
+    console.log("Updated auth state:", user);
+  }, [user]);
+
   // Close sidebar when a nav link is tapped on mobile
   const handleNavClick = () => {
     if (isMobile) setOpenMobile(false);

@@ -125,11 +125,11 @@ export function RenderField<TForm extends FieldValues, TOption = unknown>({
                 >
                   <SelectTrigger className={inputClass}>
                     <SelectValue
-                      className="text-white"
+                      className="text-white placeholder:text-white-50"
                       placeholder="Select an option"
                     />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-[#FFFFFF33] text-white backdrop-blur-md border-0">
                     {options.map((option) => {
                       const value = getOptionValue(option);
                       const label = getOptionLabel(option);
