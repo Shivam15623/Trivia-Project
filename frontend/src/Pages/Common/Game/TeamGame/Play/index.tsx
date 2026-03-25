@@ -198,7 +198,7 @@ const Play = () => {
 
   return (
     <>
-      <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-black px-[20px] sm:px-[40px] md:px-[60px] lg:px-[80px] xl:px-[120px]">
+      <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-black px-[20px] sm:px-[40px] md:px-[60px] lg:px-[80px] xl:px-[120px] mb-20 md:mb-[180px]">
         <div className="relative z-10 mx-auto flex h-fit w-full max-w-[1096px] flex-col items-center justify-center gap-10 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-0">
           <GameSessionBoundary
             isLoading={isLoading}
@@ -209,10 +209,10 @@ const Play = () => {
               <GradientCard
                 padding={3}
                 radius={20}
-                className="mx-auto w-fit bg-[#FFFFFF1A]"
+                className="mx-auto w-full sm:w-fit bg-[#FFFFFF1A]"
                 gradient="linear-gradient(90.26deg, #2884C7 1.43%, #7BFDFD 36.33%, #FA9923 66.99%, #FF6E01 99.54%)"
               >
-                <div className="flex flex-row items-center justify-center gap-3.5 px-[30px] py-3.5">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-3.5 px-[30px] py-3.5">
                   <div className="font-inter text-[28px] font-semibold leading-[100%] text-white">
                     Team{" "}
                     <span className="bg-[linear-gradient(180deg,_#FCD645_54.81%,_#FCB734_79.33%,_#D37200_95.19%)] bg-clip-text text-transparent">
@@ -315,7 +315,7 @@ const Play = () => {
                     </div>
                   )}
                   <div className="flex flex-row items-center justify-between font-inter text-2xl font-medium leading-[100%] text-white">
-                    <h4 className="font-inter text-2xl font-medium leading-[100%] text-white">
+                    <h4 className="font-inter text-sm md:text-xl lg:text-2xl font-medium leading-[100%] text-white">
                       {questionData?.category.name}
                     </h4>
 
@@ -330,7 +330,7 @@ const Play = () => {
                       className="mx-auto aspect-video w-full max-w-none object-contain sm:max-w-2xl md:max-w-3xl lg:max-w-4xl"
                     />
                   )}
-                  <h3 className="text-center font-outfit text-[32px] font-medium leading-[100%] text-white">
+                  <h3 className="text-center font-outfit text-sm md:text-xl lg:text-[32px] font-medium leading-[100%] text-white">
                     {questionData?.questionText}
                   </h3>
                 </div>
@@ -480,7 +480,7 @@ const Play = () => {
           width="2426"
           height="823"
           viewBox="0 0 1920 823"
-          className="absolute -bottom-[57px] sm:-left-[130px]"
+          className="absolute -left-[36%] bottom-[243px] sm:-left-[130px]"
           fill="none"
         >
           <g opacity="0.5" filter="url(#filter0_f_457_1966)">

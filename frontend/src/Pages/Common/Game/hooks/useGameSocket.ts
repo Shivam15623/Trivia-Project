@@ -14,10 +14,14 @@ interface UseGameSocketProps {
       | ((prev: GameSession | undefined) => Partial<GameSession>),
   ) => void;
   setQuestionData: (q: currentQuestionData) => void;
-  onTimerStart: (startedAt: string, duration: number) => void;
-  onTimeUp: () => void;
   onGameEnded: () => void;
   setIsTransitioning: (v: boolean) => void;
+  /**
+   * A ref that is `true` while the answer-result overlay is visible.
+   * When set, `chngeState` events are held and applied only after the
+   * overlay clears, preventing the incoming question from wiping the overlay.
+   */
+  isShowingAnswerRef: React.MutableRefObject<boolean>;
 }
 
 export const useGameSocket = ({
@@ -25,40 +29,27 @@ export const useGameSocket = ({
   sessionCode,
   setSessionInfo,
   setQuestionData,
-  onTimerStart,
-  onTimeUp,
   onGameEnded,
   setIsTransitioning,
+  isShowingAnswerRef,
 }: UseGameSocketProps) => {
   const socket = useSocket();
 
-  /**
-   * All callbacks live in a ref so socket listeners registered once on mount
-   * always call the *latest* version of each function. This is the standard
-   * pattern for using callbacks inside long-lived event listeners without
-   * stale closure bugs.
-   *
-   * We update the ref on EVERY render (no dep array) — this is intentional and
-   * correct; the ref update itself does not cause a re-render.
-   */
   const cbRef = useRef({
     setSessionInfo,
     setQuestionData,
-    onTimerStart,
-    onTimeUp,
     onGameEnded,
     setIsTransitioning,
+    isShowingAnswerRef,
   });
 
-  // Update ref every render so listeners always call the latest callbacks
   useEffect(() => {
     cbRef.current = {
       setSessionInfo,
       setQuestionData,
-      onTimerStart,
-      onTimeUp,
       onGameEnded,
       setIsTransitioning,
+      isShowingAnswerRef,
     };
   });
 
@@ -67,10 +58,9 @@ export const useGameSocket = ({
 
     socket.emit("join-session-room", sessionCode);
 
-    // ── Listeners registered once; they read latest callbacks via cbRef ──────
+    // ── Shared listeners ─────────────────────────────────────────────────────
 
     const onPing = ({ t1 }: { t1: number }) => {
-      console.log("ping Arrived sending pong ");
       socket.emit("pong", { t1 });
     };
 
@@ -93,66 +83,36 @@ export const useGameSocket = ({
         session: GameSession;
         currentQuestion: currentQuestionData;
       }) => {
-        cbRef.current.setSessionInfo(session);
-        cbRef.current.setQuestionData(currentQuestion);
+        /**
+         * FIX (second layer of defence): if the answer overlay is still
+         * showing when this event arrives, defer applying the new state until
+         * the overlay window has passed. This handles edge cases where network
+         * latency causes `chngeState` to arrive before the emit timeout fires
+         * (e.g. another player submitted right after this one).
+         *
+         * Primary fix is in useGameSubmit (emit only after overlay). This is
+         * a safety net so the overlay is never killed by a socket event.
+         */
+        const apply = () => {
+          cbRef.current.setSessionInfo(session);
+          cbRef.current.setQuestionData(currentQuestion);
+        };
+
+        if (cbRef.current.isShowingAnswerRef.current) {
+          // Wait for the overlay to clear before updating state
+          const OVERLAY_GUARD_MS = 2600; // just over ANSWER_DISPLAY_MS
+          setTimeout(apply, OVERLAY_GUARD_MS);
+        } else {
+          apply();
+        }
       };
 
       socket.on("chngeState", onStateChange);
       cleanup.push(() => socket.off("chngeState", onStateChange));
     }
 
-    // ── Timed modes ───────────────────────────────────────────────────────────
-    if (mode === "team" || mode === "timed_solo") {
-      const onTimerStart = ({
-        startedAt,
-        timer,
-      }: {
-        startedAt: string;
-        timer: number;
-      }) => cbRef.current.onTimerStart(startedAt, timer);
-
-      /**
-       * time-up arrives with the next question data already attached.
-       * We call onTimeUp immediately (so the UI locks / shows wrong-answer
-       * overlay), then after a 2-second delay we update the session and
-       * question so the overlay has time to display before the screen changes.
-       *
-       * FIX Bug 8: The 2-second delay must be LONGER than ANSWER_DISPLAY_MS
-       * in useGameSubmit, otherwise setQuestionData fires while answerResult
-       * is still showing, the questionId change resets UI state prematurely,
-       * and the overlay disappears. Keep both at 2500ms or make this 3000ms.
-       */
-      const onTimeUp = ({
-        session,
-        currentQuestion,
-      }: {
-        session: GameSession;
-        currentQuestion: currentQuestionData;
-      }) => {
-        // Lock UI immediately — show wrong answer overlay
-        cbRef.current.onTimeUp();
-
-        // Set next question data after overlay display time.
-        // Use 2500ms to match ANSWER_DISPLAY_MS so the overlay isn't cleared early.
-        setTimeout(() => {
-          if (session) cbRef.current.setSessionInfo(session);
-          if (currentQuestion) cbRef.current.setQuestionData(currentQuestion);
-        }, 2500);
-      };
-
-      socket.on("timer-start", onTimerStart);
-      socket.on("time-up", onTimeUp);
-
-      cleanup.push(
-        () => socket.off("timer-start", onTimerStart),
-        () => socket.off("time-up", onTimeUp),
-      );
-    }
-
     return () => cleanup.forEach((fn) => fn());
 
-    // socket, mode, and sessionCode are the only values that should cause
-    // listeners to be re-registered. Callback changes are handled via cbRef.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket, mode, sessionCode]);
 

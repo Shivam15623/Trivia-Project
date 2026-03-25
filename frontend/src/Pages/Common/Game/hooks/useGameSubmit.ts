@@ -2,14 +2,12 @@ import {
   currentQuestionData,
   GameSession,
 } from "@/interfaces/GameSessionInterface";
-// import { selectAuth } from "@/redux/AuthSlice/authSlice";
 import {
   useSubmitAnswerMutation,
   useSubmitAnswerSoloMutation,
 } from "@/services";
 import { handleApiError } from "@/utills/handleApiError";
 import { useCallback, useRef } from "react";
-// import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 interface AnswerResult {
@@ -27,7 +25,6 @@ interface UseGameSubmitProps {
   selectedOption: string | null;
   hasSubmitted: boolean;
   setHasSubmitted: (v: boolean) => void;
-  stopTimer: () => void;
   emitGameUpdated: () => void;
   emitGameEnd: () => void;
   setAnswerResult: (result: AnswerResult | null) => void;
@@ -41,7 +38,7 @@ const preloadImage = (src: string | undefined | null): Promise<void> =>
     const img = new Image();
     img.src = src;
     img.onload = () => resolve();
-    img.onerror = () => resolve(); // never reject — a missing image must not block the flow
+    img.onerror = () => resolve();
   });
 
 const ANSWER_DISPLAY_MS = 2500;
@@ -54,7 +51,6 @@ export const useGameSubmit = ({
   selectedOption,
   hasSubmitted,
   setHasSubmitted,
-  stopTimer,
   emitGameUpdated,
   setQuestionData,
   setAnswerResult,
@@ -62,7 +58,6 @@ export const useGameSubmit = ({
   setIsTransitioning,
 }: UseGameSubmitProps) => {
   const navigate = useNavigate();
-  // const { user } = useSelector(selectAuth);
 
   const [submitTeam, { isLoading: isSubmittingTeam }] =
     useSubmitAnswerMutation();
@@ -70,12 +65,8 @@ export const useGameSubmit = ({
     useSubmitAnswerSoloMutation();
 
   /**
-   * Store a submission guard in a ref (not state) so we can check and set it
-   * synchronously inside handleSubmit without waiting for a re-render.
-   *
-   * Problem this solves: if the user double-taps Submit, both calls enter the
-   * async function before `hasSubmitted` (a state value) has updated. The ref
-   * check is synchronous so the second call exits immediately.
+   * Synchronous double-submit guard — a ref so we can check and set it
+   * without waiting for a re-render.
    */
   const isSubmittingRef = useRef(false);
 
@@ -84,17 +75,13 @@ export const useGameSubmit = ({
     if (!selectedOption || hasSubmitted || !sessionInfo || !questionData)
       return;
 
-    // Synchronous double-submit guard (state updates are async, refs are not)
     if (isSubmittingRef.current) return;
     isSubmittingRef.current = true;
 
-    // Stop the visual timer immediately so it doesn't hit 0 and call onExpire
-    // while we're mid-request.
-    stopTimer();
     setHasSubmitted(true);
 
     try {
-      // ── TEAM mode ───────────────────────────────────────────────────────────
+      // ── Team mode ─────────────────────────────────────────────────────────
       if (mode === "team") {
         const res = await submitTeam({
           sessionId: sessionInfo._id,
@@ -103,11 +90,7 @@ export const useGameSubmit = ({
         }).unwrap();
 
         if (!res.success) return;
-        if (!res.data.gameEnded) {
-          emitGameUpdated(); // ← moved here, fires during overlay
-        }
 
-        // Preload answer image while result overlay is showing
         await preloadImage(questionData.answerImage);
 
         if ("isCorrect" in res.data) {
@@ -118,9 +101,22 @@ export const useGameSubmit = ({
             answerImage: questionData.answerImage,
           });
         }
+
+        /**
+         * FIX: emitGameUpdated / emitGameEnd are ONLY called after the overlay
+         * finishes (inside the timeout), never before.
+         *
+         * The original code called emitGameUpdated() immediately after the API
+         * response, which caused the server to broadcast `chngeState` to all
+         * clients while the answer overlay was still showing. That socket event
+         * triggered setQuestionData → questionId changed → the reset effect in
+         * useGameEngine wiped answerResult to null immediately, killing the overlay.
+         *
+         * By delaying both emits until after ANSWER_DISPLAY_MS, the overlay
+         * always completes before the server drives any state change.
+         */
         setTimeout(() => {
           setAnswerResult(null);
-          // Let server drive the next state via socket after emitting
           if (res.data.gameEnded) {
             emitGameEnd();
           } else {
@@ -128,7 +124,7 @@ export const useGameSubmit = ({
           }
         }, ANSWER_DISPLAY_MS);
 
-        // ── SOLO / TIMED_SOLO mode ──────────────────────────────────────────────
+        // ── Solo mode ──────────────────────────────────────────────────────────
       } else {
         const res = await submitSolo({
           sessionId: sessionInfo._id,
@@ -143,8 +139,8 @@ export const useGameSubmit = ({
           return;
         }
 
-        // ✅ Preload answer image only (shown in overlay)
         await preloadImage(questionData.answerImage);
+
         if ("isCorrect" in res.data) {
           setAnswerResult({
             isCorrect: res.data.isCorrect,
@@ -169,17 +165,15 @@ export const useGameSubmit = ({
               questionText: res.data.nextQuestion.questionText,
             };
 
-            // ✅ Show skeleton FIRST, preload THEN reveal
             setIsTransitioning(true);
             await preloadImage(nextQ.questionImage);
-            await preloadImage(nextQ.answerImage); // preload for next submit too
+            await preloadImage(nextQ.answerImage);
             setQuestionData(nextQ);
-            setIsTransitioning(false); // ✅ image is ready, now show it
+            setIsTransitioning(false);
           }
         }, ANSWER_DISPLAY_MS);
       }
     } catch (err) {
-      // Roll back optimistic UI so the player can try again
       setHasSubmitted(false);
       handleApiError(err);
     } finally {
@@ -192,7 +186,6 @@ export const useGameSubmit = ({
     questionData,
     selectedOption,
     hasSubmitted,
-    stopTimer,
     setHasSubmitted,
     emitGameUpdated,
     setAnswerResult,
@@ -201,6 +194,7 @@ export const useGameSubmit = ({
     submitSolo,
     navigate,
     emitGameEnd,
+    setIsTransitioning,
   ]);
 
   return {
