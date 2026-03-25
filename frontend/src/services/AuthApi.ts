@@ -73,7 +73,7 @@ export const authApi = api.injectEndpoints({
         body: credentials,
       }),
     }),
-    silentAuth: builder.mutation<LoginResponse, void>({
+    silentAuth: builder.query<LoginResponse, void>({
       query: () => ({
         url: "/api/v1/auth/silentAuth",
         method: "POST",
@@ -81,13 +81,12 @@ export const authApi = api.injectEndpoints({
       onQueryStarted: async (_arg, { dispatch, queryFulfilled }) => {
         try {
           const { data } = await queryFulfilled;
-
           if (data?.data.accessToken) {
             dispatch(
               setLoggedIn({
                 accessToken: data.data.accessToken,
                 UserData: data.data.user,
-              })
+              }),
             );
           }
         } catch {
@@ -105,7 +104,7 @@ export const {
   useRegisterCustomerMutation,
   useResetPasswordRequestMutation,
   useVerifyEmailMutation,
-  useSilentAuthMutation,
+  useSilentAuthQuery,
   useLogoutMutation,
   useResentEmailVerificationMutation,
 } = authApi;
