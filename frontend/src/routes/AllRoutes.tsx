@@ -39,11 +39,14 @@ const withSuspense = (Component: React.ReactElement) => (
 export const AllRoutes: RouteObject[] = [
   {
     path: "/",
-    element: withSuspense(
+    element: (
       <RouteGuard isPublic={true}>
-        <PublicRoot />
-      </RouteGuard>,
+        <Suspense fallback={<LazyLoader />}>
+          <PublicRoot />
+        </Suspense>
+      </RouteGuard>
     ),
+
     children: [{ index: true, element: withSuspense(<LazyPublicHome />) }],
   },
   {
@@ -104,7 +107,13 @@ export const AllRoutes: RouteObject[] = [
   },
   {
     path: "/customer",
-    element: <CustomRoot />,
+    element: (
+      <RouteGuard requireRole="customer">
+        <Suspense fallback={<LazyLoader />}>
+          <CustomRoot />
+        </Suspense>
+      </RouteGuard>
+    ),
     children: [
       { index: true, element: <Home /> },
 
@@ -117,11 +126,14 @@ export const AllRoutes: RouteObject[] = [
   // ✅ Admin routes
   {
     path: "/admin",
-    element: withSuspense(
+    element: (
       <RouteGuard requireRole="admin">
-        <LazyAdminRoot />
-      </RouteGuard>,
+        <Suspense fallback={<LazyLoader />}>
+          <LazyAdminRoot />
+        </Suspense>
+      </RouteGuard>
     ),
+
     children: [
       { index: true, element: withSuspense(<LazyAdminHome />) },
       { path: "categories", element: withSuspense(<LazyCategories />) },
