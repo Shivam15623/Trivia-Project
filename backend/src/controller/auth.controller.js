@@ -178,7 +178,7 @@ export const LogOut = asyncHandler(async (req, res) => {
     secure: true,
     sameSite: "strict",
   });
-  console.log("all Clear")
+  console.log("all Clear");
 
   return res.status(200).json(new ApiResponse(200, "Logged out successfully"));
 });
@@ -254,24 +254,71 @@ export const silentAuth = asyncHandler(async (req, res) => {
     incomingRefreshToken,
     process.env.REFRESH_TOKEN_SECRET,
   );
+
   const user = await User.findById(decodedToken._id);
   if (!user) {
     throw new ApiError(404, "User not found");
   }
 
+  // ✅ Grace window: token was just rotated, return the already-issued tokens
+  // This handles duplicate/spam refresh calls without logging the user out
   if (incomingRefreshToken !== user.refreshToken) {
+    const GRACE_WINDOW_MS = 10_000; // 10 seconds
+    const tokenRotatedRecently =
+      user.refreshTokenRotatedAt &&
+      Date.now() - new Date(user.refreshTokenRotatedAt).getTime() <
+        GRACE_WINDOW_MS;
+
+    if (
+      tokenRotatedRecently &&
+      incomingRefreshToken === user.previousRefreshToken
+    ) {
+      // ✅ This is a duplicate call — return the already-issued tokens
+      const LoginResponse = buildLoginResponse(user);
+      return res
+        .status(200)
+        .cookie("accessToken", user.lastAccessToken, accessOptions)
+        .cookie("refreshToken", user.refreshToken, refreshOptions)
+        .json(
+          new ApiResponse(200, "User Authentication Successful", {
+            user: LoginResponse,
+            refreshToken: user.refreshToken,
+            accessToken: user.lastAccessToken,
+          }),
+        );
+    }
+
+    // ❌ Outside grace window or unknown token — real logout
     throw new ApiError(401, "Token mismatch");
   }
+
   const { accessToken, refreshToken } = await generateTokens(user._id);
-  // const finduser = await User.findById(user._id)
-  //   .select(
-  //     "-password -refreshToken -updatedAt -createdBy -createdAt -isActive -__v"
-  //   )
-  //   .populate({
-  //     path: "roleId",
-  //     select: "name permissions panelAccess description -_id",
-  //   });
-  const LoginResponse = {
+
+  // ✅ Save rotation metadata to DB
+  await User.findByIdAndUpdate(user._id, {
+    previousRefreshToken: incomingRefreshToken, // save old token
+    lastAccessToken: accessToken, // save new access token
+    refreshTokenRotatedAt: new Date(), // save rotation time
+  });
+
+  const LoginResponse = buildLoginResponse(user);
+
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, accessOptions)
+    .cookie("refreshToken", refreshToken, refreshOptions)
+    .json(
+      new ApiResponse(200, "User Authentication Successful", {
+        user: LoginResponse,
+        refreshToken,
+        accessToken,
+      }),
+    );
+});
+
+// ✅ Pull this out so both branches use the same shape
+function buildLoginResponse(user) {
+  return {
     _id: user._id,
     firstname: user.firstname,
     lastname: user.lastname,
@@ -284,30 +331,21 @@ export const silentAuth = asyncHandler(async (req, res) => {
     profilePic: user.profilePic,
     slug: user.slug,
   };
-  const accessoptions = {
-    httpOnly: true,
-    secure: true, // must be true for HTTPS (Render uses HTTPS)
-    sameSite: "None", // must be 'None' for cross-site cookies
-    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  };
-  const refreshoptions = {
-    httpOnly: true,
-    secure: true, // must be true for HTTPS (Render uses HTTPS)
-    sameSite: "None", // must be 'None' for cross-site cookies
-    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-  };
-  return res
-    .status(201)
-    .cookie("accessToken", accessToken, accessoptions)
-    .cookie("refreshToken", refreshToken, refreshoptions)
-    .json(
-      new ApiResponse(200, "User Authentication Successfull", {
-        user: LoginResponse,
-        refreshToken,
-        accessToken,
-      }),
-    );
-});
+}
+
+const accessOptions = {
+  httpOnly: true,
+  secure: true,
+  sameSite: "None",
+  expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+};
+
+const refreshOptions = {
+  httpOnly: true,
+  secure: true,
+  sameSite: "None",
+  expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+};
 export const verificationRequest = asyncHandler(async (req, res) => {
   const { email } = req.body;
   if (!email) {
