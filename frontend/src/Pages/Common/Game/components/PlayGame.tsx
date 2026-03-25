@@ -19,8 +19,6 @@ const PlayGame = () => {
     handleSubmit,
     isSubmitting,
     hasSubmitted,
-    timeLeft,
-    showTimer,
     answerResult,
     isTransitioning, // ✅ new
   } = useGameEngine(sessionCode!);
@@ -244,10 +242,6 @@ const PlayGame = () => {
                   <h4 className="font-inter text-sm font-medium leading-[100%] text-white sm:text-2xl">
                     {questionData?.category.name}
                   </h4>
-
-                  {sessionInfo?.mode === "timed_solo" && showTimer && (
-                    <div>{timeLeft} Sec</div>
-                  )}
                 </div>
 
                 {/* ✅ Hide stale image during transition, show skeleton instead */}
