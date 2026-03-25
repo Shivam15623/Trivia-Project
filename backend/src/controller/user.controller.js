@@ -5,7 +5,62 @@ import { ApiError } from "../utills/ApiError.js";
 import { ApiResponse } from "../utills/ApiResponse.js";
 import { asyncHandler } from "../utills/Asynchandler.js";
 import { uploadOnCloudinary } from "../utills/cloudinary.js";
+import jwt from "jsonwebtoken";
+import generateTokens from "../utills/GenerateTokens.js";
+export const refreshAccessToken = asyncHandler(async (req, res) => {
+  const incomingRefreshToken = req.cookies.refreshToken;
 
+  if (!incomingRefreshToken) {
+    throw new ApiError(401, "unauthorized request");
+  }
+
+  try {
+    const decodedToken = jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+    );
+
+    const user = await User.findById(decodedToken?._id);
+
+    if (!user) {
+      throw new ApiError(401, "Invalid refresh token");
+    }
+
+    if (incomingRefreshToken !== user?.refreshToken) {
+      throw new ApiError(401, "Refresh token is expired or used");
+    }
+
+    const accessoptions = {
+      httpOnly: true,
+      secure: true, // must be true for HTTPS (Render uses HTTPS)
+      sameSite: "None", // must be 'None' for cross-site cookies
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    };
+
+    const refreshoptions = {
+      httpOnly: true,
+      secure: true, // must be true for HTTPS (Render uses HTTPS)
+      sameSite: "None", // must be 'None' for cross-site cookies
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    };
+
+
+    const { accessToken, newRefreshToken } = await generateTokens(user._id);
+
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, accessoptions)
+      .cookie("refreshToken", newRefreshToken, refreshoptions)
+      .json(
+        new ApiResponse(200, "Access token refreshed", {
+          accessToken,
+          refreshToken: newRefreshToken,
+        }),
+      );
+  } catch (error) {
+    throw new ApiError(401, error?.message || "Invalid refresh token");
+  }
+});
 export const getUserProfile = asyncHandler(async (req, res) => {
   const { _id } = req.user;
   const user = await User.findById(_id).select(
@@ -237,7 +292,6 @@ export const getAllUsers = asyncHandler(async (req, res) => {
   ]);
 
   const totalUsers = await User.countDocuments(matchStage);
-
 
   return res.status(200).json(
     new ApiResponse(200, "Users fetched successfully", {

@@ -4,6 +4,7 @@ import {
   getAllUsers,
   GetMyAllGames,
   getUserProfile,
+  refreshAccessToken,
   removeUserRestriction,
   updatePassword,
   updateProfile,
@@ -19,6 +20,7 @@ import {
 import { validateRequest } from "../middleware/validate.js";
 import requireAdminRole from "../middleware/RouteAuthRole.js";
 const router = Router();
+router.route("/refresh").post(refreshAccessToken);
 router.use(passport.authenticate("jwt", { session: false }));
 router.route("/Userprofile").get(getUserProfile);
 router
