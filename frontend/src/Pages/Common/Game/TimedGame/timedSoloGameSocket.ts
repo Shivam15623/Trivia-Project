@@ -218,8 +218,13 @@ export function createTimedSoloSocket(
     // That event will call onTimerStart and restart the rAF loop correctly
   }
 
-  // ─── Register all listeners ────────────────────────────────────────────────
+  const onPing = ({ t1 }: { t1: number }) => {
+    console.log("ping Arrived sending pong ");
+    socket.emit("pong", { t1 });
+  };
 
+  // ─── Register all listeners ────────────────────────────────────────────────
+  socket.on("ping", onPing);
   socket.on("timer-start", onTimerStart);
   socket.on("time-up", onTimeUp);
   socket.on("answer-result", onAnswerResult);
