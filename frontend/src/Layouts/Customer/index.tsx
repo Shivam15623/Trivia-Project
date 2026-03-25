@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 
 const CustomRoot = () => {
   return (
-    <div className="relative flex h-auto min-h-screen flex-col bg-black">
+    <div className="relative flex h-auto min-h-screen flex-col  bg-black">
       <CustomerNavHeader />
 
       <Outlet />

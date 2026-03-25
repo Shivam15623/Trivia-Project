@@ -80,8 +80,8 @@ const EndGame = () => {
 
   return (
     <>
-      <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-black px-[20px] sm:px-[40px] md:px-[60px] lg:px-[80px] xl:px-[120px]">
-        <div className="relative z-10 flex w-full flex-col items-center justify-center gap-[80px] sm:gap-[40px]">
+      <div className="relative mb-20 flex flex-1 items-center justify-center overflow-hidden bg-black px-[20px] sm:px-[40px] md:mb-[180px] md:px-[60px] lg:px-[80px] xl:px-[120px]">
+        <div className="relative z-10 flex w-full flex-col items-center justify-center gap-[40px] sm:gap-[80px]">
           <div className="w-full">
             <h1 className="mb-4 text-center font-inter text-[44px] font-semibold text-white md:text-[64px]">
               Game Over
@@ -394,9 +394,9 @@ const EndGame = () => {
         </div>
       </div>
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute top-[738px] h-[641.07px] w-[417.23px] -rotate-[45deg] rounded-[144px] bg-aqua-abyss opacity-60 blur-[56.6px] sm:bottom-[195px] sm:left-[75px] sm:top-auto sm:h-[625px] sm:w-[703px] sm:rotate-[160.75deg]" />
+        <div className="absolute top-[36%] z-[5] h-[261.87px] sm:h-[384px] md:h-[500px] w-[75%] rotate-[160.75deg] rounded-[20px] bg-aqua-abyss opacity-60 blur-[11.6px] lg:top-auto  lg:bottom-[195px] lg:left-[75px] lg:h-[641.07px] lg:w-[36.6%] lg:rounded-[144px] lg:blur-[56.6px]" />
 
-        <div className="absolute top-[150px] h-[508.8px] w-[700.54px] rotate-[150.39deg] rounded-[40px] bg-orange-sun opacity-60 blur-[56.6px] sm:bottom-[182px] sm:right-[60px] sm:top-auto sm:h-[493.38px] sm:w-[758.06px] sm:rotate-[17.68deg]" />
+        <div className="absolute -right-[22%] top-[28%] h-[206.5px] w-[80%] sm:h-[330px] md:h-[400px] rotate-[17.68deg] rounded-[40px] bg-orange-sun opacity-60 blur-[11.6px] lg:bottom-[182px] lg:right-[60px] lg:top-auto lg:h-[493.38px] lg:w-[39.5%] lg:blur-[56.6px]" />
       </div>
     </>
   );

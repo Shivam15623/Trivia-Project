@@ -15,6 +15,7 @@ import { selectAuth, setLoggedOut } from "@/redux/AuthSlice/authSlice";
 import { handleApiError } from "@/utills/handleApiError";
 import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
+import { showSuccess } from "./toastUtills";
 
 const AccountPopover = () => {
   const [logout] = useLogoutMutation();
@@ -28,6 +29,7 @@ const AccountPopover = () => {
 
       if (res.statuscode === 200) {
         dispatch(setLoggedOut());
+        showSuccess(res.message);
         navigate("/");
       }
     } catch (err) {
