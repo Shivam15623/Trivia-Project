@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectAuth, setLoggedOut } from "@/redux/AuthSlice/authSlice";
 import { handleApiError } from "@/utills/handleApiError";
 import { useLogoutMutation } from "@/services";
+import { showSuccess } from "./toastUtills";
 
 const data = {
   navMain: [
@@ -48,7 +49,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     try {
       const res = await logout(undefined).unwrap();
       if (res.statuscode === 200) {
+        showSuccess(res.message);
         dispatch(setLoggedOut());
+        
       }
     } catch (err) {
       handleApiError(err);
@@ -57,9 +60,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const { user } = useSelector(selectAuth);
 
-  React.useEffect(() => {
-    console.log("Updated auth state:", user);
-  }, [user]);
 
   // Close sidebar when a nav link is tapped on mobile
   const handleNavClick = () => {

@@ -49,7 +49,7 @@ export const authApi = api.injectEndpoints({
         body: { email },
       }),
     }),
-    logout: builder.mutation({
+    logout: builder.mutation<ApiGeneralResponse,void>({
       query: () => ({
         url: "/api/v1/auth/logout",
         method: "POST",
