@@ -46,5 +46,5 @@ app.use("/api/v1/gamesession", GameSessionRouter);
 app.use("/api/v1/question", questionRouter);
 app.use("/api/v1/category", CategoryRouter);
 app.use("/api/v1/dashboard-analytics", DashboardRoutes);
-app.use(errorHandler);
+// app.use(errorHandler);
 export { app };
