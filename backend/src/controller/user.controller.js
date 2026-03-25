@@ -21,42 +21,70 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     );
 
     const user = await User.findById(decodedToken?._id);
-
     if (!user) {
       throw new ApiError(401, "Invalid refresh token");
     }
 
-    if (incomingRefreshToken !== user?.refreshToken) {
-      throw new ApiError(401, "Refresh token is expired or used");
+    const accessOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    };
+
+    const refreshOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    };
+
+    // ✅ Token matches — normal rotation
+    if (incomingRefreshToken === user.refreshToken) {
+      const { accessToken, newRefreshToken } = await generateTokens(user._id);
+
+      // ✅ Save rotation metadata for grace window
+      await User.findByIdAndUpdate(user._id, {
+        previousRefreshToken: incomingRefreshToken,
+        lastAccessToken: accessToken,
+        refreshTokenRotatedAt: new Date(),
+      });
+
+      return res
+        .status(200)
+        .cookie("accessToken", accessToken, accessOptions)
+        .cookie("refreshToken", newRefreshToken, refreshOptions)
+        .json(
+          new ApiResponse(200, "Access token refreshed", {
+            accessToken,
+            refreshToken: newRefreshToken,
+          }),
+        );
     }
 
-    const accessoptions = {
-      httpOnly: true,
-      secure: true, // must be true for HTTPS (Render uses HTTPS)
-      sameSite: "None", // must be 'None' for cross-site cookies
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    };
+    // ✅ Token mismatch — check grace window before rejecting
+    const GRACE_WINDOW_MS = 10_000; // 10 seconds
+    const rotatedRecently =
+      user.refreshTokenRotatedAt &&
+      Date.now() - new Date(user.refreshTokenRotatedAt).getTime() <
+        GRACE_WINDOW_MS;
 
-    const refreshoptions = {
-      httpOnly: true,
-      secure: true, // must be true for HTTPS (Render uses HTTPS)
-      sameSite: "None", // must be 'None' for cross-site cookies
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    };
+    if (rotatedRecently && incomingRefreshToken === user.previousRefreshToken) {
+      // ✅ Duplicate call within grace window — return already-issued tokens
+      return res
+        .status(200)
+        .cookie("accessToken", user.lastAccessToken, accessOptions)
+        .cookie("refreshToken", user.refreshToken, refreshOptions)
+        .json(
+          new ApiResponse(200, "Access token refreshed", {
+            accessToken: user.lastAccessToken,
+            refreshToken: user.refreshToken,
+          }),
+        );
+    }
 
-
-    const { accessToken, newRefreshToken } = await generateTokens(user._id);
-
-    return res
-      .status(200)
-      .cookie("accessToken", accessToken, accessoptions)
-      .cookie("refreshToken", newRefreshToken, refreshoptions)
-      .json(
-        new ApiResponse(200, "Access token refreshed", {
-          accessToken,
-          refreshToken: newRefreshToken,
-        }),
-      );
+    // ❌ Outside grace window or unknown token — genuine reuse attack
+    throw new ApiError(401, "Refresh token is expired or used");
   } catch (error) {
     throw new ApiError(401, error?.message || "Invalid refresh token");
   }
