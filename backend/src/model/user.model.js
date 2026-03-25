@@ -115,6 +115,18 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    previousRefreshToken: {
+      type: String,
+      default: null,
+    },
+    lastAccessToken: {
+      type: String,
+      default: null,
+    },
+    refreshTokenRotatedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

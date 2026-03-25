@@ -1,9 +1,23 @@
 import { LoginData } from "../../interfaces/Authinterfaces";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {
+  createApi,
+  fetchBaseQuery,
+  BaseQueryFn,
+  FetchArgs,
+  FetchBaseQueryError,
+  FetchBaseQueryMeta,
+  QueryReturnValue,
+} from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
 import { setLoggedIn, setLoggedOut } from "../AuthSlice/authSlice";
 
 const environment = import.meta.env;
+
+type BaseQueryResult = QueryReturnValue<
+  unknown,
+  FetchBaseQueryError,
+  FetchBaseQueryMeta
+>;
 
 const baseQuery = fetchBaseQuery({
   baseUrl: environment.VITE_API_BASE_URL,
@@ -18,21 +32,22 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
-// ✅ Mutex state — lives outside the function so it's shared across all calls
 let isRefreshing = false;
-let refreshPromise: Promise<boolean> | null = null;
+let refreshPromise: Promise<string | null> | null = null;
 
-const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
-  let result = await baseQuery(args, api, extraOptions);
+const baseQueryWithReauth: BaseQueryFn<
+  FetchArgs | string,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  let result: BaseQueryResult = await baseQuery(args, api, extraOptions);
 
   if (result?.error?.status === 401) {
-    // ✅ If a refresh is already in flight, wait for IT — don't start a new one
     if (!isRefreshing) {
       isRefreshing = true;
 
-      // ✅ async IIFE — avoids .then() on MaybePromise
-      refreshPromise = (async (): Promise<boolean> => {
-        const refreshResult = await baseQuery(
+      refreshPromise = (async (): Promise<string | null> => {
+        const refreshResult: BaseQueryResult = await baseQuery(
           { url: "/api/v1/users/refresh", method: "POST" },
           api,
           extraOptions,
@@ -41,22 +56,33 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
         if (refreshResult?.data) {
           const { accessToken, user } = refreshResult.data as LoginData;
           api.dispatch(setLoggedIn({ accessToken, UserData: user }));
-          return true;
+          return accessToken;
         } else {
           api.dispatch(setLoggedOut());
-          return false;
+          return null;
         }
       })().finally(() => {
         isRefreshing = false;
         refreshPromise = null;
       });
     }
-    // ✅ All concurrent 401s await the same single promise
-    const refreshSucceeded = await refreshPromise!;
 
-    if (refreshSucceeded) {
-      // ✅ Retry original request now that token is fresh
-      result = await baseQuery(args, api, extraOptions);
+    const newToken = await refreshPromise!;
+
+    if (newToken) {
+      const originalArgs = typeof args === "string" ? { url: args } : args;
+      result = await baseQuery(
+        {
+          ...originalArgs,
+          headers: {
+            ...(originalArgs.headers ?? {}),
+            Accept: "application/json",
+            authorization: `Bearer ${newToken}`,
+          },
+        },
+        api,
+        extraOptions,
+      );
     }
   }
 
@@ -82,4 +108,4 @@ export const api = createApi({
   endpoints: () => ({}),
 });
 
-export const {} = api;
+export default api;
