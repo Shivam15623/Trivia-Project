@@ -1,4 +1,3 @@
-// useTimedSoloGame.ts
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Socket } from "socket.io-client";
 import { createTimedSoloSocket } from "./timedSoloGameSocket";
@@ -8,8 +7,6 @@ import {
   RevealPayload,
   GameSocketInstance,
 } from "../types/timedSolo.types";
-
-// ─── State ────────────────────────────────────────────────────────────────────
 
 export interface TimedSoloGameState {
   phase: GamePhase;
@@ -22,12 +19,10 @@ export interface TimedSoloGameState {
   error: string | null;
 }
 
-// ─── Config / Return ──────────────────────────────────────────────────────────
-
 export interface UseTimedSoloGameConfig {
   socket: Socket;
   sessionCode: string;
-  initialQuestion: QuestionPayload | null; // from API — shows something on refresh
+  initialQuestion: QuestionPayload | null;
   onGameEnd: () => void;
 }
 
@@ -37,8 +32,6 @@ export interface UseTimedSoloGameReturn {
   clearReveal: () => void;
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
-
 export function useTimedSoloGame({
   socket,
   sessionCode,
@@ -47,7 +40,7 @@ export function useTimedSoloGame({
 }: UseTimedSoloGameConfig): UseTimedSoloGameReturn {
   const [state, setState] = useState<TimedSoloGameState>({
     phase: "IDLE",
-    question: initialQuestion ?? null, // seed from API on refresh
+    question: initialQuestion ?? null,
     displayQuestion: initialQuestion ?? null,
     remainingMs: 0,
     timerPct: 1,
@@ -58,35 +51,24 @@ export function useTimedSoloGame({
 
   const gameSocketRef = useRef<GameSocketInstance | null>(null);
   const onGameEndRef = useRef(onGameEnd);
-  const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Keep onGameEnd ref fresh without re-running the effect
   useEffect(() => {
     onGameEndRef.current = onGameEnd;
   }, [onGameEnd]);
 
-  // Auto-dismiss reveal after 2.5s
-  useEffect(() => {
-    if (state.phase === "REVEALING" && state.reveal) {
-      revealTimerRef.current = setTimeout(clearReveal, 2500);
-    }
-    return () => {
-      if (revealTimerRef.current) {
-        clearTimeout(revealTimerRef.current);
-        revealTimerRef.current = null;
-      }
-    };
-  }, [state.phase, state.reveal]);
-
   // Bootstrap
   useEffect(() => {
     if (!socket || !sessionCode) return;
+
+    console.log(`[Hook] bootstrapping  session=${sessionCode}`);
 
     const instance = createTimedSoloSocket({
       socket,
       sessionCode,
 
       onPhaseChange: (phase) => {
+        console.log(`[Hook] phase changed → ${phase}`);
         setState((prev) => ({
           ...prev,
           phase,
@@ -99,55 +81,86 @@ export function useTimedSoloGame({
         setState((prev) => ({ ...prev, remainingMs, timerPct: pct }));
       },
 
-      // When reveal fires: store payload, clear timer display
-      // DO NOT touch question — it must stay as the answered question
-      // so the option highlighting is correct
       onReveal: (payload) => {
-        setState((prev) => ({
-          ...prev,
-          phase: "REVEALING",
-          reveal: payload,
-          remainingMs: 0,
-          timerPct: 0,
-          question: payload.nextQuestion ?? prev.question, // preload next
-          displayQuestion: prev.question, // keep showing current
-          // NO signalReady here
-        }));
+        console.log(
+          `[Hook] onReveal fired  source=${payload.source}  isCorrect=${payload.isCorrect}`,
+        );
+        console.log(
+          `[Hook] onReveal  nextQuestion=${payload.nextQuestion?.questionId ?? "null (game ending)"}`,
+        );
+        console.log(
+          `[Hook] onReveal  preloading next Q behind overlay, displayQuestion stays on current`,
+        );
+        setState((prev) => {
+          console.log(
+            `[Hook] onReveal setState  prev.question=${prev.question?.questionId}  prev.displayQuestion=${prev.displayQuestion?.questionId}`,
+          );
+          return {
+            ...prev,
+            phase: "REVEALING",
+            reveal: payload,
+            remainingMs: 0,
+            timerPct: 0,
+            question: payload.nextQuestion ?? prev.question,
+            displayQuestion: prev.question, // keep showing current during overlay
+          };
+        });
       },
 
       onGameEnd: () => {
+        console.log(`[Hook] onGameEnd fired — navigating away`);
         setState((prev) => ({ ...prev, phase: "ENDED" }));
         onGameEndRef.current();
       },
 
       onReconnecting: () => {
+        console.log(`[Hook] onReconnecting fired`);
         setState((prev) => ({ ...prev, isReconnecting: true }));
       },
 
       onError: (message) => {
+        console.warn(`[Hook] onError  message="${message}"`);
         setState((prev) => ({ ...prev, error: message }));
       },
     });
 
     gameSocketRef.current = instance;
 
-    // When timer-start arrives: update question + clear reveal
-    // This is the ONLY place question changes — not inside onReveal
-    // 5. Update syncQuestion — guard against wiping reveal mid-overlay:
     const syncQuestion = (payload: { currentQuestion: QuestionPayload }) => {
-      setState((prev) => ({
-        ...prev,
-        question: payload.currentQuestion,
-        displayQuestion:
-          prev.phase === "REVEALING"
-            ? prev.displayQuestion // don't update display during reveal
+      console.log(
+        `[Hook] syncQuestion (timer-start)  incomingQ=${payload.currentQuestion.questionId}`,
+      );
+      setState((prev) => {
+        const duringReveal = prev.phase === "REVEALING";
+        console.log(
+          `[Hook] syncQuestion  phase=${prev.phase}  duringReveal=${duringReveal}`,
+        );
+        console.log(
+          `[Hook] syncQuestion  prev.question=${prev.question?.questionId}  prev.displayQuestion=${prev.displayQuestion?.questionId}`,
+        );
+        if (duringReveal) {
+          console.log(
+            `[Hook] syncQuestion  REVEALING — updating question buffer only, displayQuestion unchanged`,
+          );
+        } else {
+          console.log(
+            `[Hook] syncQuestion  NOT revealing — updating both question and displayQuestion`,
+          );
+        }
+        return {
+          ...prev,
+          question: payload.currentQuestion,
+          displayQuestion: duringReveal
+            ? prev.displayQuestion
             : payload.currentQuestion,
-        reveal: prev.phase === "REVEALING" ? prev.reveal : null,
-      }));
+          reveal: duringReveal ? prev.reveal : null,
+        };
+      });
     };
     socket.on("timer-start", syncQuestion);
 
     return () => {
+      console.log(`[Hook] cleanup — destroying socket instance`);
       instance.destroy();
       socket.off("timer-start", syncQuestion);
       gameSocketRef.current = null;
@@ -157,21 +170,34 @@ export function useTimedSoloGame({
 
   const submitAnswer = useCallback(
     (answerIndex: number, questionId: string) => {
+      console.log(
+        `[Hook] submitAnswer  answerIndex=${answerIndex}  questionId=${questionId}`,
+      );
       gameSocketRef.current?.submitAnswer(answerIndex, questionId);
     },
     [],
   );
 
   const clearReveal = useCallback(() => {
+    console.log(`[Hook] clearReveal called — overlay exiting`);
     setState((prev) => {
-      if (prev.phase !== "REVEALING") return prev;
+      if (prev.phase !== "REVEALING") {
+        console.warn(
+          `[Hook] clearReveal  phase=${prev.phase} — not REVEALING, skipping`,
+        );
+        return prev;
+      }
+      console.log(
+        `[Hook] clearReveal  swapping displayQuestion: ${prev.displayQuestion?.questionId} → ${prev.question?.questionId}`,
+      );
       return {
         ...prev,
         reveal: null,
-        displayQuestion: prev.question, // ← swap to preloaded question
+        displayQuestion: prev.question, // swap to preloaded question instantly
       };
     });
-    gameSocketRef.current?.signalReady(); // ← only fires here now
+    console.log(`[Hook] clearReveal  emitting signalReady → player-ready`);
+    gameSocketRef.current?.signalReady();
   }, []);
 
   return { state, submitAnswer, clearReveal };
