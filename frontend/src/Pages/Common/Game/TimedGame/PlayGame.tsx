@@ -56,7 +56,7 @@ export default function TimedSoloGame() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [showSkip, setShowSkip] = useState(false);
   const skipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
+  const [revealExiting, setRevealExiting] = useState(false);
   // ── Clear selection when a new question arrives ───────────────────────────
   useEffect(() => {
     if (phase === "ACTIVE") {
@@ -65,10 +65,19 @@ export default function TimedSoloGame() {
     }
   }, [phase]);
 
+  function triggerRevealExit() {
+    if (revealExiting) return;
+    setRevealExiting(true);
+    setTimeout(() => {
+      setRevealExiting(false);
+      clearReveal();
+    }, 350);
+  }
+
   // ── Skip button unlocks after 1.2s of REVEALING ───────────────────────────
   useEffect(() => {
     if (phase === "REVEALING") {
-      skipTimerRef.current = setTimeout(() => setShowSkip(true), 1200);
+      skipTimerRef.current = setTimeout(triggerRevealExit, 2500);
     }
     return () => {
       if (skipTimerRef.current) clearTimeout(skipTimerRef.current);
@@ -240,12 +249,14 @@ export default function TimedSoloGame() {
             {/* ── Question card ─────────────────────────────────────────── */}
             <div
               className={cn("gradient-border w-full")}
+              key={question?.questionId}
               style={
                 {
                   "--border-gradient":
                     "linear-gradient(90.26deg, #2884C7 1.43%, #7BFDFD 36.33%, #FA9923 66.99%, #FF6E01 99.54%)",
                   "--radius": "20px",
                   "--padding": "3px",
+                  animation: "fadeSlideIn 0.4s ease-out",
                 } as React.CSSProperties
               }
             >
@@ -257,6 +268,11 @@ export default function TimedSoloGame() {
                       "absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 rounded-[20px] backdrop-blur-sm",
                       reveal.isCorrect ? "bg-green-500/20" : "bg-red-500/20",
                     )}
+                    style={{
+                      animation: revealExiting
+                        ? "overlayExit 0.35s ease-out forwards"
+                        : "none",
+                    }}
                   >
                     {/* Icon */}
                     <div
@@ -311,14 +327,14 @@ export default function TimedSoloGame() {
                       <div
                         className="h-full w-full rounded-full bg-white"
                         style={{ animation: "shrink 2.5s linear forwards" }}
-                        onAnimationEnd={clearReveal} // ← this was missing
+                        onAnimationEnd={triggerRevealExit} // ← this was missing
                       />
                     </div>
 
                     {/* Skip button — unlocks at 1.2s */}
                     {showSkip && (
                       <button
-                        onClick={clearReveal}
+                        onClick={triggerRevealExit}
                         className="mt-1 font-outfit text-sm text-white/50 underline transition-opacity hover:text-white/80"
                       >
                         Next →
@@ -348,10 +364,12 @@ export default function TimedSoloGame() {
 
             {/* ── Options ───────────────────────────────────────────────── */}
             <div
+              key={question?.questionId}
               className={cn(
                 "grid grid-cols-1 gap-[18px] sm:grid-cols-2",
                 optionsLocked && "pointer-events-none",
               )}
+              style={{ animation: "fadeSlideIn 0.45s ease-out" }}
             >
               {question?.options.map((option, index) => {
                 const isSelected = selectedIndex === index;
