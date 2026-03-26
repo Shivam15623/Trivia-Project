@@ -10,9 +10,8 @@ import {
   QuestionPayload,
 } from "../types/timedSolo.types";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-const TIME_UP_WAIT_FALLBACK_MS = 3_000; // if server never sends time-up
-const GAME_END_FALLBACK_MS = 4_000; // if server never sends game-ended
+const TIME_UP_WAIT_FALLBACK_MS = 3_000;
+const GAME_END_FALLBACK_MS = 4_000;
 
 export function createTimedSoloSocket(
   config: TimedSoloSocketConfig,
@@ -28,19 +27,17 @@ export function createTimedSoloSocket(
     onError,
   } = config;
 
-  // ─── Private state ─────────────────────────────────────────────────────────
   let phase: GamePhase = "IDLE";
-  let expiresAt: number | null = null; // UTC epoch ms
-  let durationMs: number = 0; // full duration for pct calc
+  let expiresAt: number | null = null;
+  let durationMs: number = 0;
   let currentQuestion: QuestionPayload | null = null;
 
   let rafHandle: number | null = null;
   let timeUpFallback: ReturnType<typeof setTimeout> | null = null;
   let gameEndFallback: ReturnType<typeof setTimeout> | null = null;
 
-  // ─── Internal helpers ──────────────────────────────────────────────────────
-
   function setPhase(next: GamePhase): void {
+    console.log(`[Socket] phase  ${phase} → ${next}`);
     phase = next;
     onPhaseChange(next);
   }
@@ -56,6 +53,7 @@ export function createTimedSoloSocket(
     if (timeUpFallback !== null) {
       clearTimeout(timeUpFallback);
       timeUpFallback = null;
+      console.log(`[Socket] timeUpFallback cleared`);
     }
   }
 
@@ -63,97 +61,100 @@ export function createTimedSoloSocket(
     if (gameEndFallback !== null) {
       clearTimeout(gameEndFallback);
       gameEndFallback = null;
+      console.log(`[Socket] gameEndFallback cleared`);
     }
   }
 
-  // ─── rAF countdown loop ────────────────────────────────────────────────────
-  // Uses expiresAt (UTC epoch ms) not a duration — self-corrects after
-  // tab sleep, device suspend, or any JS timer drift.
-
   function startRaf(): void {
     stopRaf();
+    console.log(
+      `[Socket] rAF started  expiresAt=${new Date(expiresAt ?? 0).toISOString()}`,
+    );
 
     function tick(): void {
-      // Stop immediately if phase changed — no guard needed in caller
       if (phase !== "ACTIVE") return;
-
       const remainingMs = Math.max(0, (expiresAt ?? 0) - Date.now());
       const pct = durationMs > 0 ? remainingMs / durationMs : 0;
-
       onTick(remainingMs, pct);
-
       if (remainingMs <= 0) {
+        console.log(`[Socket] rAF hit zero — calling onClientTimerEnd`);
         onClientTimerEnd();
         return;
       }
-
       rafHandle = requestAnimationFrame(tick);
     }
 
     rafHandle = requestAnimationFrame(tick);
   }
 
-  // ─── Client timer hit zero ─────────────────────────────────────────────────
-
   function onClientTimerEnd(): void {
-    if (phase !== "ACTIVE") return; // guard: only from ACTIVE
-
+    if (phase !== "ACTIVE") return;
+    console.log(`[Socket] client timer ended — moving to TIME_UP_WAIT`);
     stopRaf();
     setPhase("TIME_UP_WAIT");
 
-    // Fallback: if server time-up never arrives (socket blip), unblock after 3s
     timeUpFallback = setTimeout(() => {
       if (phase !== "TIME_UP_WAIT") return;
+      console.warn(
+        `[Socket] timeUpFallback fired — server never sent time-up, faking reveal`,
+      );
       handleReveal({
         isCorrect: false,
         correctAnswer: "",
         pointsAwarded: 0,
         nextQuestion: null,
         source: "timeout",
-        answerImage: null, // ← no payload here, just null
+        answerImage: null,
       });
     }, TIME_UP_WAIT_FALLBACK_MS);
+
+    console.log(
+      `[Socket] timeUpFallback armed  fallbackMs=${TIME_UP_WAIT_FALLBACK_MS}`,
+    );
   }
 
-  // ─── Reveal handler — single entry point for both paths ───────────────────
-
   function handleReveal(payload: RevealPayload): void {
+    console.log(
+      `[Socket] handleReveal  source=${payload.source}  isCorrect=${payload.isCorrect}  nextQuestion=${payload.nextQuestion?.questionId ?? "null"}`,
+    );
     stopRaf();
     clearTimeUpFallback();
     setPhase("REVEALING");
     onReveal(payload);
 
-    // If there's no next question, game is ending — arm fallback navigation
     if (!payload.nextQuestion) {
+      console.log(
+        `[Socket] no nextQuestion — arming gameEndFallback  ms=${GAME_END_FALLBACK_MS}`,
+      );
       gameEndFallback = setTimeout(() => {
         if (phase !== "REVEALING" && phase !== "ENDED") return;
-        console.warn("[TimedSoloSocket] game-ended fallback fired");
+        console.warn(`[Socket] gameEndFallback fired`);
         setPhase("ENDED");
         onGameEnd();
       }, GAME_END_FALLBACK_MS);
     }
   }
 
-  // ─── Socket event handlers ─────────────────────────────────────────────────
-
   function onTimerStart(payload: TimerStartPayload): void {
-    const { expiresAt: expiresAtIso, timer, currentQuestion: q } = payload;
-    console.log("jdfnvbjdfnjvb", payload);
-    // Reset all fallbacks from previous question
+    console.log(
+      `[Socket] timer-start received  questionId=${payload.currentQuestion?.questionId}  expiresAt=${payload.expiresAt}  timer=${payload.timer}s  currentPhase=${phase}`,
+    );
     stopRaf();
     clearTimeUpFallback();
     clearGameEndFallback();
 
-    // Store deadline and question
-    expiresAt = new Date(expiresAtIso).getTime();
-    durationMs = timer * 1_000;
-    currentQuestion = q;
+    expiresAt = new Date(payload.expiresAt).getTime();
+    durationMs = payload.timer * 1_000;
+    currentQuestion = payload.currentQuestion;
 
-    // Sanity: if expiresAt is already in the past (reconnect edge case)
-    // jump straight to TIME_UP_WAIT — server will send time-up shortly
+    const msUntilExpiry = expiresAt - Date.now();
+    console.log(
+      `[Socket] timer-start  msUntilExpiry=${msUntilExpiry}  (${(msUntilExpiry / 1000).toFixed(2)}s remaining)`,
+    );
+
     if (expiresAt <= Date.now()) {
       console.warn(
-        "[TimedSoloSocket] timer-start received but already expired",
+        `[Socket] timer-start already expired — jumping to TIME_UP_WAIT`,
       );
       setPhase("TIME_UP_WAIT");
       return;
@@ -164,30 +165,37 @@ export function createTimedSoloSocket(
   }
 
   function onTimeUp(payload: TimeUpPayload): void {
-    // Guard: only valid from ACTIVE or TIME_UP_WAIT
-    // Drop if SUBMITTING (answer-result owns the transition) or REVEALING
+    console.log(
+      `[Socket] time-up received  currentPhase=${phase}  correctAnswer="${payload.correctAnswer}"  nextQuestion=${payload.currentQuestion?.questionId ?? "null (game over)"}`,
+    );
+
     if (phase !== "ACTIVE" && phase !== "TIME_UP_WAIT") {
-      console.log(`[TimedSoloSocket] time-up dropped — phase=${phase}`);
+      console.log(
+        `[Socket] time-up DROPPED — phase=${phase} is not ACTIVE or TIME_UP_WAIT`,
+      );
       return;
     }
 
     clearTimeUpFallback();
-
     handleReveal({
       isCorrect: false,
       correctAnswer: payload.correctAnswer,
       pointsAwarded: 0,
-      nextQuestion: payload.currentQuestion, // null = game over
+      nextQuestion: payload.currentQuestion,
       source: "timeout",
-      answerImage: payload.answerImage ?? null, // ← add
+      answerImage: payload.answerImage ?? null,
     });
   }
 
   function onAnswerResult(payload: AnswerResultPayload): void {
-    // Guard: only valid from SUBMITTING
-    // If TIME_UP_WAIT already moved us, time-up event will handle reveal
+    console.log(
+      `[Socket] answer-result received  currentPhase=${phase}  isCorrect=${payload.isCorrect}  points=${payload.pointsAwarded}  nextQuestion=${payload.nextQuestion?.questionId ?? "null (game over)"}`,
+    );
+
     if (phase !== "SUBMITTING") {
-      console.log(`[TimedSoloSocket] answer-result dropped — phase=${phase}`);
+      console.log(
+        `[Socket] answer-result DROPPED — phase=${phase} is not SUBMITTING`,
+      );
       return;
     }
 
@@ -197,132 +205,130 @@ export function createTimedSoloSocket(
       pointsAwarded: payload.pointsAwarded,
       nextQuestion: payload.nextQuestion,
       source: "answer",
-      answerImage: payload.answerImage ?? null, // ← add
+      answerImage: payload.answerImage ?? null,
     });
   }
 
   function onGameEnded(): void {
+    console.log(`[Socket] game-ended received`);
     clearGameEndFallback();
     setPhase("ENDED");
     onGameEnd();
   }
 
   function onReconnect(): void {
-    // Socket reconnected — if we were mid-game, tell server to re-sync us
-    if (phase === "IDLE" || phase === "ENDED") return;
-
+    if (phase === "IDLE" || phase === "ENDED") {
+      console.log(`[Socket] connect event — phase=${phase}, ignoring`);
+      return;
+    }
+    console.log(
+      `[Socket] reconnected mid-game  phase=${phase} — re-emitting player-ready`,
+    );
     onReconnecting();
-    console.log("[TimedSoloSocket] reconnected — re-emitting player-ready");
     socket.emit("player-ready", { sessionCode });
-    // Server case B: if timer running, unicasts timer-start back to this socket
-    // That event will call onTimerStart and restart the rAF loop correctly
   }
 
   const onPing = ({ t1 }: { t1: number }) => {
-    console.log("ping Arrived sending pong ");
+    console.log(`[Socket] ping received  t1=${t1} — sending pong`);
     socket.emit("pong", { t1 });
   };
 
-  // ─── Register all listeners ────────────────────────────────────────────────
+  function onSocketError(payload: { message: string }): void {
+    console.warn(
+      `[Socket] server error received  message="${payload.message}"`,
+    );
+    onError(payload.message);
+  }
+
   socket.on("ping", onPing);
   socket.on("timer-start", onTimerStart);
   socket.on("time-up", onTimeUp);
   socket.on("answer-result", onAnswerResult);
   socket.on("game-ended", onGameEnded);
   socket.on("connect", onReconnect);
-  socket.on("error", onSocketError); // ← add
-
-  // Add the handler function:
-  function onSocketError(payload: { message: string }): void {
-    console.warn("[TimedSoloSocket] server error:", payload.message);
-    onError(payload.message);
-  }
-  // ─── Join room + signal ready ──────────────────────────────────────────────
-  // join-session-room MUST come before player-ready
-  // so the socket is in the room when the server broadcasts timer-start
+  socket.on("error", onSocketError);
 
   function joinAndReady() {
+    console.log(
+      `[Socket] joinAndReady  session=${sessionCode}  socketId=${socket.id}`,
+    );
     socket.emit("join-session-room", sessionCode);
     socket.emit("player-ready", { sessionCode });
-    console.log("[TimedSoloSocket] join + player-ready emitted");
   }
 
-  // If socket is already connected (normal navigation) — emit immediately
-  // If not connected yet (refresh / new tab) — wait for connect event
   if (socket.connected) {
+    console.log(`[Socket] socket already connected — joining immediately`);
     joinAndReady();
   } else {
-    console.log("Reconnect One");
+    console.log(
+      `[Socket] socket not connected yet — waiting for connect event`,
+    );
     socket.once("connect", joinAndReady);
   }
 
-  // ─── Public API ───────────────────────────────────────────────────────────
-
   function submitAnswer(answerIndex: number, questionId: string): void {
-    // Stamp answeredAt as the VERY FIRST thing — before any guard check
     const answeredAt = Date.now();
+    console.log(
+      `[Socket] submitAnswer  answerIndex=${answerIndex}  questionId=${questionId}  phase=${phase}  answeredAt=${answeredAt}`,
+    );
 
-    // Guard: only allowed from ACTIVE
     if (phase !== "ACTIVE") {
-      console.log(`[TimedSoloSocket] submitAnswer dropped — phase=${phase}`);
+      console.log(`[Socket] submitAnswer DROPPED — phase=${phase}`);
       return;
     }
 
     if (!currentQuestion) {
+      console.warn(`[Socket] submitAnswer — no currentQuestion`);
       onError("No active question to answer");
       return;
     }
 
+    const answer = currentQuestion.options[answerIndex];
+    console.log(`[Socket] submitAnswer  answer="${answer}"`);
+
     stopRaf();
     setPhase("SUBMITTING");
 
-    const payload = {
-      sessionCode,
-
-      questionId,
-      answer: currentQuestion.options[answerIndex], // send the string value
-      answeredAt,
-    };
+    const payload = { sessionCode, questionId, answer, answeredAt };
 
     socket.emit("submit-answer", payload, (ack: SubmitAck) => {
-      // Server acknowledged — but we wait for answer-result event
-      // for the full reveal payload. Ack is just "I got it".
+      console.log(`[Socket] submit-answer ack  status=${ack.status}`);
 
       if (ack.status === "duplicate" || ack.status === "stale") {
-        // Already settled — server will send time-up, wait for it
-        console.log(
-          `[TimedSoloSocket] submit ack=${ack.status}, waiting for time-up`,
-        );
+        console.log(`[Socket] ack=${ack.status} — moving to TIME_UP_WAIT`);
         setPhase("TIME_UP_WAIT");
         return;
       }
-
       if (ack.status === "late") {
-        // Timestamp rejected — treat as timeout
-        console.log("[TimedSoloSocket] submit was late, treating as timeout");
+        console.log(`[Socket] ack=late — moving to TIME_UP_WAIT`);
         setPhase("TIME_UP_WAIT");
         return;
       }
-
       if (ack.status === "error") {
+        console.warn(`[Socket] ack=error — reverting to ACTIVE`);
         onError("Failed to submit answer — please try again");
-        setPhase("ACTIVE"); // let user retry
-        startRaf(); // restart timer
+        setPhase("ACTIVE");
+        startRaf();
         return;
       }
-
-      // status === 'ok' — answer-result event will arrive shortly with
-      // the full payload including nextQuestion. Do nothing here.
-      // onAnswerResult handles the transition to REVEALING.
+      console.log(`[Socket] ack=ok — waiting for answer-result event`);
     });
   }
+
   function signalReady(): void {
-    // Only valid from REVEALING — after reveal ends, tell server to arm next timer
-    if (phase !== "REVEALING") return;
+    console.log(`[Socket] signalReady called  phase=${phase}`);
+    if (phase !== "REVEALING") {
+      console.warn(
+        `[Socket] signalReady DROPPED — phase=${phase} is not REVEALING`,
+      );
+      return;
+    }
+    console.log(`[Socket] signalReady — emitting player-ready`);
     socket.emit("player-ready", { sessionCode });
   }
 
   function destroy(): void {
+    console.log(`[Socket] destroy called`);
     stopRaf();
     clearTimeUpFallback();
     clearGameEndFallback();
@@ -332,9 +338,10 @@ export function createTimedSoloSocket(
     socket.off("answer-result", onAnswerResult);
     socket.off("game-ended", onGameEnded);
     socket.off("connect", onReconnect);
-    socket.off("connect", joinAndReady); // ← remove pending once if not yet fired
+    socket.off("connect", joinAndReady);
     socket.off("error", onSocketError);
-    console.log("[TimedSoloSocket] destroyed");
+    console.log(`[Socket] destroyed — all listeners removed`);
   }
+
   return { submitAnswer, signalReady, destroy };
 }
