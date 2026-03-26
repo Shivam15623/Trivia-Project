@@ -108,6 +108,7 @@ export function useTimedSoloGame({
           remainingMs: 0,
           timerPct: 0,
         }));
+        gameSocketRef.current?.signalReady();
       },
 
       onGameEnd: () => {
@@ -158,7 +159,7 @@ export function useTimedSoloGame({
       return { ...prev, reveal: null };
       // question stays the same until timer-start arrives
     });
-    gameSocketRef.current?.signalReady();
+    // gameSocketRef.current?.signalReady();
   }, []);
 
   return { state, submitAnswer, clearReveal };
