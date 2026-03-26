@@ -12,7 +12,11 @@ import {
 
 // const TIME_UP_WAIT_FALLBACK_MS = 3_000;
 const GAME_END_FALLBACK_MS = 4_000;
+let clockOffsetMs = 0; // positive = client is ahead of server
 
+function serverNow(): number {
+  return Date.now() - clockOffsetMs;
+}
 export function createTimedSoloSocket(
   config: TimedSoloSocketConfig,
 ): GameSocketInstance {
@@ -73,14 +77,15 @@ export function createTimedSoloSocket(
 
     function tick(): void {
       if (phase !== "ACTIVE") return;
-      const remainingMs = Math.max(0, (expiresAt ?? 0) - Date.now());
+      const remainingMs = Math.max(0, (expiresAt ?? 0) - serverNow()); // ← serverNow()
       const pct = durationMs > 0 ? remainingMs / durationMs : 0;
-      onTick(remainingMs, pct);
-      // if (remainingMs <= 0) {
-      //   console.log(`[Socket] rAF hit zero — calling onClientTimerEnd`);
-      //   onClientTimerEnd();
-      //   return;
-      // }
+      onTick(remainingMs, pct, remainingMs <= 0); // ← pass waiting flag
+
+      if (remainingMs <= 0) {
+        stopRaf();
+        return; // stay ACTIVE, server owns the transition
+      }
+
       rafHandle = requestAnimationFrame(tick);
     }
 
@@ -147,12 +152,12 @@ export function createTimedSoloSocket(
     durationMs = payload.timer * 1_000;
     currentQuestion = payload.currentQuestion;
 
-    const msUntilExpiry = expiresAt - Date.now();
+    const msUntilExpiry = expiresAt - serverNow();
     console.log(
       `[Socket] timer-start  msUntilExpiry=${msUntilExpiry}  (${(msUntilExpiry / 1000).toFixed(2)}s remaining)`,
     );
 
-    if (expiresAt <= Date.now()) {
+    if (expiresAt <= serverNow()) {
       console.warn(
         `[Socket] timer-start already expired — jumping to TIME_UP_WAIT`,
       );
@@ -232,7 +237,20 @@ export function createTimedSoloSocket(
     console.log(`[Socket] ping received  t1=${t1} — sending pong`);
     socket.emit("pong", { t1 });
   };
-
+  const onPongAck = ({
+    t1,
+    serverNow: serverTs,
+  }: {
+    t1: number;
+    serverNow: number;
+  }) => {
+    const rtt = Date.now() - t1;
+    const latency = rtt / 2;
+    clockOffsetMs = Date.now() - latency - serverTs;
+    console.log(
+      `[Socket] clockOffset=${clockOffsetMs}ms  latency=${latency}ms`,
+    );
+  };
   function onSocketError(payload: { message: string }): void {
     console.warn(
       `[Socket] server error received  message="${payload.message}"`,
@@ -241,6 +259,7 @@ export function createTimedSoloSocket(
   }
 
   socket.on("ping", onPing);
+  socket.on("pong-ack", onPongAck);
   socket.on("timer-start", onTimerStart);
   socket.on("time-up", onTimeUp);
   socket.on("answer-result", onAnswerResult);

@@ -16,6 +16,7 @@ export interface TimedSoloGameState {
   timerPct: number;
   reveal: RevealPayload | null;
   isReconnecting: boolean;
+  isWaitingForServer: boolean; // ← add
   error: string | null;
 }
 
@@ -46,6 +47,7 @@ export function useTimedSoloGame({
     timerPct: 1,
     reveal: null,
     isReconnecting: false,
+    isWaitingForServer: false,
     error: null,
   });
 
@@ -68,17 +70,22 @@ export function useTimedSoloGame({
       sessionCode,
 
       onPhaseChange: (phase) => {
-        console.log(`[Hook] phase changed → ${phase}`);
         setState((prev) => ({
           ...prev,
           phase,
+          isWaitingForServer: false, // ← add
           isReconnecting: phase === "ACTIVE" ? false : prev.isReconnecting,
           error: phase === "ACTIVE" ? null : prev.error,
         }));
       },
 
-      onTick: (remainingMs, pct) => {
-        setState((prev) => ({ ...prev, remainingMs, timerPct: pct }));
+      onTick: (remainingMs, pct, waiting = false) => {
+        setState((prev) => ({
+          ...prev,
+          remainingMs,
+          timerPct: pct,
+          isWaitingForServer: waiting, // ← add
+        }));
       },
 
       onReveal: (payload) => {

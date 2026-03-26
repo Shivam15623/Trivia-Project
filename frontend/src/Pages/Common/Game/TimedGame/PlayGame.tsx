@@ -48,6 +48,7 @@ export default function TimedSoloGame() {
     timerPct,
     reveal,
     isReconnecting,
+    isWaitingForServer,
     error,
   } = state;
 
@@ -295,14 +296,20 @@ export default function TimedSoloGame() {
 
             {/* ── Timer bar ─────────────────────────────────────────────── */}
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full transition-colors duration-500"
-                style={{
-                  width: `${timerPct * 100}%`,
-                  backgroundColor: timerBarColor,
-                  transition: "background-color 0.5s",
-                }}
-              />
+              {isWaitingForServer ? (
+                <div
+                  className="h-full w-full rounded-full bg-[#FF4444]"
+                  style={{ animation: "pulse 1s ease-in-out infinite" }}
+                />
+              ) : (
+                <div
+                  className="h-full rounded-full transition-colors duration-500"
+                  style={{
+                    width: `${timerPct * 100}%`,
+                    backgroundColor: timerBarColor,
+                  }}
+                />
+              )}
             </div>
 
             {/* ── Timer label ───────────────────────────────────────────── */}
