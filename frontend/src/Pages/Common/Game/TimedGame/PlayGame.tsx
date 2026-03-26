@@ -249,7 +249,7 @@ export default function TimedSoloGame() {
             {/* ── Question card ─────────────────────────────────────────── */}
             <div
               className={cn("gradient-border w-full")}
-              key={question?.questionId}
+              
               style={
                 {
                   "--border-gradient":
@@ -364,7 +364,7 @@ export default function TimedSoloGame() {
 
             {/* ── Options ───────────────────────────────────────────────── */}
             <div
-              key={question?.questionId}
+             key={question?.questionId}
               className={cn(
                 "grid grid-cols-1 gap-[18px] sm:grid-cols-2",
                 optionsLocked && "pointer-events-none",
