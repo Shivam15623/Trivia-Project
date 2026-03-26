@@ -10,7 +10,7 @@ import {
   QuestionPayload,
 } from "../types/timedSolo.types";
 
-const TIME_UP_WAIT_FALLBACK_MS = 3_000;
+// const TIME_UP_WAIT_FALLBACK_MS = 3_000;
 const GAME_END_FALLBACK_MS = 4_000;
 
 export function createTimedSoloSocket(
@@ -87,31 +87,31 @@ export function createTimedSoloSocket(
     rafHandle = requestAnimationFrame(tick);
   }
 
-  function onClientTimerEnd(): void {
-    if (phase !== "ACTIVE") return;
-    console.log(`[Socket] client timer ended — moving to TIME_UP_WAIT`);
-    stopRaf();
-    setPhase("TIME_UP_WAIT");
+  // function onClientTimerEnd(): void {
+  //   if (phase !== "ACTIVE") return;
+  //   console.log(`[Socket] client timer ended — moving to TIME_UP_WAIT`);
+  //   stopRaf();
+  //   setPhase("TIME_UP_WAIT");
 
-    timeUpFallback = setTimeout(() => {
-      if (phase !== "TIME_UP_WAIT") return;
-      console.warn(
-        `[Socket] timeUpFallback fired — server never sent time-up, faking reveal`,
-      );
-      handleReveal({
-        isCorrect: false,
-        correctAnswer: "",
-        pointsAwarded: 0,
-        nextQuestion: null,
-        source: "timeout",
-        answerImage: null,
-      });
-    }, TIME_UP_WAIT_FALLBACK_MS);
+  //   timeUpFallback = setTimeout(() => {
+  //     if (phase !== "TIME_UP_WAIT") return;
+  //     console.warn(
+  //       `[Socket] timeUpFallback fired — server never sent time-up, faking reveal`,
+  //     );
+  //     handleReveal({
+  //       isCorrect: false,
+  //       correctAnswer: "",
+  //       pointsAwarded: 0,
+  //       nextQuestion: null,
+  //       source: "timeout",
+  //       answerImage: null,
+  //     });
+  //   }, TIME_UP_WAIT_FALLBACK_MS);
 
-    console.log(
-      `[Socket] timeUpFallback armed  fallbackMs=${TIME_UP_WAIT_FALLBACK_MS}`,
-    );
-  }
+  //   console.log(
+  //     `[Socket] timeUpFallback armed  fallbackMs=${TIME_UP_WAIT_FALLBACK_MS}`,
+  //   );
+  // }
 
   function handleReveal(payload: RevealPayload): void {
     console.log(
