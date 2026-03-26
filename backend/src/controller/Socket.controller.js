@@ -29,7 +29,7 @@ import { PlayerStats } from "../model/userStats.model.js";
  * check makes every orphaned callback a silent no-op.
  */
 const activeTimers = new Map();
-const GRACE_PERIOD_MS = 500;
+const GRACE_PERIOD_MS = 2500;
 /**
  * sessionCode → boolean
  *
