@@ -79,7 +79,7 @@ export interface TimedSoloSocketConfig {
 
   // Callbacks — module calls these, never touches DOM
   onPhaseChange: (phase: GamePhase) => void;
-  onTick: (remainingMs: number, pct: number) => void; // called every rAF frame
+  onTick: (remainingMs: number, pct: number, waiting?: boolean) => void;
   onReveal: (payload: RevealPayload) => void;
   onGameEnd: () => void;
   onReconnecting: () => void;
