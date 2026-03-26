@@ -14,6 +14,7 @@ import {
 export interface TimedSoloGameState {
   phase: GamePhase;
   question: QuestionPayload | null;
+  displayQuestion: QuestionPayload | null;
   remainingMs: number;
   timerPct: number;
   reveal: RevealPayload | null;
@@ -47,6 +48,7 @@ export function useTimedSoloGame({
   const [state, setState] = useState<TimedSoloGameState>({
     phase: "IDLE",
     question: initialQuestion ?? null, // seed from API on refresh
+    displayQuestion: initialQuestion ?? null,
     remainingMs: 0,
     timerPct: 1,
     reveal: null,
@@ -107,8 +109,10 @@ export function useTimedSoloGame({
           reveal: payload,
           remainingMs: 0,
           timerPct: 0,
+          question: payload.nextQuestion ?? prev.question, // preload next
+          displayQuestion: prev.question, // keep showing current
+          // NO signalReady here
         }));
-        gameSocketRef.current?.signalReady();
       },
 
       onGameEnd: () => {
@@ -129,11 +133,16 @@ export function useTimedSoloGame({
 
     // When timer-start arrives: update question + clear reveal
     // This is the ONLY place question changes — not inside onReveal
+    // 5. Update syncQuestion — guard against wiping reveal mid-overlay:
     const syncQuestion = (payload: { currentQuestion: QuestionPayload }) => {
       setState((prev) => ({
         ...prev,
         question: payload.currentQuestion,
-        reveal: null,
+        displayQuestion:
+          prev.phase === "REVEALING"
+            ? prev.displayQuestion // don't update display during reveal
+            : payload.currentQuestion,
+        reveal: prev.phase === "REVEALING" ? prev.reveal : null,
       }));
     };
     socket.on("timer-start", syncQuestion);
@@ -156,10 +165,13 @@ export function useTimedSoloGame({
   const clearReveal = useCallback(() => {
     setState((prev) => {
       if (prev.phase !== "REVEALING") return prev;
-      return { ...prev, reveal: null };
-      // question stays the same until timer-start arrives
+      return {
+        ...prev,
+        reveal: null,
+        displayQuestion: prev.question, // ← swap to preloaded question
+      };
     });
-    // gameSocketRef.current?.signalReady();
+    gameSocketRef.current?.signalReady(); // ← only fires here now
   }, []);
 
   return { state, submitAnswer, clearReveal };
