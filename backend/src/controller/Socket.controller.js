@@ -29,7 +29,7 @@ import { PlayerStats } from "../model/userStats.model.js";
  * check makes every orphaned callback a silent no-op.
  */
 const activeTimers = new Map();
-const GRACE_PERIOD_MS = 1500;
+const GRACE_PERIOD_MS = 500;
 /**
  * sessionCode → boolean
  *
@@ -340,7 +340,7 @@ async function armTimer(
   prefetchedSession = null,
   prefetchedQuestion = null,
 ) {
-  const expiresAt = new Date(startedAt.getTime() + duration * 1000+latencyMs);
+  const expiresAt = new Date(startedAt.getTime() + duration * 1000);
 
   await GameSession.findOneAndUpdate(
     { sessionCode },
@@ -412,6 +412,7 @@ export const handleConnection = (socket) => {
   socket.on("pong", ({ t1 }) => {
     const rtt = Date.now() - t1;
     playerLatency.set(socket.id, Math.round(rtt / 2));
+    socket.emit("pong-ack", { t1, serverNow: Date.now() }); // ← add this
   });
 
   // ── Room management ────────────────────────────────────────────────────────
@@ -508,12 +509,9 @@ export const handleConnection = (socket) => {
             session.progress.currentQuestionId,
           ).populate("categoryId", "_id name thumbnail");
 
-          const latency = playerLatency.get(socket.id) ?? 300;
-
           const adjustedExpiresAt =
             new Date(timerState.startedAt).getTime() +
-            timerState.duration * 1000 +
-            (latency/2);
+            timerState.duration * 1000;
 
           socket.emit("timer-start", {
             startedAt: new Date(timerState.startedAt).toISOString(),
@@ -538,7 +536,7 @@ export const handleConnection = (socket) => {
       const duration = timerState.duration;
       const latency = playerLatency.get(socket.id) ?? 300;
 
-      await armTimer(sessionCode, now, duration, latency/2, session);
+      await armTimer(sessionCode, now, duration, latency, session);
     } catch (err) {
       console.error(`[player-ready] error  session=${sessionCode}:`, err);
     } finally {
