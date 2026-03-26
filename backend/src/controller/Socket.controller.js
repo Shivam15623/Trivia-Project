@@ -340,7 +340,7 @@ async function armTimer(
   prefetchedSession = null,
   prefetchedQuestion = null,
 ) {
-  const expiresAt = new Date(startedAt.getTime() + duration * 1000);
+  const expiresAt = new Date(startedAt.getTime() + duration * 1000+latencyMs);
 
   await GameSession.findOneAndUpdate(
     { sessionCode },
@@ -508,11 +508,18 @@ export const handleConnection = (socket) => {
             session.progress.currentQuestionId,
           ).populate("categoryId", "_id name thumbnail");
 
+          const latency = playerLatency.get(socket.id) ?? 300;
+
+          const adjustedExpiresAt =
+            new Date(timerState.startedAt).getTime() +
+            timerState.duration * 1000 +
+            latency;
+
           socket.emit("timer-start", {
             startedAt: new Date(timerState.startedAt).toISOString(),
-            expiresAt: new Date(timerState.expiresAt).toISOString(), // ← NaNs fix
+            expiresAt: new Date(adjustedExpiresAt).toISOString(),
             timer: timerState.duration,
-            currentQuestion: formatQuestion(currentQuestion), // ← blank screen fix
+            currentQuestion: formatQuestion(currentQuestion),
           });
           // Unicast to THIS socket only — other sockets are already counting down
 
