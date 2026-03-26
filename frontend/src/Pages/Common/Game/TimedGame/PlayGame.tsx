@@ -1,5 +1,5 @@
 // pages/TimedSoloGame.tsx
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -44,7 +44,8 @@ export default function TimedSoloGame() {
 
   const {
     phase,
-    question, // QuestionPayload | null — hook delivers this
+    // QuestionPayload | null — hook delivers this
+    displayQuestion,
     remainingMs, // for time display
     timerPct, // 0→1 — for bar width
     reveal, // RevealPayload | null — populated during REVEALING
@@ -65,14 +66,16 @@ export default function TimedSoloGame() {
     }
   }, [phase]);
 
-  function triggerRevealExit() {
+  const triggerRevealExit = useCallback(() => {
     if (revealExiting) return;
+
     setRevealExiting(true);
+
     setTimeout(() => {
       setRevealExiting(false);
       clearReveal();
     }, 350);
-  }
+  }, [revealExiting, setRevealExiting, clearReveal]);
 
   // ── Skip button unlocks after 1.2s of REVEALING ───────────────────────────
   useEffect(() => {
@@ -82,7 +85,7 @@ export default function TimedSoloGame() {
     return () => {
       if (skipTimerRef.current) clearTimeout(skipTimerRef.current);
     };
-  }, [phase]);
+  }, [phase, triggerRevealExit]);
 
   // ── Derived: are options locked ───────────────────────────────────────────
   const optionsLocked = phase !== "ACTIVE";
@@ -108,12 +111,12 @@ export default function TimedSoloGame() {
 
   // ── Submit handler ────────────────────────────────────────────────────────
   function handleSubmit() {
-    if (selectedIndex === null || !question || optionsLocked) return;
-    submitAnswer(selectedIndex, question.questionId);
+    if (selectedIndex === null || !displayQuestion || optionsLocked) return;
+    submitAnswer(selectedIndex, displayQuestion.questionId);
   }
   // ── Derived: show loader when we have no question yet ─────────────────────
   const isWaitingForQuestion =
-    (isLoading || sinfoLoading || phase === "IDLE") && !question;
+    (isLoading || sinfoLoading || phase === "IDLE") && !displayQuestion;
 
   if (isWaitingForQuestion) {
     return (
@@ -242,14 +245,13 @@ export default function TimedSoloGame() {
 
             {/* ── Timer label ───────────────────────────────────────────── */}
             <div className="flex items-center justify-between font-inter text-sm text-white/60">
-              <span>{question?.category.name}</span>
+              <span>{displayQuestion?.category.name}</span>
               <span>{Math.ceil(remainingMs / 1000)}s</span>
             </div>
 
             {/* ── Question card ─────────────────────────────────────────── */}
             <div
               className={cn("gradient-border w-full")}
-              
               style={
                 {
                   "--border-gradient":
@@ -344,9 +346,9 @@ export default function TimedSoloGame() {
                 )}
 
                 {/* ── Question image ──────────────────────────────────── */}
-                {question?.questionImage ? (
+                {displayQuestion?.questionImage ? (
                   <img
-                    src={question.questionImage}
+                    src={displayQuestion.questionImage}
                     alt="question"
                     className="mx-auto aspect-video w-full max-w-none object-contain sm:max-w-2xl md:max-w-3xl lg:max-w-4xl"
                   />
@@ -357,21 +359,21 @@ export default function TimedSoloGame() {
 
                 {/* ── Question text ───────────────────────────────────── */}
                 <h3 className="text-center font-outfit text-sm font-medium leading-[150%] text-white sm:leading-[100%] lg:text-[32px]">
-                  {question?.questionText}
+                  {displayQuestion?.questionText}
                 </h3>
               </div>
             </div>
 
             {/* ── Options ───────────────────────────────────────────────── */}
             <div
-             key={question?.questionId}
+              key={displayQuestion?.questionId}
               className={cn(
                 "grid grid-cols-1 gap-[18px] sm:grid-cols-2",
                 optionsLocked && "pointer-events-none",
               )}
               style={{ animation: "fadeSlideIn 0.45s ease-out" }}
             >
-              {question?.options.map((option, index) => {
+              {displayQuestion?.options.map((option, index) => {
                 const isSelected = selectedIndex === index;
 
                 // Color the correct option green during reveal
