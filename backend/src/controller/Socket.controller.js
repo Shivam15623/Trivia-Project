@@ -513,7 +513,7 @@ export const handleConnection = (socket) => {
           const adjustedExpiresAt =
             new Date(timerState.startedAt).getTime() +
             timerState.duration * 1000 +
-            latency;
+            (latency/2);
 
           socket.emit("timer-start", {
             startedAt: new Date(timerState.startedAt).toISOString(),
@@ -538,7 +538,7 @@ export const handleConnection = (socket) => {
       const duration = timerState.duration;
       const latency = playerLatency.get(socket.id) ?? 300;
 
-      await armTimer(sessionCode, now, duration, latency, session);
+      await armTimer(sessionCode, now, duration, latency/2, session);
     } catch (err) {
       console.error(`[player-ready] error  session=${sessionCode}:`, err);
     } finally {
