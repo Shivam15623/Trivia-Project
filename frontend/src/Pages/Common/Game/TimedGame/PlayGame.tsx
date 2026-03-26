@@ -1,4 +1,3 @@
-// pages/TimedSoloGame.tsx
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -17,14 +16,11 @@ export default function TimedSoloGame() {
   const { sessionCode: codeFromParam } = useParams<{ sessionCode: string }>();
   const location = useLocation();
   const { user } = useSelector(selectAuth);
-  // Prefer state passed from StartGame — fallback to param if navigated directly
   const sessionCode = (location.state?.sessionCode ?? codeFromParam) as string;
+
   const { data: QuestionFromApi, isLoading } = useFetchCurrentQuestionQuery(
     sessionCode,
-    {
-      skip: !sessionCode,
-      refetchOnMountOrArgChange: true,
-    },
+    { skip: !sessionCode, refetchOnMountOrArgChange: true },
   );
   const { data: sessionFromApi, isLoading: sinfoLoading } =
     useFetchGameSessionInfoQuery(sessionCode, {
@@ -34,67 +30,121 @@ export default function TimedSoloGame() {
 
   const navigate = useNavigate();
   const socket = useSocket();
-  // ── Hook ──────────────────────────────────────────────────────────────────
+
   const { state, submitAnswer, clearReveal } = useTimedSoloGame({
     socket,
     sessionCode,
     initialQuestion: QuestionFromApi?.data ?? null,
-    onGameEnd: () => navigate(`/game/SoloGameEnd/${sessionCode}`),
+    onGameEnd: () => {
+      console.log(`[UI] onGameEnd fired — navigating to SoloGameEnd`);
+      navigate(`/game/SoloGameEnd/${sessionCode}`);
+    },
   });
 
   const {
     phase,
-    // QuestionPayload | null — hook delivers this
     displayQuestion,
-    remainingMs, // for time display
-    timerPct, // 0→1 — for bar width
-    reveal, // RevealPayload | null — populated during REVEALING
+    remainingMs,
+    timerPct,
+    reveal,
     isReconnecting,
     error,
   } = state;
 
-  // ── Local UI state — only what the hook doesn't own ───────────────────────
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [showSkip, setShowSkip] = useState(false);
   const skipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [revealExiting, setRevealExiting] = useState(false);
-  // ── Clear selection when a new question arrives ───────────────────────────
+
+  // ── Log every phase change ─────────────────────────────────────────────────
+  const prevPhaseRef = useRef<typeof phase | null>(null);
+  useEffect(() => {
+    if (prevPhaseRef.current !== phase) {
+      console.log(
+        `[UI] phase changed  ${prevPhaseRef.current ?? "—"} → ${phase}`,
+      );
+      prevPhaseRef.current = phase;
+    }
+  }, [phase]);
+
+  // ── Log every displayQuestion change ──────────────────────────────────────
+  const prevDisplayQRef = useRef<string | null>(null);
+  useEffect(() => {
+    const newId = displayQuestion?.questionId ?? null;
+    if (prevDisplayQRef.current !== newId) {
+      console.log(
+        `[UI] displayQuestion changed  ${prevDisplayQRef.current ?? "—"} → ${newId ?? "null"}`,
+      );
+      prevDisplayQRef.current = newId;
+    }
+  }, [displayQuestion]);
+
+  // ── Log reveal changes ────────────────────────────────────────────────────
+  useEffect(() => {
+    if (reveal) {
+      console.log(
+        `[UI] reveal appeared  source=${reveal.source}  isCorrect=${reveal.isCorrect}  correctAnswer="${reveal.correctAnswer}"`,
+      );
+    } else {
+      console.log(`[UI] reveal cleared`);
+    }
+  }, [reveal]);
+
+  // ── Clear selection when new question arrives ─────────────────────────────
   useEffect(() => {
     if (phase === "ACTIVE") {
+      console.log(`[UI] phase=ACTIVE — clearing selectedIndex and showSkip`);
       setSelectedIndex(null);
       setShowSkip(false);
     }
   }, [phase]);
 
   const triggerRevealExit = useCallback(() => {
-    if (revealExiting) return;
-
+    if (revealExiting) {
+      console.log(
+        `[UI] triggerRevealExit called but already exiting — skipped`,
+      );
+      return;
+    }
+    console.log(
+      `[UI] triggerRevealExit — starting overlay exit animation (350ms)`,
+    );
     setRevealExiting(true);
-
     setTimeout(() => {
+      console.log(`[UI] triggerRevealExit — 350ms done, calling clearReveal`);
       setRevealExiting(false);
       clearReveal();
     }, 350);
   }, [revealExiting, setRevealExiting, clearReveal]);
 
-  // ── Skip button unlocks after 1.2s of REVEALING ───────────────────────────
+  // ── Skip timer ────────────────────────────────────────────────────────────
   useEffect(() => {
     if (phase === "REVEALING") {
-      skipTimerRef.current = setTimeout(triggerRevealExit, 2500);
+      console.log(
+        `[UI] REVEALING started — arming auto-dismiss at 2500ms, skip unlock at 1200ms`,
+      );
+      // Show skip button at 1200ms
+      const skipUnlock = setTimeout(() => {
+        console.log(`[UI] skip button unlocked`);
+        setShowSkip(true);
+      }, 1200);
+      // Auto dismiss at 2500ms
+      skipTimerRef.current = setTimeout(() => {
+        console.log(`[UI] auto-dismiss timeout fired (2500ms)`);
+        triggerRevealExit();
+      }, 2500);
+      return () => {
+        clearTimeout(skipUnlock);
+        if (skipTimerRef.current) clearTimeout(skipTimerRef.current);
+      };
     }
-    return () => {
-      if (skipTimerRef.current) clearTimeout(skipTimerRef.current);
-    };
   }, [phase, triggerRevealExit]);
 
-  // ── Derived: are options locked ───────────────────────────────────────────
   const optionsLocked = phase !== "ACTIVE";
 
-  // ── Timer bar color ───────────────────────────────────────────────────────
   const timerBarColor =
     timerPct > 0.4 ? "#2884C7" : timerPct > 0.2 ? "#FA9923" : "#FF4444";
 
-  // ── Status text ───────────────────────────────────────────────────────────
   const statusText: Record<typeof phase, string> = {
     IDLE: "Loading…",
     ACTIVE: "Choose your answer",
@@ -109,16 +159,26 @@ export default function TimedSoloGame() {
     ENDED: "Game over",
   };
 
-  // ── Submit handler ────────────────────────────────────────────────────────
   function handleSubmit() {
-    if (selectedIndex === null || !displayQuestion || optionsLocked) return;
+    if (selectedIndex === null || !displayQuestion || optionsLocked) {
+      console.log(
+        `[UI] handleSubmit blocked  selectedIndex=${selectedIndex}  hasQuestion=${!!displayQuestion}  optionsLocked=${optionsLocked}`,
+      );
+      return;
+    }
+    console.log(
+      `[UI] handleSubmit  selectedIndex=${selectedIndex}  questionId=${displayQuestion.questionId}  answer="${displayQuestion.options[selectedIndex]}"`,
+    );
     submitAnswer(selectedIndex, displayQuestion.questionId);
   }
-  // ── Derived: show loader when we have no question yet ─────────────────────
+
   const isWaitingForQuestion =
     (isLoading || sinfoLoading || phase === "IDLE") && !displayQuestion;
 
   if (isWaitingForQuestion) {
+    console.log(
+      `[UI] waiting for question  isLoading=${isLoading}  sinfoLoading=${sinfoLoading}  phase=${phase}`,
+    );
     return (
       <div className="relative flex flex-1 items-center justify-center">
         <div className="flex flex-col items-center gap-4">
@@ -131,12 +191,14 @@ export default function TimedSoloGame() {
       </div>
     );
   }
+
   const isUnauthorized =
     !sinfoLoading &&
     sessionFromApi?.data &&
     sessionFromApi.data.soloPlayer?.userId !== user?._id;
 
   if (isUnauthorized) {
+    console.warn(`[UI] unauthorized — userId mismatch`);
     return (
       <div className="relative flex flex-1 items-center justify-center">
         <div className="flex flex-col items-center gap-5 px-6 text-center">
@@ -175,7 +237,9 @@ export default function TimedSoloGame() {
       </div>
     );
   }
+
   if (error?.includes("not the player")) {
+    console.warn(`[UI] error includes "not the player" — showing error screen`);
     return (
       <div className="relative flex flex-1 items-center justify-center">
         <div className="flex flex-col items-center gap-5 px-6 text-center">
@@ -211,19 +275,18 @@ export default function TimedSoloGame() {
       </div>
     );
   }
+
   return (
     <>
       <div className="relative flex flex-1 flex-col overflow-hidden px-4 sm:items-center sm:justify-center">
         <div className="relative z-10 mx-auto h-fit w-full max-w-[1096px] px-4 sm:px-6 md:px-8 lg:px-10 xl:px-0">
           <div className="flex flex-col gap-6 py-6">
-            {/* ── Reconnect banner ─────────────────────────────────────── */}
             {isReconnecting && (
               <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-2 text-center text-sm text-amber-300">
                 Reconnecting — your progress is saved
               </div>
             )}
 
-            {/* ── Error banner ──────────────────────────────────────────── */}
             {error && (
               <div className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-2 text-center text-sm text-red-300">
                 {error}
@@ -237,7 +300,6 @@ export default function TimedSoloGame() {
                 style={{
                   width: `${timerPct * 100}%`,
                   backgroundColor: timerBarColor,
-                  // No transition on width — rAF updates it every frame
                   transition: "background-color 0.5s",
                 }}
               />
@@ -276,7 +338,6 @@ export default function TimedSoloGame() {
                         : "none",
                     }}
                   >
-                    {/* Icon */}
                     <div
                       className={cn(
                         "flex h-16 w-16 items-center justify-center rounded-full text-4xl",
@@ -286,7 +347,6 @@ export default function TimedSoloGame() {
                       {reveal.isCorrect ? "✓" : "✗"}
                     </div>
 
-                    {/* Result text */}
                     <p
                       className={cn(
                         "font-inter text-2xl font-bold",
@@ -300,7 +360,6 @@ export default function TimedSoloGame() {
                           : "Wrong!"}
                     </p>
 
-                    {/* Answer image if present */}
                     {reveal?.answerImage && (
                       <img
                         src={reveal.answerImage}
@@ -309,7 +368,6 @@ export default function TimedSoloGame() {
                       />
                     )}
 
-                    {/* Correct answer */}
                     <p className="font-outfit text-lg text-white">
                       Correct answer:{" "}
                       <span className="font-semibold text-green-400">
@@ -317,26 +375,32 @@ export default function TimedSoloGame() {
                       </span>
                     </p>
 
-                    {/* Points */}
                     {reveal.isCorrect && reveal.pointsAwarded > 0 && (
                       <p className="font-outfit text-base text-white/70">
                         +{reveal.pointsAwarded} pts
                       </p>
                     )}
 
-                    {/* Progress bar — calls clearReveal on finish */}
+                    {/* Progress bar */}
                     <div className="mt-2 h-1 w-32 overflow-hidden rounded-full bg-white/20">
                       <div
                         className="h-full w-full rounded-full bg-white"
                         style={{ animation: "shrink 2.5s linear forwards" }}
-                        onAnimationEnd={triggerRevealExit} // ← this was missing
+                        onAnimationEnd={() => {
+                          console.log(
+                            `[UI] shrink bar onAnimationEnd fired — calling triggerRevealExit`,
+                          );
+                          triggerRevealExit();
+                        }}
                       />
                     </div>
 
-                    {/* Skip button — unlocks at 1.2s */}
                     {showSkip && (
                       <button
-                        onClick={triggerRevealExit}
+                        onClick={() => {
+                          console.log(`[UI] skip button clicked`);
+                          triggerRevealExit();
+                        }}
                         className="mt-1 font-outfit text-sm text-white/50 underline transition-opacity hover:text-white/80"
                       >
                         Next →
@@ -353,11 +417,9 @@ export default function TimedSoloGame() {
                     className="mx-auto aspect-video w-full max-w-none object-contain sm:max-w-2xl md:max-w-3xl lg:max-w-4xl"
                   />
                 ) : (
-                  // Placeholder when no image — avoids layout shift
                   <div className="mx-auto aspect-video w-full max-w-none rounded-xl bg-white/5 sm:max-w-2xl" />
                 )}
 
-                {/* ── Question text ───────────────────────────────────── */}
                 <h3 className="text-center font-outfit text-sm font-medium leading-[150%] text-white sm:leading-[100%] lg:text-[32px]">
                   {displayQuestion?.questionText}
                 </h3>
@@ -375,12 +437,8 @@ export default function TimedSoloGame() {
             >
               {displayQuestion?.options.map((option, index) => {
                 const isSelected = selectedIndex === index;
-
-                // Color the correct option green during reveal
                 const isCorrectAnswer =
                   phase === "REVEALING" && option === reveal?.correctAnswer;
-
-                // Color the selected-but-wrong option red during reveal
                 const isWrongSelected =
                   phase === "REVEALING" &&
                   isSelected &&
@@ -399,11 +457,13 @@ export default function TimedSoloGame() {
                   <div
                     onClick={() => {
                       if (optionsLocked) return;
+                      console.log(
+                        `[UI] option selected  index=${index}  value="${option}"  questionId=${displayQuestion?.questionId}`,
+                      );
                       setSelectedIndex(index);
                     }}
                     className={cn(
                       "relative flex h-[58px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-[10px] p-5 font-outfit text-[18px] text-white transition-all duration-200 ease-out hover:scale-[1.03] hover:brightness-110 active:scale-[0.97]",
-                      // Reveal coloring overrides base gradient
                       isCorrectAnswer && "ring-2 ring-green-400 brightness-110",
                       isWrongSelected && "ring-2 ring-red-400 brightness-75",
                       optionsLocked &&
@@ -447,11 +507,9 @@ export default function TimedSoloGame() {
 
             {/* ── Status + Submit ───────────────────────────────────────── */}
             <div className="flex flex-row items-center justify-center gap-3.5 py-2">
-              {/* Phase status */}
               <p className="font-outfit text-sm text-white/50">
                 {statusText[phase]}
               </p>
-
               <GradientButton
                 onClick={handleSubmit}
                 icon={false}
@@ -469,7 +527,7 @@ export default function TimedSoloGame() {
         </div>
       </div>
 
-      {/* ── Background SVG (unchanged) ──────────────────────────────────── */}
+      {/* ── Background SVG ──────────────────────────────────────────────── */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-x-hidden">
         <svg
           xmlns="http://www.w3.org/2000/svg"
