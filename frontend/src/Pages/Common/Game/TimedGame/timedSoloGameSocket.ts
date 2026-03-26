@@ -76,11 +76,11 @@ export function createTimedSoloSocket(
       const remainingMs = Math.max(0, (expiresAt ?? 0) - Date.now());
       const pct = durationMs > 0 ? remainingMs / durationMs : 0;
       onTick(remainingMs, pct);
-      if (remainingMs <= 0) {
-        console.log(`[Socket] rAF hit zero — calling onClientTimerEnd`);
-        onClientTimerEnd();
-        return;
-      }
+      // if (remainingMs <= 0) {
+      //   console.log(`[Socket] rAF hit zero — calling onClientTimerEnd`);
+      //   onClientTimerEnd();
+      //   return;
+      // }
       rafHandle = requestAnimationFrame(tick);
     }
 
