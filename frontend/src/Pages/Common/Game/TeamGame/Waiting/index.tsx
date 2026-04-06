@@ -39,6 +39,7 @@ const CategoryCard = ({ cat }: { cat: Category }) => (
           <img
             src={cat.thumbnail}
             alt={cat.name}
+            loading="lazy"
             className="h-full w-full object-contain"
           />
         </div>

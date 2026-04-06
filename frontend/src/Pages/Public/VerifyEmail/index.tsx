@@ -4,7 +4,7 @@ import { useVerifyEmailMutation } from "@/services";
 import { handleApiError } from "@/utills/handleApiError";
 import { GradientButton } from "@/components/GradientButton";
 import confetti from "canvas-confetti";
-import { Loader2 } from "lucide-react";
+
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
@@ -18,7 +18,7 @@ const LazyVerifyEmail: React.FC = () => {
 
   useEffect(() => {
     if (token) verifyUserEmail();
-  }, [token,]);
+  }, [token]);
 
   const verifyUserEmail = async (): Promise<void> => {
     try {
@@ -43,18 +43,33 @@ const LazyVerifyEmail: React.FC = () => {
           <div className="w-full p-6 text-center sm:w-[450px]">
             {isLoading ? (
               <>
-                <div className="mb-4 flex justify-center">
-                  <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
+                {/* Themed dual-ring spinner */}
+                <div className="mb-6 flex justify-center">
+                  <div className="theme-loader-ring">
+                    <div className="theme-loader-dot" />
+                  </div>
                 </div>
+
                 <h2 className="mb-2 text-2xl font-bold text-white">
                   Verifying Your Email
                 </h2>
                 <p className="mb-6 text-sm text-white/50">
                   Please wait while we verify your email address...
                 </p>
-                {/* Progress bar */}
+
+                {/* Themed shimmer progress bar */}
                 <div className="h-1 w-full overflow-hidden rounded-full bg-white/10">
-                  <div className="h-full w-3/4 animate-pulse rounded-full bg-gradient-to-r from-amber-400 to-orange-400" />
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: "75%",
+                      background:
+                        "linear-gradient(90deg, #FE8520, #FED554, #72FDFD)",
+                      backgroundSize: "200% auto",
+                      animation:
+                        "theme-shimmer 1.8s linear infinite, theme-pulse 1.8s ease-in-out infinite",
+                    }}
+                  />
                 </div>
               </>
             ) : isVerified === true ? (

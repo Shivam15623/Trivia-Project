@@ -37,6 +37,7 @@ const Categorylisting = ({ category }: Props) => {
         <div className="flex justify-center sm:block">
           <img
             src={category.thumbnail}
+            loading="lazy"
             className="h-[100px] w-[100px] flex-shrink-0 object-contain sm:h-[120px] sm:w-[120px] lg:h-[150px] lg:w-[150px]"
             alt={category.name}
           />

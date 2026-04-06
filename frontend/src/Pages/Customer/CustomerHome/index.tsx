@@ -9,6 +9,7 @@ import { useState } from "react";
 import { CategoryCardSkeleton } from "@/components/CategoryCardSkeleton";
 import { useSelector } from "react-redux";
 import { selectAuth } from "@/redux/AuthSlice/authSlice";
+import ScrollReveal from "@/components/ScrollReveal";
 
 const Home = () => {
   const { data: categories, isLoading: categoriesLoading } =
@@ -55,7 +56,10 @@ const Home = () => {
           </div>
 
           <div className="relative z-10 flex flex-col gap-[80px] px-[20px] sm:px-[40px] md:px-[60px] lg:px-[80px] xl:px-[120px]">
-            <div className="flex flex-col items-center justify-center gap-[8px]">
+            <ScrollReveal
+              animation="fadeUp"
+              className="flex flex-col items-center justify-center gap-[8px]"
+            >
               <h1 className="font-inter text-[44px] font-semibold leading-[100%] text-white sm:text-[64px] sm:leading-[70px]">
                 What is{" "}
                 <span className="/* 👈 THIS IS THE FIX */ relative bg-a-blue bg-clip-text text-transparent after:absolute after:-right-[40px] after:-top-[20px] after:block after:h-[50px] after:w-[50px] after:bg-[url('/smiley.png')] after:bg-contain after:bg-no-repeat after:content-[''] sm:after:-right-[112px] sm:after:-top-[2px] sm:after:h-[100px] sm:after:w-[100px]">
@@ -66,52 +70,61 @@ const Home = () => {
               <h4 className="text-center font-outfit text-[16px] font-normal text-white sm:text-[24px]">
                 A multiplayer trivia game built for thinkers and competitors.
               </h4>
-            </div>
-            <div className="relative mx-auto flex h-fit  max-w-[1280px] flex-col items-center gap-[14px] overflow-hidden rounded-[20px] lg:h-[532px] lg:flex-row">
-              <div className="relative z-10 flex flex-col gap-[18px] pl-0 sm:gap-6 sm:pl-[20px] md:pl-[35px] lg:w-[53%] lg:pl-[50px]">
-                <h3
-                  className="font-inter text-[34px] font-semibold leading-[100%] text-white sm:text-[38px] md:text-[42px] xl:text-[48px]"
-                  style={{ letterSpacing: "-1%", textTransform: "capitalize" }}
-                >
-                  Test your knowledge across hundreds of categories
-                </h3>
-                <h5 className="font-outfit text-sm font-normal leading-[100%] text-white sm:text-lg">
-                  Trivvy combines speed, strategy, and intelligence. Play solo,
-                  challenge friends, or compete globally with real rankings that
-                  matter.
-                </h5>
-                <GradientLink to={getProtectedRoute(`CreateGame`)}>
-                  Play Now
-                </GradientLink>
-              </div>
+            </ScrollReveal>
+            <ScrollReveal animation="scaleUp" delay={0.2}>
+              {" "}
+              <div className="relative mx-auto flex h-fit max-w-[1280px] flex-col items-center gap-[14px] overflow-hidden rounded-[20px] lg:h-[532px] lg:flex-row">
+                <div className="relative z-10 flex flex-col gap-[18px] pl-0 sm:gap-6 sm:pl-[20px] md:pl-[35px] lg:w-[53%] lg:pl-[50px]">
+                  <h3
+                    className="font-inter text-[34px] font-semibold leading-[100%] text-white sm:text-[38px] md:text-[42px] xl:text-[48px]"
+                    style={{
+                      letterSpacing: "-1%",
+                      textTransform: "capitalize",
+                    }}
+                  >
+                    Test your knowledge across hundreds of categories
+                  </h3>
+                  <h5 className="font-outfit text-sm font-normal leading-[100%] text-white sm:text-lg">
+                    Trivvy combines speed, strategy, and intelligence. Play
+                    solo, challenge friends, or compete globally with real
+                    rankings that matter.
+                  </h5>
+                  <GradientLink to={getProtectedRoute(`CreateGame`)}>
+                    Play Now
+                  </GradientLink>
+                </div>
 
-              <img
-                src="/home/allCategories.svg"
-                className="relative z-10 w-full object-contain lg:absolute lg:bottom-0 lg:right-0 lg:h-auto lg:w-[45%]"
-              />
-              <img
-                src="/home/trivvyBg.svg"
-                className="absolute inset-0 z-0 blur-sm h-full w-full object-cover"
-              />
-            </div>
+                <img
+                  src="/home/allCategories.svg"
+                  className="relative z-10 w-full object-contain lg:absolute lg:bottom-0 lg:right-0 lg:h-auto lg:w-[45%]"
+                />
+                <img
+                  src="/home/trivvyBg.svg"
+                  className="absolute inset-0 z-0 h-full w-full object-cover blur-sm"
+                />
+              </div>
+            </ScrollReveal>
           </div>
           <div className="relative z-10 mb-10 flex flex-col items-center justify-center gap-[80px] px-[20px] sm:px-[40px] md:px-[60px] lg:px-[80px] xl:px-[120px]">
-            <div className="flex flex-col gap-4">
+            <ScrollReveal animation="fadeUp">
               {" "}
-              <h1
-                className="text-center font-inter text-[44px] font-semibold leading-[100%] text-white sm:text-[64px]"
-                style={{ letterSpacing: "-1%", textTransform: "capitalize" }}
-              >
-                <span className="relative bg-a-sun bg-clip-text text-transparent before:absolute before:-left-[28px] before:-top-[20px] before:h-[50px] before:w-[50px] before:bg-[url('/sparkle.png')] before:bg-contain before:bg-no-repeat before:content-[''] sm:before:-left-[64px] sm:before:-top-[47px] sm:before:h-[100px] sm:before:w-[100px]">
-                  Ready
-                </span>{" "}
-                for <br className="inline-block sm:hidden" />
-                Exciting game?
-              </h1>
-              <h5 className="text-center font-outfit text-[18px] font-normal text-white">
-                Select a mode that fits your mood.
-              </h5>
-            </div>
+              <div className="flex flex-col gap-4">
+                {" "}
+                <h1
+                  className="text-center font-inter text-[44px] font-semibold leading-[100%] text-white sm:text-[64px]"
+                  style={{ letterSpacing: "-1%", textTransform: "capitalize" }}
+                >
+                  <span className="relative bg-a-sun bg-clip-text text-transparent before:absolute before:-left-[28px] before:-top-[20px] before:h-[50px] before:w-[50px] before:bg-[url('/sparkle.png')] before:bg-contain before:bg-no-repeat before:content-[''] sm:before:-left-[64px] sm:before:-top-[47px] sm:before:h-[100px] sm:before:w-[100px]">
+                    Ready
+                  </span>{" "}
+                  for <br className="inline-block sm:hidden" />
+                  Exciting game?
+                </h1>
+                <h5 className="text-center font-outfit text-[18px] font-normal text-white">
+                  Select a mode that fits your mood.
+                </h5>
+              </div>
+            </ScrollReveal>
 
             <div className="flex min-h-[424px] w-full max-w-[1280px] flex-col items-center justify-center gap-3 sm:gap-5 md:flex-row md:gap-0">
               {/* Team Card */}
@@ -149,22 +162,25 @@ const Home = () => {
             </div>
           </div>
           <div className="relative z-10 flex flex-col items-center justify-center gap-[40px] px-[20px] sm:px-[40px] md:px-[60px] lg:px-[80px] xl:px-[120px]">
-            <div className="flex flex-col gap-4">
-              {" "}
-              <h1
-                className="text-center font-inter text-[44px] font-semibold leading-[100%] text-white sm:text-[64px] sm:leading-[70px]"
-                style={{ letterSpacing: "-1%", textTransform: "capitalize" }}
-              >
-                Pick your categories and
-                <br />
-                <span className="relative bg-h-blue bg-clip-text text-transparent before:absolute before:bottom-[8px] before:left-[97%] before:h-[50px] before:w-[50px] before:bg-[url('/2spark.png')] before:bg-contain before:bg-no-repeat before:content-[''] sm:before:-bottom-[28px] sm:before:left-[98%] sm:before:h-[100px] sm:before:w-[100px]">
-                  start playing
-                </span>
-              </h1>
-              <h5 className="text-center font-outfit text-[18px] font-normal text-white">
-                Let the game surprise you.
-              </h5>
-            </div>
+            <ScrollReveal animation="fadeUp">
+              <div className="flex flex-col gap-4">
+                {" "}
+                <h1
+                  className="text-center font-inter text-[44px] font-semibold leading-[100%] text-white sm:text-[64px] sm:leading-[70px]"
+                  style={{ letterSpacing: "-1%", textTransform: "capitalize" }}
+                >
+                  Pick your categories and
+                  <br />
+                  <span className="relative bg-h-blue bg-clip-text text-transparent before:absolute before:bottom-[8px] before:left-[97%] before:h-[50px] before:w-[50px] before:bg-[url('/2spark.png')] before:bg-contain before:bg-no-repeat before:content-[''] sm:before:-bottom-[28px] sm:before:left-[98%] sm:before:h-[100px] sm:before:w-[100px]">
+                    start playing
+                  </span>
+                </h1>
+                <h5 className="text-center font-outfit text-[18px] font-normal text-white">
+                  Let the game surprise you.
+                </h5>
+              </div>
+            </ScrollReveal>
+
             <div className="flex flex-col items-center justify-center gap-[64px] sm:gap-[64px]">
               <div className="grid max-w-[1280px] grid-cols-2 gap-[21px] md:grid-cols-3 md:gap-16 lg:grid-cols-4 xl:grid-cols-5">
                 {categoriesLoading
@@ -173,36 +189,44 @@ const Home = () => {
                       <CategoryCardSkeleton key={i} />
                     ))
                   : // ── Loaded state ─────────────────────────────
-                    visibleCategories?.map((cat) => (
-                      <div
-                        key={cat._id}
-                        className="gradient-border w-full p-[2.62px]"
-                        style={
-                          {
-                            "--border-gradient":
-                              "linear-gradient(180deg, #7BFDFD 38.94%, #2884C7 61.54%)",
-                            "--radius": `${8.72}px`,
-                            "--padding": `${2.62}px`,
-                          } as React.CSSProperties
-                        }
+                    visibleCategories?.map((cat, i) => (
+                      <ScrollReveal
+                        key={cat.name}
+                        animation="scaleUp"
+                        className="h-full"
+                        delay={i * 0.06}
                       >
-                        <div className="relative z-10 flex h-full flex-col overflow-hidden p-[3px]">
-                          <div className="relative flex h-full w-full flex-col items-center justify-between gap-[4.36px] rounded-[8.72px] bg-gradient-to-b from-[#0B0B0B] to-[#000000] px-3 pb-4 pt-[1px] text-white sm:px-[18.67px] sm:pb-[30px]">
-                            {/* image container */}
-                            <div className="aspect-square w-full max-w-[188px]">
-                              <img
-                                src={cat.thumbnail}
-                                alt="Category"
-                                className="h-full w-full object-contain"
-                              />
-                            </div>
+                        {" "}
+                        <div
+                          key={cat._id}
+                          className="gradient-border h-full w-full p-[2.62px]"
+                          style={
+                            {
+                              "--border-gradient":
+                                "linear-gradient(180deg, #7BFDFD 38.94%, #2884C7 61.54%)",
+                              "--radius": `${8.72}px`,
+                              "--padding": `${2.62}px`,
+                            } as React.CSSProperties
+                          }
+                        >
+                          <div className="relative z-10 flex h-full flex-col overflow-hidden p-[3px]">
+                            <div className="relative flex h-full w-full flex-col items-center justify-between gap-[4.36px] rounded-[8.72px] bg-gradient-to-b from-[#0B0B0B] to-[#000000] px-3 pb-4 pt-[1px] text-white sm:px-[18.67px] sm:pb-[30px]">
+                              {/* image container */}
+                              <div className="aspect-square w-full max-w-[188px]">
+                                <img
+                                  src={cat.thumbnail}
+                                  alt="Category"
+                                  className="h-full w-full object-contain"
+                                />
+                              </div>
 
-                            <p className="text-center font-michroma text-[12px] tracking-wide opacity-90 sm:text-[13px]">
-                              {cat.name}
-                            </p>
+                              <p className="text-center font-michroma text-[12px] tracking-wide opacity-90 sm:text-[13px]">
+                                {cat.name}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      </ScrollReveal>
                     ))}
               </div>
 
@@ -230,23 +254,29 @@ const Home = () => {
           </div>
           <div className="flex w-full flex-col items-center justify-center px-[20px] sm:px-[40px] md:px-[60px] lg:px-[80px] xl:px-[120px]">
             <div className="relative z-10 mb-10 flex w-full max-w-[1280px] flex-col gap-[40px]">
-              <div className="flex flex-col items-start justify-start gap-6 sm:gap-4">
-                {" "}
-                <h1
-                  className="font-inter text-[44px] font-semibold leading-[120%] text-white sm:text-[64px]"
-                  style={{ letterSpacing: "-1%", textTransform: "capitalize" }}
-                >
-                  <span className="relative bg-a-sun bg-clip-text text-transparent">
-                    FAQs
-                  </span>{" "}
-                </h1>
-                <h5 className="text-center font-outfit text-[14px] font-normal leading-[150%] text-white sm:text-[18px]">
-                  Quick answers to get you playing faster
-                </h5>
-              </div>
-              <div>
+              <ScrollReveal animation="fadeUp">
+                <div className="flex flex-col items-start justify-start gap-6 sm:gap-4">
+                  {" "}
+                  <h1
+                    className="font-inter text-[44px] font-semibold leading-[120%] text-white sm:text-[64px]"
+                    style={{
+                      letterSpacing: "-1%",
+                      textTransform: "capitalize",
+                    }}
+                  >
+                    <span className="relative bg-a-sun bg-clip-text text-transparent">
+                      FAQs
+                    </span>{" "}
+                  </h1>
+                  <h5 className="text-center font-outfit text-[14px] font-normal leading-[150%] text-white sm:text-[18px]">
+                    Quick answers to get you playing faster
+                  </h5>
+                </div>
+              </ScrollReveal>
+
+              <ScrollReveal animation="fadeUp" delay={0.15}>
                 <FAQAccordion />
-              </div>
+              </ScrollReveal>
             </div>
           </div>
         </div>

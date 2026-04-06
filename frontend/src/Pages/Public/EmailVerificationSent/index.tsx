@@ -12,7 +12,7 @@ const EmailVerificationSentPage = () => {
       <div className="w-full max-w-md space-y-4">
         {/* Main card */}
         <AuthCardWrapper>
-          <div className="w-full p-6 text-center">
+          <div className="relative w-full p-6 text-center">
             {/* Icon */}
             <div className="mb-4 flex justify-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm">

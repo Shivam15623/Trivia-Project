@@ -11,12 +11,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import { Loader2, Lock, Shield, Verified } from "lucide-react";
+import {  Lock, Shield, Verified } from "lucide-react";
 
 import StepBullet from "@/components/StepBullet";
 import AuthCardWrapper from "@/components/AuthCardWrapper";
 import SuccessErrorMessage from "@/components/SuccessErrorMessage";
 import { GradientButton } from "@/components/GradientButton";
+import { ThemeLoader } from "@/components/ThemeLoader";
 
 const ForgotPassword: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -52,94 +53,102 @@ const ForgotPassword: React.FC = () => {
       <div className="w-full max-w-md space-y-4">
         {/* Main card */}
         <AuthCardWrapper>
-          <div className="relative w-full p-6">
-            {/* Loader overlay */}
+          <div className="relative w-full">
             {isLoading && (
-              <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
-                <Loader2 className="h-6 w-6 animate-spin text-amber-400" />
+              <div
+                className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-[inherit]"
+                style={{
+                  background: "#00000059",
+                }}
+              >
+                <ThemeLoader />
+                <span className="theme-shimmer-text text-xs tracking-widest">
+                  Signing in...
+                </span>
               </div>
             )}
+            <div className="relative w-full p-6">
+              <h2 className="mb-2 text-center text-2xl font-bold text-white">
+                Reset Password
+              </h2>
+              <p className="mb-6 text-center text-sm text-white/50">
+                Create a new password for your account
+              </p>
 
-            <h2 className="mb-2 text-center text-2xl font-bold text-white">
-              Reset Password
-            </h2>
-            <p className="mb-6 text-center text-sm text-white/50">
-              Create a new password for your account
-            </p>
+              {error && (
+                <SuccessErrorMessage
+                  type="error"
+                  message="Something went wrong"
+                />
+              )}
 
-            {error && (
-              <SuccessErrorMessage
-                type="error"
-                message="Something went wrong"
-              />
-            )}
-
-            <Form {...form}>
-              <form
-                className="space-y-5"
-                onSubmit={form.handleSubmit(resetPassword)}
-              >
-                {/* New Password */}
-                <div className="space-y-1.5">
-                  <RenderField
-                    control={form.control}
-                    label="New Password"
-                    name="newpassword"
-                    type="password"
-                    labelClass="text-[#ffffffb3]"
-                    className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
-                    inputProps={{ placeholder: "••••••••", required: true }}
-                  />
-
-                  <p className="pl-2 text-xs text-white/30">
-                    At least 8 characters with uppercase, lowercase, number and
-                    special character.
-                  </p>
-                </div>
-
-                {/* Confirm Password */}
-                <div className="space-y-1.5">
-                  <RenderField
-                    control={form.control}
-                    label="Confirm Password"
-                    name="confirmpassword"
-                    type="password"
-                    labelClass="text-[#ffffffb3]"
-                    className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
-                    inputProps={{ placeholder: "••••••••", required: true }}
-                  />
-                </div>
-
-                {/* <PasswordRequirementSection password={password} /> */}
-
-                <GradientButton
-                  type="submit"
-                  disabled={isLoading}
-                  icon={false}
-                  className="w-full max-w-none font-outfit"
+              <Form {...form}>
+                <form
+                  className="space-y-5"
+                  onSubmit={form.handleSubmit(resetPassword)}
                 >
-                  {isLoading ? "Resetting..." : "Reset Password"}
-                </GradientButton>
-              </form>
-            </Form>
-          </div>
+                  {/* New Password */}
+                  <div className="space-y-1.5">
+                    <RenderField
+                      control={form.control}
+                      label="New Password"
+                      name="newpassword"
+                      type="password"
+                      labelClass="text-[#ffffffb3]"
+                      className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
+                      inputProps={{ placeholder: "••••••••", required: true }}
+                    />
 
-          {/* Footer */}
-          <div className="border-t border-white/10 p-4 text-center">
-            <p className="text-sm text-white/50">
-              Remember your password?{" "}
-              <Link
-                to="/login"
-                className="font-medium text-amber-400 hover:text-amber-300"
-              >
-                Login here
-              </Link>
-            </p>
+                    <p className="pl-2 text-xs text-white/30">
+                      At least 8 characters with uppercase, lowercase, number
+                      and special character.
+                    </p>
+                  </div>
+
+                  {/* Confirm Password */}
+                  <div className="space-y-1.5">
+                    <RenderField
+                      control={form.control}
+                      label="Confirm Password"
+                      name="confirmpassword"
+                      type="password"
+                      labelClass="text-[#ffffffb3]"
+                      className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
+                      inputProps={{ placeholder: "••••••••", required: true }}
+                    />
+                  </div>
+
+                  {/* <PasswordRequirementSection password={password} /> */}
+
+                  <GradientButton
+                    type="submit"
+                    disabled={isLoading}
+                    icon={false}
+                    className="w-full max-w-none font-outfit"
+                  >
+                    {isLoading ? "Resetting..." : "Reset Password"}
+                  </GradientButton>
+                </form>
+              </Form>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-white/10 p-4 text-center">
+              <p className="text-sm text-white/50">
+                Remember your password?{" "}
+                <Link
+                  to="/login"
+                  className="font-medium text-amber-400 hover:text-amber-300"
+                >
+                  Login here
+                </Link>
+              </p>
+            </div>
           </div>
         </AuthCardWrapper>
 
         {/* Security tips — styled as a dark glass panel */}
-        <div className="rounded-2xl relative z-10 border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+        <div className="relative z-10 rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
           <h3 className="mb-4 text-base font-semibold text-white/80">
             Password Security Tips
           </h3>
