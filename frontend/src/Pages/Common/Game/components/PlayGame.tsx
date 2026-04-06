@@ -1,12 +1,18 @@
 import { cn } from "@/lib/utils";
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useGameEngine } from "../hooks/useGameEngine";
 import { GradientButton } from "@/components/GradientButton";
+import { Button } from "@/components/ui/button";
+import { useEndSoloGameMutation } from "@/services";
+import { showSuccess } from "@/components/toastUtills";
+import { handleApiError } from "@/utills/handleApiError";
 
 const PlayGame = () => {
   const { sessionCode } = useParams<{ sessionCode: string }>();
+  const [endGame, { isLoading: isEnding }] = useEndSoloGameMutation();
 
+  const navigate = useNavigate();
   const {
     sessionInfo,
     questionData,
@@ -22,7 +28,22 @@ const PlayGame = () => {
     answerResult,
     isTransitioning, // ✅ new
   } = useGameEngine(sessionCode!);
+  const handleEndGame = async () => {
+    try {
+      const response = await endGame(sessionCode!).unwrap();
 
+      if (response.success) {
+        showSuccess(response.message);
+        if (sessionInfo?.mode === "solo") {
+          navigate(`/game/SoloGameEnd/${sessionCode}`);
+        } else {
+          navigate(`/game/endgame/${sessionCode}`);
+        }
+      }
+    } catch (error) {
+      handleApiError(error);
+    }
+  };
   if (isLoading || !questionData || !sessionInfo) {
     return (
       <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-black px-[20px] sm:px-[40px] md:px-[60px] lg:px-[80px] xl:px-[120px]">
@@ -345,6 +366,35 @@ const PlayGame = () => {
                     ? "Submitted"
                     : "Submit"}
               </GradientButton>
+              <Button
+                className={cn(
+                  "gradient-border group w-full max-w-[168px]",
+                  "flex h-[40px] items-center px-5 py-0",
+                  "transition-all duration-200 active:scale-95",
+                  isEnding && "cursor-not-allowed opacity-50",
+                )}
+                onClick={handleEndGame}
+                disabled={isEnding}
+                style={
+                  {
+                    "--border-gradient":
+                      "linear-gradient(93.58deg, #67C3FF 8.55%, #010A2A 47.56%, #67C3FF 94.76%)",
+                    "--radius": `20px`,
+                    "--padding": "1px",
+                  } as React.CSSProperties
+                }
+              >
+                <div className="relative z-10 flex h-full flex-row items-center justify-center gap-2 text-lg">
+                  {isEnding ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      <span>Ending...</span>
+                    </>
+                  ) : (
+                    "End Game"
+                  )}
+                </div>
+              </Button>
             </div>
           </div>
         </div>

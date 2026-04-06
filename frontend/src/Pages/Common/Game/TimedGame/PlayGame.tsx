@@ -6,18 +6,22 @@ import { GradientButton } from "@/components/GradientButton";
 import { useSocket } from "@/hooks/useSocket";
 import { useTimedSoloGame } from "./useTimeSolo";
 import {
+  useEndSoloGameMutation,
   useFetchCurrentQuestionQuery,
   useFetchGameSessionInfoQuery,
 } from "@/services";
 import { useSelector } from "react-redux";
 import { selectAuth } from "@/redux/AuthSlice/authSlice";
+import { showSuccess } from "@/components/toastUtills";
+import { handleApiError } from "@/utills/handleApiError";
+import { Button } from "@/components/ui/button";
 
 export default function TimedSoloGame() {
   const { sessionCode: codeFromParam } = useParams<{ sessionCode: string }>();
   const location = useLocation();
   const { user } = useSelector(selectAuth);
   const sessionCode = (location.state?.sessionCode ?? codeFromParam) as string;
-
+  const [endGame, { isLoading: isEnding }] = useEndSoloGameMutation();
   const { data: QuestionFromApi, isLoading } = useFetchCurrentQuestionQuery(
     sessionCode,
     { skip: !sessionCode, refetchOnMountOrArgChange: true },
@@ -30,7 +34,18 @@ export default function TimedSoloGame() {
 
   const navigate = useNavigate();
   const socket = useSocket();
+  const handleEndGame = async () => {
+    try {
+      const response = await endGame(sessionCode!).unwrap();
 
+      if (response.success) {
+        showSuccess(response.message);
+        navigate(`/game/SoloGameEnd/${sessionCode}`);
+      }
+    } catch (error) {
+      handleApiError(error);
+    }
+  };
   const { state, submitAnswer, clearReveal } = useTimedSoloGame({
     socket,
     sessionCode,
@@ -145,20 +160,6 @@ export default function TimedSoloGame() {
 
   const timerBarColor =
     timerPct > 0.4 ? "#2884C7" : timerPct > 0.2 ? "#FA9923" : "#FF4444";
-
-  const statusText: Record<typeof phase, string> = {
-    IDLE: "Loading…",
-    ACTIVE: "Choose your answer",
-    SUBMITTING: "Submitting…",
-    TIME_UP_WAIT: "Time's up — waiting for server…",
-    REVEALING:
-      reveal?.source === "answer"
-        ? reveal.isCorrect
-          ? "Correct!"
-          : "Incorrect"
-        : "Time's up!",
-    ENDED: "Game over",
-  };
 
   function handleSubmit() {
     if (selectedIndex === null || !displayQuestion || optionsLocked) {
@@ -514,9 +515,6 @@ export default function TimedSoloGame() {
 
             {/* ── Status + Submit ───────────────────────────────────────── */}
             <div className="flex flex-row items-center justify-center gap-3.5 py-2">
-              <p className="font-outfit text-sm text-white/50">
-                {statusText[phase]}
-              </p>
               <GradientButton
                 onClick={handleSubmit}
                 icon={false}
@@ -529,6 +527,35 @@ export default function TimedSoloGame() {
               >
                 {phase === "SUBMITTING" ? "Submitting…" : "Submit"}
               </GradientButton>
+              <Button
+                className={cn(
+                  "gradient-border group w-full max-w-[168px]",
+                  "flex h-[40px] items-center px-5 py-0",
+                  "transition-all duration-200 active:scale-95",
+                  isEnding && "cursor-not-allowed opacity-50",
+                )}
+                onClick={handleEndGame}
+                disabled={isEnding}
+                style={
+                  {
+                    "--border-gradient":
+                      "linear-gradient(93.58deg, #67C3FF 8.55%, #010A2A 47.56%, #67C3FF 94.76%)",
+                    "--radius": `20px`,
+                    "--padding": "1px",
+                  } as React.CSSProperties
+                }
+              >
+                <div className="relative z-10 flex h-full flex-row items-center justify-center gap-2 text-lg">
+                  {isEnding ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      <span>Ending...</span>
+                    </>
+                  ) : (
+                    "End Game"
+                  )}
+                </div>
+              </Button>
             </div>
           </div>
         </div>

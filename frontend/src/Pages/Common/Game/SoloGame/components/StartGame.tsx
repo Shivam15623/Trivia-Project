@@ -49,7 +49,7 @@ const StartGame: React.FC<StartGameProps> = ({ session }) => {
   const { sessionCode } = useParams<{ sessionCode: string }>();
   const navigate = useNavigate();
   const { user } = useSelector(selectAuth);
-  const role = user?.role;
+
 
   const [startGame, { isLoading: isStarting }] = useStartSoloGameMutation();
   const [endGame, { isLoading: isEnding }] = useEndSoloGameMutation();
@@ -88,7 +88,7 @@ const StartGame: React.FC<StartGameProps> = ({ session }) => {
 
       if (response.success) {
         showSuccess(response.message);
-        navigate(`/${role}/mygames`);
+        navigate(`/${user?.role}/CreateGame`);
       }
     } catch (error) {
       handleApiError(error);
