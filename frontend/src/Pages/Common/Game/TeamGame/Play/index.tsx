@@ -399,7 +399,7 @@ const Play = () => {
               ) : null}
             </div>
 
-            <div className="flex flex-row gap-3.5">
+            <div className="flex flex-col sm:flex-row gap-3.5">
               {currentMember?.userId === user?._id && (
                 <GradientButton
                   onClick={handleSubmit}
