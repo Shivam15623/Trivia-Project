@@ -426,10 +426,8 @@ export const handleConnection = (socket) => {
   socket.on("game-started", ({ sessionCode }) => {
     io.to(sessionCode).emit("game-started", { message: "Game has started!" });
   });
-  socket.on("player-joined", async ({ sessionCode, teamName, userId }) => {
-    // Update DB (if needed) — though your API already handles this
-    io.to(sessionCode).emit("update-session");
-  });
+  // In your socket handler (server side)
+
   socket.on("gameUpdated", async (sessionCode) => {
     try {
       const session = await GameSession.findOne({ sessionCode }).lean();
