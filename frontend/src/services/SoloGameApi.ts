@@ -43,8 +43,8 @@ export const SoloGameApi = api.injectEndpoints({
       }),
     }),
     EndSoloGame: builder.mutation<ApiGeneralResponse, string>({
-      query: (sessionId) => ({
-        url: `/api/v1/soloGame/endGameSolo/${encodeURIComponent(sessionId)}`,
+      query: (sessionCode) => ({
+        url: `/api/v1/soloGame/endGameSolo/${encodeURIComponent(sessionCode)}`,
         method: "PATCH",
       }),
       invalidatesTags: ["SoloGame"],

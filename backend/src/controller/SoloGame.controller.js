@@ -131,10 +131,10 @@ export const startSologame = asyncHandler(async (req, res) => {
 });
 
 export const endSoloGame = asyncHandler(async (req, res) => {
-  const { sessionId } = req.params;
+  const { sessionCode } = req.params;
   const userId = req.user._id;
 
-  const session = await GameSession.findById(sessionId);
+  const session = await GameSession.findOne({ sessionCode: sessionCode });
 
   if (!session) {
     throw new ApiError(404, "Session does not exist");
