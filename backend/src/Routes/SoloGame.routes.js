@@ -12,7 +12,7 @@ router.use(passport.authenticate("jwt", { session: false }));
 router.route("/startgame/:sessionId").patch(gameRestriction, startSologame);
 router.route("/submitAnswer").patch(gameRestriction, SubmitAnswerSolo);
 // router.route("/fetchCurrentQuestion/:sessionId").get(CurrentQuestionSolo);
-router.route("/endGameSolo/:sessionId").patch(gameRestriction, endSoloGame);
+router.route("/endGameSolo/:sessionCode").patch(gameRestriction, endSoloGame);
 router.route("/initializeGame").post(gameRestriction, initializeGame);
 // router.route("/FetchSessionInfo/:sessionId").get(SoloSessionInfo);
 export default router;

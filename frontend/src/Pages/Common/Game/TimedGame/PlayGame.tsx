@@ -514,7 +514,7 @@ export default function TimedSoloGame() {
             </div>
 
             {/* ── Status + Submit ───────────────────────────────────────── */}
-            <div className="flex flex-row items-center justify-center gap-3.5 py-2">
+            <div className="flex flex-row items-center flex-wrap justify-center gap-3.5 py-2">
               <GradientButton
                 onClick={handleSubmit}
                 icon={false}
@@ -530,7 +530,7 @@ export default function TimedSoloGame() {
               <Button
                 className={cn(
                   "gradient-border group w-full max-w-[168px]",
-                  "flex h-[40px] items-center px-5 py-0",
+                  "flex h-[40px] items-center px-3 py-0",
                   "transition-all duration-200 active:scale-95",
                   isEnding && "cursor-not-allowed opacity-50",
                 )}
