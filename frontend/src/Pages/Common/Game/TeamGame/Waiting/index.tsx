@@ -116,12 +116,6 @@ const WaitingRoom = () => {
         socketId: socket.id,
       }).unwrap();
 
-      socket.emit("player-joined", {
-        sessionCode: sessionData.sessionCode,
-        teamName,
-        userId,
-      });
-
       showSuccess(`Joined team "${teamName}"`);
     } catch (error) {
       // ✅ Rollback on failure
@@ -155,11 +149,17 @@ const WaitingRoom = () => {
 
     socket.on("player-joined", ({ teamName, member }) => {
       setOptimisticTeams((prev) =>
-        prev.map((team) =>
-          team.name === teamName
-            ? { ...team, members: [...team.members, member] }
-            : team,
-        ),
+        prev.map((team) => {
+          if (team.name !== teamName) return team;
+
+          // ✅ Skip if this member is already in the list (our optimistic update)
+          const alreadyExists = team.members.some(
+            (m) => m.userId === member.userId,
+          );
+          if (alreadyExists) return team;
+
+          return { ...team, members: [...team.members, member] };
+        }),
       );
     });
     socket.on("game-started", ({ message }: { message: string }) => {
