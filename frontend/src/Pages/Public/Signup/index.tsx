@@ -8,9 +8,10 @@ import { showSuccess } from "@/components/toastUtills";
 import { SignupSchema, SignupValues } from "@/SchemaValidations/AuthSchema";
 import { RenderField } from "@/components/FormRender/renderFields";
 import PasswordStrength from "@/components/PasswordStrength";
-import { Loader2 } from "lucide-react";
+
 import AuthCardWrapper from "@/components/AuthCardWrapper";
 import { GradientButton } from "@/components/GradientButton";
+import { ThemeLoader } from "@/components/ThemeLoader";
 
 const Signup = () => {
   const form = useForm<SignupValues>({
@@ -47,137 +48,147 @@ const Signup = () => {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-black px-4">
       <AuthCardWrapper>
-        <div className="relative w-full p-6 sm:w-[450px]">
-          {/* Loader */}
+        <div className="relative w-full">
           {isLoading && (
-            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-sm">
-              <Loader2 className="h-6 w-6 animate-spin text-[#e34b4b]" />
+            <div
+              className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-[inherit]"
+              style={{
+                background: "#00000059",
+              }}
+            >
+              <ThemeLoader />
+              <span className="theme-shimmer-text text-xs tracking-widest">
+                Signing in...
+              </span>
             </div>
           )}
+          <div className="relative w-full p-6 sm:w-[450px]">
+            {/* Loader */}
 
-          <h2 className="mb-2 text-center text-2xl font-bold text-white">
-            Create Account
-          </h2>
+            <h2 className="mb-2 text-center text-2xl font-bold text-white">
+              Create Account
+            </h2>
 
-          <p className="mb-6 text-center text-sm text-white/50">
-            Sign up to get started
-          </p>
+            <p className="mb-6 text-center text-sm text-white/50">
+              Sign up to get started
+            </p>
 
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleSubmit)}
-              className="space-y-6"
-            >
-              {/* First + Last Name */}
-              <div className="flex gap-3">
-                <RenderField
-                  control={form.control}
-                  label="First Name"
-                  name="firstname"
-                  type="text"
-                  labelClass="text-[#ffffffb3]"
-                  className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
-                  inputProps={{
-                    placeholder: "John",
-                    required: true,
-                  }}
-                />
-
-                <RenderField
-                  control={form.control}
-                  label="Last Name"
-                  name="lastname"
-                  type="text"
-                  labelClass="text-[#ffffffb3]"
-                  className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
-                  inputProps={{
-                    placeholder: "Doe",
-                    required: true,
-                  }}
-                />
-              </div>
-
-              {/* Email */}
-              <RenderField
-                control={form.control}
-                label="Email"
-                name="email"
-                type="email"
-                labelClass="text-[#ffffffb3]"
-                className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
-                inputProps={{
-                  placeholder: "you@example.com",
-                  required: true,
-                }}
-              />
-
-              {/* DOB */}
-              <RenderField
-                control={form.control}
-                label="Date of Birth"
-                name="DOB"
-                type="date"
-                labelClass="text-[#ffffffb3]"
-                className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] focus:outline-none"
-                inputProps={{
-                  required: true,
-                }}
-              />
-
-              {/* Password */}
-              <div>
-                <RenderField
-                  control={form.control}
-                  label="Password"
-                  name="password"
-                  type="password"
-                  labelClass="text-[#ffffffb3]"
-                  className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
-                  inputProps={{
-                    placeholder: "••••••••",
-                    required: true,
-                  }}
-                />
-
-                <PasswordStrength password={password} />
-              </div>
-
-              {/* Phone */}
-              <RenderField
-                control={form.control}
-                label="Phone No"
-                name="phoneNo"
-                type="phone"
-                labelClass="text-[#ffffffb3]"
-                className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] focus:outline-none"
-                inputProps={{
-                  required: true,
-                }}
-              />
-
-              <GradientButton
-                type="submit"
-                disabled={isLoading}
-                icon={false}
-                className="w-full max-w-none font-outfit"
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(handleSubmit)}
+                className="space-y-6"
               >
-                Sign Up
-              </GradientButton>
-            </form>
-          </Form>
-        </div>
+                {/* First + Last Name */}
+                <div className="flex gap-3">
+                  <RenderField
+                    control={form.control}
+                    label="First Name"
+                    name="firstname"
+                    type="text"
+                    labelClass="text-[#ffffffb3]"
+                    className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
+                    inputProps={{
+                      placeholder: "John",
+                      required: true,
+                    }}
+                  />
 
-        {/* Footer */}
-        <div className="border-t border-white/10 p-4 text-center">
-          <p className="text-sm text-white/50">
-            Already have an account?
-            <Link
-              to="/login"
-              className="font-medium text-amber-400 hover:text-amber-300"
-            >
-              Login
-            </Link>
-          </p>
+                  <RenderField
+                    control={form.control}
+                    label="Last Name"
+                    name="lastname"
+                    type="text"
+                    labelClass="text-[#ffffffb3]"
+                    className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
+                    inputProps={{
+                      placeholder: "Doe",
+                      required: true,
+                    }}
+                  />
+                </div>
+
+                {/* Email */}
+                <RenderField
+                  control={form.control}
+                  label="Email"
+                  name="email"
+                  type="email"
+                  labelClass="text-[#ffffffb3]"
+                  className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
+                  inputProps={{
+                    placeholder: "you@example.com",
+                    required: true,
+                  }}
+                />
+
+                {/* DOB */}
+                <RenderField
+                  control={form.control}
+                  label="Date of Birth"
+                  name="DOB"
+                  type="date"
+                  labelClass="text-[#ffffffb3]"
+                  className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] focus:outline-none"
+                  inputProps={{
+                    required: true,
+                  }}
+                />
+
+                {/* Password */}
+                <div>
+                  <RenderField
+                    control={form.control}
+                    label="Password"
+                    name="password"
+                    type="password"
+                    labelClass="text-[#ffffffb3]"
+                    className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none"
+                    inputProps={{
+                      placeholder: "••••••••",
+                      required: true,
+                    }}
+                  />
+
+                  <PasswordStrength password={password} />
+                </div>
+
+                {/* Phone */}
+                <RenderField
+                  control={form.control}
+                  label="Phone No"
+                  name="phoneNo"
+                  type="phone"
+                  labelClass="text-[#ffffffb3]"
+                  className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] focus:outline-none"
+                  inputProps={{
+                    required: true,
+                  }}
+                />
+
+                <GradientButton
+                  type="submit"
+                  disabled={isLoading}
+                  icon={false}
+                  className="w-full max-w-none font-outfit"
+                >
+                  Sign Up
+                </GradientButton>
+              </form>
+            </Form>
+          </div>
+
+          {/* Footer */}
+          <div className="border-t border-white/10 p-4 text-center">
+            <p className="text-sm text-white/50">
+              Already have an account?
+              <Link
+                to="/login"
+                className="font-medium text-amber-400 hover:text-amber-300"
+              >
+                Login
+              </Link>
+            </p>
+          </div>
         </div>
       </AuthCardWrapper>
 
