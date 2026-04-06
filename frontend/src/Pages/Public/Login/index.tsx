@@ -9,10 +9,11 @@ import { handleApiError } from "@/utills/handleApiError";
 import { showSuccess } from "@/components/toastUtills";
 import { RenderField } from "@/components/FormRender/renderFields";
 import { LoginSchema, LoginValues } from "@/SchemaValidations/AuthSchema";
-import { Loader2 } from "lucide-react";
+
 import { Link, useNavigate } from "react-router-dom";
 import AuthCardWrapper from "@/components/AuthCardWrapper";
 import { GradientButton } from "@/components/GradientButton";
+import { ThemeLoader } from "@/components/ThemeLoader";
 // 🔁 Replace with actual hook if different
 
 const Login = () => {
@@ -54,81 +55,92 @@ const Login = () => {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-black px-4">
-      <AuthCardWrapper >
-        <div className="relative w-full p-6 sm:w-[450px]">
+      <AuthCardWrapper>
+        <div className="realtive w-full">
           {isLoading && (
-            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-sm">
-              <Loader2 className="h-6 w-6 animate-spin text-[#e34b4b]" />
+            <div
+              className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-[inherit]"
+              style={{
+                background: "#00000059",
+              }}
+            >
+              <ThemeLoader />
+              <span className="theme-shimmer-text text-xs tracking-widest">
+                Signing in...
+              </span>
             </div>
           )}
-          <h2 className="mb-2 text-center text-2xl font-bold text-white">
-            Welcome Back
-          </h2>
-          <p className="mb-6 text-center text-sm text-white/50">
-            Sign in to your account to continue
-          </p>
-          <Form {...form}>
-            {" "}
-            <form
-              onSubmit={form.handleSubmit(handleLogin)}
-              className="space-y-6"
-            >
-              <RenderField
-                control={form.control}
-                labelClass="text-[#ffffffb3] "
-                className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none sm:text-base"
-                label="Email"
-                name="email"
-                type="email"
-                inputProps={{
-                  placeholder: "you@example.com",
-                  required: true,
-                }}
-              />
-              <div>
-                {" "}
+
+          <div className="relative w-full p-6 sm:w-[450px]">
+            <h2 className="mb-2 text-center text-2xl font-bold text-white">
+              Welcome Back
+            </h2>
+            <p className="mb-6 text-center text-sm text-white/50">
+              Sign in to your account to continue
+            </p>
+            <Form {...form}>
+              {" "}
+              <form
+                onSubmit={form.handleSubmit(handleLogin)}
+                className="space-y-6"
+              >
                 <RenderField
                   control={form.control}
                   labelClass="text-[#ffffffb3] "
                   className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none sm:text-base"
-                  label="Password"
-                  name="password"
-                  type="password"
+                  label="Email"
+                  name="email"
+                  type="email"
                   inputProps={{
-                    placeholder: "••••••••",
+                    placeholder: "you@example.com",
                     required: true,
                   }}
                 />
-                <p>
-                  <Link
-                    to="/reset-request-password"
-                    className="mt-2 flex justify-end text-right font-outfit text-xs text-amber-400 hover:underline"
-                  >
-                    forgot Password?
-                  </Link>
-                </p>
-              </div>
-              <GradientButton
-                type="submit"
-                disabled={isLoading}
-                icon={false}
-                className="w-full max-w-none font-outfit"
+                <div>
+                  {" "}
+                  <RenderField
+                    control={form.control}
+                    labelClass="text-[#ffffffb3] "
+                    className="h-10 w-full rounded-[100px] border-0 bg-[#FFFFFF33] px-5 text-sm text-white shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.5)] placeholder:text-white/50 focus:outline-none sm:text-base"
+                    label="Password"
+                    name="password"
+                    type="password"
+                    inputProps={{
+                      placeholder: "••••••••",
+                      required: true,
+                    }}
+                  />
+                  <p>
+                    <Link
+                      to="/reset-request-password"
+                      className="mt-2 flex justify-end text-right font-outfit text-xs text-amber-400 hover:underline"
+                    >
+                      forgot Password?
+                    </Link>
+                  </p>
+                </div>
+                <GradientButton
+                  type="submit"
+                  disabled={isLoading}
+                  icon={false}
+                  className="w-full max-w-none font-outfit"
+                >
+                  Log In
+                </GradientButton>
+              </form>
+            </Form>
+          </div>
+          <div className="border-t border-white/10 p-4 text-center">
+            <p className="mx-auto text-center text-sm text-white/50">
+              Don't have an account?
+              <Link
+                to="/signup"
+                className="font-inter font-medium text-amber-400 transition-colors hover:text-amber-300"
               >
-                Log In
-              </GradientButton>
-            </form>
-          </Form>
-        </div>
-        <div className="border-t border-white/10 p-4 text-center">
-          <p className="mx-auto text-center text-sm text-white/50">
-            Don't have an account?
-            <Link
-              to="/signup"
-              className="font-inter font-medium text-amber-400 transition-colors hover:text-amber-300"
-            >
-              Sign up
-            </Link>
-          </p>
+                Sign up
+              </Link>
+            </p>
+          </div>
         </div>
       </AuthCardWrapper>
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">

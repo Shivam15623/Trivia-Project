@@ -39,7 +39,7 @@ const testimonials: Testimonial[] = [
 ];
 
 const GAP = 24; // px between cards
-
+const SWIPE_THRESHOLD = 50;
 const TestimonialSlider: React.FC = () => {
   const [centerIndex, setCenterIndex] = useState(1);
   const directionRef = useRef<1 | -1>(1);
@@ -109,13 +109,33 @@ const TestimonialSlider: React.FC = () => {
     if (isMobile) return GRADIENT_CYAN;
     return position === 1 ? GRADIENT_CYAN : GRADIENT_GOLD;
   };
+  const goNext = useCallback(() => {
+    directionRef.current = 1;
+    setCenterIndex((prev) => (prev + 1) % total);
+  }, [total]);
 
+  const goPrev = useCallback(() => {
+    directionRef.current = -1;
+    setCenterIndex((prev) => (prev - 1 + total) % total);
+  }, [total]);
   const enterX = directionRef.current * slideUnit;
   const exitX = directionRef.current * -slideUnit;
 
   const wrapperWidth =
     containerWidth > 0 ? cardWidth * cardCount + GAP * (cardCount - 1) : "100%";
+  const handleDragEnd = (
+    _e: MouseEvent | TouchEvent | PointerEvent,
+    info: { offset: { x: number }; velocity: { x: number } },
+  ) => {
+    const swipe = info.offset.x;
+    const velocity = info.velocity.x;
 
+    if (swipe < -SWIPE_THRESHOLD || velocity < -500) {
+      goNext();
+    } else if (swipe > SWIPE_THRESHOLD || velocity > 500) {
+      goPrev();
+    }
+  };
   return (
     <div className="relative z-10 flex w-full flex-col items-center gap-8">
       <div className="relative flex w-full max-w-[1280px] items-center justify-center">
@@ -131,9 +151,13 @@ const TestimonialSlider: React.FC = () => {
           ref={containerRef}
           className="relative flex w-full max-w-[1280px] overflow-hidden px-4"
         >
-          <div
+          <motion.div
             style={{ width: wrapperWidth }}
-            className="relative flex items-stretch"
+            className="relative flex cursor-grab items-stretch active:cursor-grabbing"
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={handleDragEnd}
           >
             <AnimatePresence initial={false} mode="popLayout">
               {visibleIndices.map((tIdx, position) => (
@@ -147,12 +171,11 @@ const TestimonialSlider: React.FC = () => {
                     width: cardWidth > 0 ? cardWidth : "100%",
                     flexShrink: 0,
                     marginLeft: position === 0 ? 0 : GAP,
-                    // Enforce uniform height on mobile once we've measured the tallest card
                     ...(isMobile && minCardHeight !== undefined
                       ? { minHeight: minCardHeight }
                       : {}),
                   }}
-                  className="flex"
+                  className="pointer-events-none flex select-none"
                   ref={(el) => {
                     if (el) cardRefs.current.set(tIdx, el);
                     else cardRefs.current.delete(tIdx);
@@ -166,7 +189,7 @@ const TestimonialSlider: React.FC = () => {
                 </motion.div>
               ))}
             </AnimatePresence>
-          </div>
+          </motion.div>
         </div>
       </div>
 
