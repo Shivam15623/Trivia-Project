@@ -153,7 +153,15 @@ const WaitingRoom = () => {
 
     socket.emit("join-session-room", sessionCode);
 
-    socket.on("update-session", refetch);
+    socket.on("player-joined", ({ teamName, member }) => {
+      setOptimisticTeams((prev) =>
+        prev.map((team) =>
+          team.name === teamName
+            ? { ...team, members: [...team.members, member] }
+            : team,
+        ),
+      );
+    });
     socket.on("game-started", ({ message }: { message: string }) => {
       showSuccess(message);
       navigate(`/game/PlayGameSession/${sessionCode}`);
