@@ -263,7 +263,11 @@ export const getSessionInfo = asyncHandler(async (req, res) => {
 =============================== */
 export const joinSession = asyncHandler(async (req, res) => {
   const { sessionCode, teamName, socketId } = req.body;
-
+  const newMember = {
+    userId: req.user._id,
+    username: req.user.firstname,
+    socketId,
+  };
   if (!sessionCode || !socketId)
     throw new ApiError(400, "Session code and socket ID are required");
 
@@ -306,6 +310,10 @@ export const joinSession = asyncHandler(async (req, res) => {
   }
 
   await session.save();
+  io.to(sessionCode).emit("player-joined", {
+    teamName,
+    member: { ...newMember, userId: newMember.userId.toString() },
+  });
   return res
     .status(200)
     .json(new ApiResponse(200, "Joined team successfully", session));
