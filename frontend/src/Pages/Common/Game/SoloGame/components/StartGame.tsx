@@ -144,7 +144,7 @@ const StartGame: React.FC<StartGameProps> = ({ session }) => {
               <div className="hidden xl:block" /> {/* empty cell */}
             </div>
             {/* Buttons */}
-            <div className="flex justify-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
               <GradientButton
                 onClick={handleStartGame}
                 className="w-full max-w-[168px]"

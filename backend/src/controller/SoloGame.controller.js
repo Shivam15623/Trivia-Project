@@ -140,7 +140,7 @@ export const endSoloGame = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Session does not exist");
   }
 
-  if (session.userId.toString() !== userId.toString()) {
+  if (session.soloPlayer.userId.toString() !== userId.toString()) {
     throw new ApiError(403, "You are not authorized to end this session");
   }
 
