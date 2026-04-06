@@ -12,7 +12,6 @@ const LazyVerifyEmail: React.FC = () => {
   const [searchParams] = useSearchParams();
   const token: string | null = searchParams.get("token");
   const [isVerified, setIsVerified] = useState<boolean | null>(null);
-
   const navigate = useNavigate();
   const [verifyEmail, { isLoading }] = useVerifyEmailMutation();
 
